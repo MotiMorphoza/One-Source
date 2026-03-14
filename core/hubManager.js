@@ -45,6 +45,7 @@ class HubManager {
       home: document.getElementById("screen-home"),
       game: document.getElementById("screen-game"),
       stats: document.getElementById("screen-stats"),
+      contact: document.getElementById("screen-contact"),
       languageSelect: document.getElementById("languageSelect"),
       gameButtons: [...document.querySelectorAll("[data-game]")],
       gameHint: document.getElementById("gameHint"),
@@ -52,9 +53,11 @@ class HubManager {
       topicTree: document.getElementById("topicTree"),
       startButton: document.getElementById("startTopicButton"),
       openStatsButton: document.getElementById("openStatsButton"),
+      openContactButton: document.getElementById("openContactButton"),
       gameMount: document.getElementById("gameMount"),
       statsMount: document.getElementById("statsMount"),
       backFromStatsButton: document.getElementById("backFromStatsButton"),
+      backFromContactButton: document.getElementById("backFromContactButton"),
       resetStatsButton: document.getElementById("resetStatsButton"),
       toggleSound: document.getElementById("toggleSound"),
       toggleSpeech: document.getElementById("toggleSpeech"),
@@ -67,6 +70,7 @@ class HubManager {
     this.router.register("home", this.dom.home);
     this.router.register("game", this.dom.game);
     this.router.register("stats", this.dom.stats);
+    this.router.register("contact", this.dom.contact);
   }
 
   restorePreferences() {
@@ -94,7 +98,15 @@ class HubManager {
       this.showStats();
     });
 
+    this.dom.openContactButton.addEventListener("click", () => {
+      this.showContact();
+    });
+
     this.dom.backFromStatsButton.addEventListener("click", () => {
+      this.router.navigate("home", { record: false });
+    });
+
+    this.dom.backFromContactButton.addEventListener("click", () => {
       this.router.navigate("home", { record: false });
     });
 
@@ -412,6 +424,11 @@ class HubManager {
       storageUsage: Storage.getUsage(),
     });
     this.router.navigate("stats");
+  }
+
+  showContact() {
+    this.destroyActiveGame();
+    this.router.navigate("contact");
   }
 
   destroyActiveGame() {

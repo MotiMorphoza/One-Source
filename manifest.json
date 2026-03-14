@@ -4,6 +4,6 @@
   "description": "ONE SOURCE language game platform.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#101826",
-  "theme_color": "#101826"
+  "background_color": "#111111",
+  "theme_color": "#111111"
 }
