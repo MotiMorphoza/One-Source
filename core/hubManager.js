@@ -209,7 +209,9 @@ class HubManager {
     }
 
     const category = this.selectedGame === "wordpuzzle" ? "sentences" : null;
-    const tree = HubAdapter.buildTree(this.selectedLang, category);
+    const tree = HubAdapter.buildTree(this.selectedLang, category, {
+      gameId: this.selectedGame,
+    });
 
     this.dom.topicPanel.hidden = false;
     this.dom.topicTree.innerHTML = "";
@@ -331,23 +333,50 @@ class HubManager {
         throw new Error("The selected CSV file does not contain usable rows.");
       }
 
+      const baseName = file.name.replace(/\.[^/.]+$/, "").trim() || "Imported file";
+      const category = this.selectedGame === "wordpuzzle" ? "sentences" : "vocabulary";
+      const allowedGames =
+        this.selectedGame === "wordpuzzle"
+          ? ["wordpuzzle"]
+          : ["flashcards", "wordmatch"];
+      const topicId = this.buildImportedTopicId(baseName, this.selectedLang, category);
+
       const topicMeta = {
-        id: `import:${file.name}`,
-        name: file.name.replace(/\.[^/.]+$/, ""),
-        path: `import:${file.name}`,
+        id: topicId,
+        name: baseName,
+        path: topicId,
         lang: this.selectedLang,
-        branch: "imported",
-        group: "manual",
+        branch: "imports",
+        group: "my_files",
+        source: "import",
+        category,
+        allowedGames,
+        fileName: file.name,
       };
+
+      const saved = Storage.saveImportedTopic(topicMeta, data);
+      if (!saved) {
+        throw new Error("The file could not be saved to the local library.");
+      }
 
       this.selectedTopic = topicMeta;
       this.dom.startButton.disabled = false;
       this.dom.startButton.textContent = `Start ${this.getGameLabel()}`;
+      this.renderTopicTree();
 
       await this.launchGameWithData(this.selectedGame, topicMeta, data);
     } catch (error) {
       Modal.error(`Could not import the file: ${error.message}`);
     }
+  }
+
+  buildImportedTopicId(baseName, lang, category) {
+    const normalized = `${lang}-${category}-${baseName}`
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-_.]/g, "");
+
+    return `import:${normalized}`;
   }
 
   async restartTopic() {

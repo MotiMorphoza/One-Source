@@ -58,6 +58,37 @@ export const Storage = {
     return safeSet(buildKey("preferences"), preferences);
   },
 
+  getImportedTopics() {
+    return safeGet(buildKey("library", "imports"), []);
+  },
+
+  saveImportedTopic(topicMeta, rows) {
+    const topics = this.getImportedTopics();
+    const nextTopic = {
+      ...topicMeta,
+      rows,
+      updatedAt: Date.now(),
+    };
+
+    const existingIndex = topics.findIndex((topic) => topic.id === topicMeta.id);
+    if (existingIndex >= 0) {
+      topics[existingIndex] = nextTopic;
+    } else {
+      topics.push(nextTopic);
+    }
+
+    return safeSet(buildKey("library", "imports"), topics);
+  },
+
+  getImportedTopic(topicId) {
+    return this.getImportedTopics().find((topic) => topic.id === topicId) || null;
+  },
+
+  removeImportedTopic(topicId) {
+    const topics = this.getImportedTopics().filter((topic) => topic.id !== topicId);
+    return safeSet(buildKey("library", "imports"), topics);
+  },
+
   saveGameSession(game, topicMeta, stats) {
     const sessionKey = buildKey("sessions", game, topicMeta.id);
     const sessions = safeGet(sessionKey, []);

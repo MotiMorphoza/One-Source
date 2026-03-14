@@ -1,3 +1,4 @@
+import { Storage } from "./storage.js";
 import { parseCsv } from "../utils/csv.js";
 
 function createTimeoutSignal(timeoutMs) {
@@ -38,7 +39,8 @@ export const HubAdapter = {
     return this.index?.branches || [];
   },
 
-  buildTree(lang, category = null) {
+  buildTree(lang, category = null, options = {}) {
+    const { gameId = null } = options;
     const tree = {};
 
     (this.index?.entries || []).forEach((entry) => {
@@ -73,11 +75,62 @@ export const HubAdapter = {
       });
     });
 
+    Storage.getImportedTopics().forEach((topic) => {
+      if (topic.lang !== lang) {
+        return;
+      }
+
+      if (category && topic.category && topic.category !== category) {
+        return;
+      }
+
+      if (
+        gameId &&
+        Array.isArray(topic.allowedGames) &&
+        topic.allowedGames.length > 0 &&
+        !topic.allowedGames.includes(gameId)
+      ) {
+        return;
+      }
+
+      const branch = topic.branch || "imports";
+      const group = topic.group || "my_files";
+
+      if (!tree[branch]) {
+        tree[branch] = {};
+      }
+
+      if (!tree[branch][group]) {
+        tree[branch][group] = [];
+      }
+
+      tree[branch][group].push({
+        id: topic.id,
+        name: topic.name,
+        file: topic.fileName || topic.name,
+        path: topic.path,
+        lang: topic.lang,
+        branch,
+        group,
+        source: "import",
+      });
+    });
+
     return tree;
   },
 
   async loadTopic(fileRecord, options = {}) {
-    const path = typeof fileRecord === "string" ? fileRecord : fileRecord.path;
+    const record = typeof fileRecord === "string" ? { path: fileRecord } : fileRecord;
+    if (record.source === "import" || String(record.path || "").startsWith("import:")) {
+      const imported = Storage.getImportedTopic(record.id || record.path);
+      if (!imported) {
+        throw new Error("Imported topic not found in local library.");
+      }
+
+      return imported.rows || [];
+    }
+
+    const path = record.path;
     const requestPath = encodeURI(path);
     const timeoutHandle = options.signal ? null : createTimeoutSignal(15000);
     const signal = options.signal || timeoutHandle.signal;
@@ -107,6 +160,12 @@ export const HubAdapter = {
       Object.values(entry.files || {}).forEach((files) => {
         count += files.length;
       });
+    });
+
+    Storage.getImportedTopics().forEach((topic) => {
+      if (!lang || topic.lang === lang) {
+        count += 1;
+      }
     });
 
     return count;
