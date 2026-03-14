@@ -116,6 +116,24 @@ h2 {
   display: block;
 }
 
+.runtime-warning {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 138, 128, 0.14);
+  border: 1px solid rgba(255, 138, 128, 0.35);
+  color: #ffe1de;
+}
+
+.runtime-warning code {
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);

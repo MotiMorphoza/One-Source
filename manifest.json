@@ -1,7 +1,7 @@
 {
-  "name": "Language Learning Hub",
-  "short_name": "Learn Hub",
-  "description": "A unified language platform built on the core architecture.",
+  "name": "ONE SOURCE",
+  "short_name": "ONE SOURCE",
+  "description": "ONE SOURCE language game platform.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#101826",

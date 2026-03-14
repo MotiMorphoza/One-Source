@@ -11,6 +11,7 @@ import { WordPuzzleGame } from "../games/wordpuzzle.js";
 import { renderAccordionTree } from "../ui/accordion.js";
 import { Modal } from "../ui/modals.js";
 import { renderStats } from "../ui/stats.js";
+import { parseCsv } from "../utils/csv.js";
 
 const GAME_REGISTRY = {
   flashcards: FlashCardsGame,
@@ -57,6 +58,8 @@ class HubManager {
       resetStatsButton: document.getElementById("resetStatsButton"),
       toggleSound: document.getElementById("toggleSound"),
       toggleSpeech: document.getElementById("toggleSpeech"),
+      importFileButton: document.getElementById("importFileButton"),
+      importFileInput: document.getElementById("importFileInput"),
     };
   }
 
@@ -120,6 +123,15 @@ class HubManager {
       const enabled = SpeechEngine.toggle();
       Storage.setPreference("speechEnabled", enabled);
       this.updateToggleLabels();
+    });
+
+    this.dom.importFileButton.addEventListener("click", () => {
+      this.triggerImport();
+    });
+
+    this.dom.importFileInput.addEventListener("change", async (event) => {
+      await this.handleImportedFile(event.target.files?.[0] || null);
+      event.target.value = "";
     });
   }
 
@@ -243,9 +255,13 @@ class HubManager {
   }
 
   async launchGame(gameId, topicMeta) {
+    const data = await HubAdapter.loadTopic(topicMeta);
+    return this.launchGameWithData(gameId, topicMeta, data);
+  }
+
+  async launchGameWithData(gameId, topicMeta, data) {
     this.destroyActiveGame();
 
-    const data = await HubAdapter.loadTopic(topicMeta);
     if (!data.length) {
       throw new Error("The selected file does not contain usable rows.");
     }
@@ -276,6 +292,62 @@ class HubManager {
     );
 
     this.router.navigate("game");
+  }
+
+  triggerImport() {
+    if (!this.selectedLang) {
+      Modal.alert("Choose a language pair before importing a CSV.");
+      return;
+    }
+
+    if (!this.selectedGame) {
+      Modal.alert("Choose a game before importing a CSV.");
+      return;
+    }
+
+    this.dom.importFileInput.click();
+  }
+
+  async handleImportedFile(file) {
+    if (!file) {
+      return;
+    }
+
+    if (!this.selectedLang) {
+      Modal.alert("Choose a language pair before importing a CSV.");
+      return;
+    }
+
+    if (!this.selectedGame) {
+      Modal.alert("Choose a game before importing a CSV.");
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const data = parseCsv(text, `import-${file.name}`);
+
+      if (!data.length) {
+        throw new Error("The selected CSV file does not contain usable rows.");
+      }
+
+      const topicMeta = {
+        id: `import:${file.name}`,
+        name: file.name.replace(/\.[^/.]+$/, ""),
+        path: `import:${file.name}`,
+        lang: this.selectedLang,
+        branch: "imported",
+        group: "manual",
+      };
+
+      this.selectedTopic = topicMeta;
+      this.dom.startButton.disabled = false;
+      this.dom.startButton.textContent = `Start ${this.getGameLabel()}`;
+
+      await this.launchGameWithData(this.selectedGame, topicMeta, data);
+    } catch (error) {
+      Modal.error(`Could not import the file: ${error.message}`);
+    }
   }
 
   async restartTopic() {

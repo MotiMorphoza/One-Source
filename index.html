@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#101826" />
-    <title>Language Learning Hub</title>
+    <title>ONE SOURCE</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -12,8 +12,8 @@
     <div class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Language Learning Hub</p>
-          <h1>Core Platform</h1>
+          <p class="eyebrow">ONE SOURCE</p>
+          <h1>Language Game Platform</h1>
         </div>
         <div class="toggle-row">
           <button type="button" class="icon-button" id="toggleSound">Sound on</button>
@@ -22,6 +22,14 @@
       </header>
 
       <main>
+        <section class="runtime-warning" id="runtimeWarning" hidden>
+          <strong>ONE SOURCE needs a local server.</strong>
+          <span>
+            Open this folder in a terminal and run <code>node server.js</code>, then open
+            <code>http://localhost:4173</code>.
+          </span>
+        </section>
+
         <section class="screen active" id="screen-home">
           <section class="panel hero-panel">
             <p class="eyebrow">Single platform</p>
@@ -78,6 +86,25 @@
             </button>
           </section>
 
+          <section class="panel">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Manual source</p>
+                <h2>Import a CSV file</h2>
+              </div>
+              <p class="support-text">
+                Pick a language pair and a game first, then load a CSV from your computer.
+              </p>
+            </div>
+
+            <input type="file" id="importFileInput" accept=".csv,text/csv" hidden />
+            <div class="button-row">
+              <button type="button" class="button button-secondary" id="importFileButton">
+                Import CSV file
+              </button>
+            </div>
+          </section>
+
           <div class="home-actions">
             <button type="button" class="button button-secondary" id="openStatsButton">
               View statistics
@@ -112,6 +139,14 @@
     </div>
 
     <script src="hubIndex.js"></script>
+    <script>
+      if (location.protocol === "file:") {
+        const warning = document.getElementById("runtimeWarning");
+        if (warning) {
+          warning.hidden = false;
+        }
+      }
+    </script>
     <script type="module" src="core/hubManager.js"></script>
   </body>
 </html>
