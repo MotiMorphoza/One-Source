@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101826" />
+    <title>Language Learning Hub</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Language Learning Hub</p>
+          <h1>Core Platform</h1>
+        </div>
+        <div class="toggle-row">
+          <button type="button" class="icon-button" id="toggleSound">Sound on</button>
+          <button type="button" class="icon-button" id="toggleSpeech">Speech on</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="screen active" id="screen-home">
+          <section class="panel hero-panel">
+            <p class="eyebrow">Single platform</p>
+            <h2>Pick a language, game, and topic.</h2>
+            <p class="support-text">
+              This root now runs only on the new core architecture and the shared hub content.
+            </p>
+          </section>
+
+          <section class="panel">
+            <label class="field-label" for="languageSelect">Language pair</label>
+            <select id="languageSelect"></select>
+          </section>
+
+          <section class="panel">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Training modes</p>
+                <h2>Choose your game</h2>
+              </div>
+              <p class="support-text" id="gameHint">Choose a language pair to unlock the games.</p>
+            </div>
+
+            <div class="choice-grid">
+              <button type="button" class="choice-card" data-game="flashcards">
+                <span class="choice-card__title">Flash Cards</span>
+                <span class="choice-card__description">Classic repetition and direction switching.</span>
+              </button>
+
+              <button type="button" class="choice-card" data-game="wordmatch">
+                <span class="choice-card__title">Word Match</span>
+                <span class="choice-card__description">Fast pairing of source words and translations.</span>
+              </button>
+
+              <button type="button" class="choice-card" data-game="wordpuzzle">
+                <span class="choice-card__title">Word Puzzle</span>
+                <span class="choice-card__description">Build full sentences from shuffled tokens.</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="panel" id="topicPanel" hidden>
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Content library</p>
+                <h2>Choose a topic</h2>
+              </div>
+            </div>
+
+            <div id="topicTree" class="topic-tree"></div>
+
+            <button type="button" class="button button-primary" id="startTopicButton" disabled>
+              Select a topic first
+            </button>
+          </section>
+
+          <div class="home-actions">
+            <button type="button" class="button button-secondary" id="openStatsButton">
+              View statistics
+            </button>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-game">
+          <div id="gameMount"></div>
+        </section>
+
+        <section class="screen" id="screen-stats">
+          <section class="panel">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Stored progress</p>
+                <h2>Statistics</h2>
+              </div>
+              <button type="button" class="button button-danger button-small" id="resetStatsButton">
+                Reset stats
+              </button>
+            </div>
+
+            <div id="statsMount"></div>
+
+            <button type="button" class="button button-secondary" id="backFromStatsButton">
+              Back to home
+            </button>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="hubIndex.js"></script>
+    <script type="module" src="core/hubManager.js"></script>
+  </body>
+</html>

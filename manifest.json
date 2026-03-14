@@ -1,0 +1,9 @@
+{
+  "name": "Language Learning Hub",
+  "short_name": "Learn Hub",
+  "description": "A unified language platform built on the core architecture.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#101826",
+  "theme_color": "#101826"
+}
