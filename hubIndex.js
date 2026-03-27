@@ -1,5 +1,6 @@
 window.HUB_INDEX = {
-  version: 2,
+  version: 3,
+  rootTitle: "Choose a topic",
   languages: [
     { id: "ar-he", title: "Arabic -> Hebrew" },
     { id: "en-pl", title: "English -> Polish" },
@@ -7,22 +8,26 @@ window.HUB_INDEX = {
     { id: "he-en", title: "Hebrew -> English" },
     { id: "he-pl", title: "Hebrew -> Polish" }
   ],
-  branches: [
+  topics: [
+    { id: "vocabulary", title: "vocabulary" },
+    { id: "grammer", title: "grammer" },
     { id: "misc", title: "misc" },
-    { id: "vocabulary", title: "vocabulary" }
+    { id: "daily", title: "daily" },
+    { id: "kitchen", title: "kitchen" },
+    { id: "sentences", title: "sentences" }
   ],
   entries: [
     {
-      branch: "misc",
-      group: "important_words",
+      topic: "misc",
+      folder: "misc/important_words",
       files: {
         "ar-he": ["full_house.csv", "political.csv"],
         "he-en": ["more-less-too-very-most.csv"]
       }
     },
     {
-      branch: "vocabulary",
-      group: "daily_use",
+      topic: "daily",
+      folder: "vocabulary/daily_use",
       files: {
         "ar-he": ["daily000.csv"],
         "es-he": ["daily000.csv"],
@@ -31,8 +36,8 @@ window.HUB_INDEX = {
       }
     },
     {
-      branch: "vocabulary",
-      group: "sentences",
+      topic: "sentences",
+      folder: "vocabulary/sentences",
       files: {
         "ar-he": ["000.csv"],
         "en-pl": ["sentences 000.csv"],

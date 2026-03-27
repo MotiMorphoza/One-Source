@@ -37,12 +37,13 @@ Current shape:
 ```js
 {
   version,
+  rootTitle,
   languages: [{ id, title }],
-  branches: [{ id, title }],
+  topics: [{ id, title }],
   entries: [
     {
-      branch,
-      group,
+      topic,
+      folder,
       files: {
         "lang-pair": ["file.csv"]
       }
@@ -62,8 +63,7 @@ Current shape:
   fileName,
   path,
   lang,
-  branch,
-  group,
+  topicName,
   source,
   category,
   allowedGames,
@@ -77,9 +77,9 @@ Current shape:
 
 ## Category Rules In Code
 
-- `sentences` -> `wordpuzzle`
-- `vocabulary` -> `flashcards`, `wordmatch`
+- topic `sentences` -> `flashcards`, `wordmatch`, `wordpuzzle`
+- any other topic -> `flashcards`, `wordmatch`
 
 ## Important Repo Fact
 
-The current bundled hub does not yet model a true `language -> topics -> files` hierarchy. It models `branch + group + files-by-language`.
+The current bundled hub now behaves as `language -> topic -> files`, while still allowing legacy local records with old `branch/group` fields to migrate forward through `core/storage.js`.

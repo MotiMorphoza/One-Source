@@ -27,23 +27,27 @@ There is no live `index.json` file in this repo.
 The bundled registry is based on:
 
 - `language`
-- `branch`
-- `group`
+- `topic`
 - `files`
 
-It is not yet a fully normalized topic registry.
+The UI tree is rendered as one accordion root, `Choose a topic`, and then topic buckets under it.
 
 ## Current Filtering Rule
 
-Bundled hub entries are classified by inferred category:
+- Topic `sentences` is sentence content:
+  - available to `flashcards`
+  - available to `wordmatch`
+  - available to `wordpuzzle`
 
-- `sentences` group -> sentence content
-- any other current bundled group -> vocabulary content
+- Any other topic is standard pair content:
+  - available to `flashcards`
+  - available to `wordmatch`
+  - not available to `wordpuzzle`
 
 ## Local Library Integration
 
 Local topics are mixed into the HUB tree with:
 
-- branch default: `my library`
-- group default: `my files` or `sentences`
+- free-form `topicName` chosen by the user
+- default local topic suggestion: `grammer`
 - source types such as `local`, `import`, and `hub-copy`

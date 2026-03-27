@@ -4,7 +4,10 @@ import { normalizeWhitespace } from "../utils/text.js";
 const VERSION = "v4";
 const PREFIX = "LLH";
 const LIBRARY_KEY = `${PREFIX}_${VERSION}_library_topics_global`;
-const LOCAL_BRANCH = "GRAMMER";
+const LOCAL_TOPIC_NAME = "grammer";
+const SENTENCE_TOPIC_NAME = "sentences";
+const STANDARD_GAMES = ["flashcards", "wordmatch"];
+const SENTENCE_GAMES = ["flashcards", "wordmatch", "wordpuzzle"];
 
 function keyPart(value) {
   return encodeURIComponent(value ?? "global");
@@ -33,22 +36,83 @@ function safeSet(key, value) {
   }
 }
 
-function inferCategory(category, allowedGames = []) {
-  if (category === "sentences") {
-    return "sentences";
+function normalizeTopicName(topicName, fallback = LOCAL_TOPIC_NAME) {
+  const normalized = normalizeWhitespace(String(topicName || ""))
+    .replace(/_/g, " ")
+    .toLowerCase();
+
+  if (!normalized) {
+    return fallback;
   }
 
-  return allowedGames.includes("wordpuzzle") && allowedGames.length === 1
-    ? "sentences"
-    : "vocabulary";
+  if (normalized === "grammar" || normalized === "my library") {
+    return LOCAL_TOPIC_NAME;
+  }
+
+  if (normalized === "daily use") {
+    return "daily";
+  }
+
+  if (normalized === "important words") {
+    return "misc";
+  }
+
+  return normalized;
+}
+
+function resolveTopicName(record = {}, existing = null) {
+  if (record.topicName || record.topic) {
+    return normalizeTopicName(record.topicName || record.topic);
+  }
+
+  const normalizedGroup = normalizeTopicName(record.group ?? existing?.group, "");
+  const normalizedBranch = normalizeTopicName(record.branch ?? existing?.branch, "");
+
+  if (normalizedGroup === SENTENCE_TOPIC_NAME) {
+    return SENTENCE_TOPIC_NAME;
+  }
+
+  if (normalizedGroup === "daily") {
+    return "daily";
+  }
+
+  if (normalizedGroup === "misc") {
+    return "misc";
+  }
+
+  if (normalizedGroup) {
+    return normalizedGroup;
+  }
+
+  if (normalizedBranch) {
+    return normalizedBranch;
+  }
+
+  return normalizeTopicName(existing?.topicName);
+}
+
+function inferCategory(topicName, category, allowedGames = []) {
+  if (category === SENTENCE_TOPIC_NAME) {
+    return SENTENCE_TOPIC_NAME;
+  }
+
+  if (normalizeTopicName(topicName) === SENTENCE_TOPIC_NAME) {
+    return SENTENCE_TOPIC_NAME;
+  }
+
+  return allowedGames.includes("wordpuzzle") ? SENTENCE_TOPIC_NAME : "vocabulary";
 }
 
 function inferAllowedGames(category, allowedGames = null) {
   if (Array.isArray(allowedGames) && allowedGames.length > 0) {
-    return [...new Set(allowedGames)];
+    if (category === SENTENCE_TOPIC_NAME) {
+      return [...new Set([...allowedGames, ...SENTENCE_GAMES])];
+    }
+
+    return [...new Set(allowedGames.filter((gameId) => gameId !== "wordpuzzle"))];
   }
 
-  return category === "sentences" ? ["wordpuzzle"] : ["flashcards", "wordmatch"];
+  return category === SENTENCE_TOPIC_NAME ? [...SENTENCE_GAMES] : [...STANDARD_GAMES];
 }
 
 function sanitizeRow(row = {}, fallbackPrefix = "row") {
@@ -74,16 +138,15 @@ function sanitizeRows(rows = [], fallbackPrefix = "row") {
 
 function sanitizeTopic(topic = {}, existing = null) {
   const topicId = topic.id || existing?.id || `library:${uid("topic")}`;
-  const category = inferCategory(topic.category, topic.allowedGames || existing?.allowedGames);
-  const allowedGames = inferAllowedGames(category, topic.allowedGames || existing?.allowedGames);
-  const rows = sanitizeRows(
-    topic.rows ?? existing?.rows ?? [],
-    topicId,
+  const topicName = resolveTopicName(topic, existing);
+  const category = inferCategory(
+    topicName,
+    topic.category ?? existing?.category,
+    topic.allowedGames || existing?.allowedGames || [],
   );
+  const allowedGames = inferAllowedGames(category, topic.allowedGames || existing?.allowedGames);
+  const rows = sanitizeRows(topic.rows ?? existing?.rows ?? [], topicId);
   const name = normalizeWhitespace(topic.name ?? topic.title ?? existing?.name ?? "Untitled");
-  const branch = topic.branch ?? existing?.branch ?? LOCAL_BRANCH;
-  const group =
-    topic.group ?? existing?.group ?? (category === "sentences" ? "sentences" : "grammar");
   const source = topic.source ?? existing?.source ?? "local";
   const createdAt = existing?.createdAt ?? topic.createdAt ?? Date.now();
   const updatedAt = topic.updatedAt ?? existing?.updatedAt ?? Date.now();
@@ -94,8 +157,7 @@ function sanitizeTopic(topic = {}, existing = null) {
     fileName: topic.fileName || existing?.fileName || `${name}.csv`,
     path: topic.path || existing?.path || topicId,
     lang: topic.lang || existing?.lang || "",
-    branch,
-    group,
+    topicName,
     source,
     category,
     allowedGames,
@@ -168,10 +230,16 @@ export const Storage = {
     const {
       lang = null,
       category = null,
+      topicName = null,
       branch = null,
       group = null,
       excludeId = null,
     } = options;
+    const normalizedTopic = topicName
+      ? normalizeTopicName(topicName, "")
+      : branch || group
+        ? resolveTopicName({ branch, group }, null)
+        : "";
 
     return this.getLibraryTopics().some((topic) => {
       if (excludeId && topic.id === excludeId) {
@@ -186,11 +254,7 @@ export const Storage = {
         return false;
       }
 
-      if (branch && topic.branch !== branch) {
-        return false;
-      }
-
-      if (group && topic.group !== group) {
+      if (normalizedTopic && topic.topicName !== normalizedTopic) {
         return false;
       }
 
@@ -343,10 +407,9 @@ export const Storage = {
     sessions.push({
       date: Date.now(),
       topic: topicMeta.name,
+      topicName: normalizeTopicName(topicMeta.topicName, ""),
       lang: topicMeta.lang,
       path: topicMeta.path,
-      branch: topicMeta.branch,
-      group: topicMeta.group,
       ...stats,
     });
 
@@ -366,6 +429,7 @@ export const Storage = {
       date: Date.now(),
       game,
       topic: topicMeta.name,
+      topicName: normalizeTopicName(topicMeta.topicName, ""),
       lang: topicMeta.lang,
       path: topicMeta.path,
       time: stats.time,

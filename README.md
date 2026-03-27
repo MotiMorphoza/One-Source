@@ -26,16 +26,18 @@ Important: this repo does **not** currently ship an `index.json` file. The app c
 
 1. The home screen lets the user choose a language pair.
 2. The user chooses a game.
-3. The HUB tree is built from bundled hub content plus local library topics.
+3. The HUB tree is built as `Choose a topic -> topic -> files`, using bundled hub content plus local library topics.
 4. When a hub file is started for the first time, the app saves a local copy in the library.
 5. Games run through a shared `SessionEngine`.
 
 ## Content Rules In Code
 
-- Vocabulary content is available to Flash Cards and Word Match.
-- Sentence content is available to Word Puzzle.
+- Topic `sentences` is available to Flash Cards, Word Match, and Word Puzzle.
+- All other topics are available to Flash Cards and Word Match.
+- Word Puzzle can use only the `sentences` topic.
 - Rows are normalized to `{ id, source, target }`.
 - Imported and edited lists are stored locally and stay editable.
+- Users can create their own topics from the library UI.
 
 ## Local Development
 

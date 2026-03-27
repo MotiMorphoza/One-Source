@@ -1,5 +1,13 @@
 import { Storage } from "./storage.js";
 import { parseCsv } from "../utils/csv.js";
+import { normalizeWhitespace } from "../utils/text.js";
+
+const ROOT_TITLE = "Choose a topic";
+const DEFAULT_LOCAL_TOPIC = "grammer";
+const SENTENCE_TOPIC = "sentences";
+const DEFAULT_TOPICS = ["vocabulary", "grammer", "misc", "daily", "kitchen", "sentences"];
+const STANDARD_GAMES = ["flashcards", "wordmatch"];
+const SENTENCE_GAMES = ["flashcards", "wordmatch", "wordpuzzle"];
 
 function createTimeoutSignal(timeoutMs) {
   const controller = new AbortController();
@@ -13,34 +21,96 @@ function createTimeoutSignal(timeoutMs) {
   };
 }
 
-function ensureTreeBranch(tree, branchName, groupName) {
-  if (!tree[branchName]) {
-    tree[branchName] = {};
+function ensureRootTopic(tree, rootTitle, topicName) {
+  if (!tree[rootTitle]) {
+    tree[rootTitle] = {};
   }
 
-  if (!tree[branchName][groupName]) {
-    tree[branchName][groupName] = [];
+  if (!tree[rootTitle][topicName]) {
+    tree[rootTitle][topicName] = [];
   }
 }
 
-function inferCategory(entryGroup, topic = {}) {
-  if (topic.category) {
-    return topic.category;
+function normalizeTopicName(topicName, fallback = DEFAULT_LOCAL_TOPIC) {
+  const normalized = normalizeWhitespace(String(topicName || ""))
+    .replace(/_/g, " ")
+    .toLowerCase();
+
+  if (!normalized) {
+    return fallback;
   }
 
-  return entryGroup === "sentences" ? "sentences" : "vocabulary";
-}
-
-function inferAllowedGames(category, topic = {}) {
-  if (Array.isArray(topic.allowedGames) && topic.allowedGames.length > 0) {
-    return topic.allowedGames;
+  if (normalized === "grammar" || normalized === "my library") {
+    return DEFAULT_LOCAL_TOPIC;
   }
 
-  return category === "sentences" ? ["wordpuzzle"] : ["flashcards", "wordmatch"];
+  if (normalized === "daily use") {
+    return "daily";
+  }
+
+  if (normalized === "important words") {
+    return "misc";
+  }
+
+  return normalized;
 }
 
-function normalizeLocalBranch(branchName) {
-  return branchName === "my library" ? "GRAMMER" : branchName;
+function resolveTopicName(record = {}) {
+  if (record.topicName || record.topic) {
+    return normalizeTopicName(record.topicName || record.topic);
+  }
+
+  const normalizedGroup = normalizeTopicName(record.group, "");
+  const normalizedBranch = normalizeTopicName(record.branch, "");
+
+  if (normalizedGroup === SENTENCE_TOPIC) {
+    return SENTENCE_TOPIC;
+  }
+
+  if (normalizedGroup === "daily") {
+    return "daily";
+  }
+
+  if (normalizedGroup === "misc") {
+    return "misc";
+  }
+
+  if (normalizedGroup) {
+    return normalizedGroup;
+  }
+
+  if (normalizedBranch) {
+    return normalizedBranch;
+  }
+
+  return DEFAULT_LOCAL_TOPIC;
+}
+
+function inferCategory(topicName, record = {}) {
+  if (record.category === SENTENCE_TOPIC) {
+    return SENTENCE_TOPIC;
+  }
+
+  if (
+    Array.isArray(record.allowedGames) &&
+    record.allowedGames.includes("wordpuzzle")
+  ) {
+    return SENTENCE_TOPIC;
+  }
+
+  return normalizeTopicName(topicName) === SENTENCE_TOPIC ? SENTENCE_TOPIC : "vocabulary";
+}
+
+function inferAllowedGames(category, record = {}) {
+  if (Array.isArray(record.allowedGames) && record.allowedGames.length > 0) {
+    if (category === SENTENCE_TOPIC) {
+      return [...new Set([...record.allowedGames, ...SENTENCE_GAMES])];
+    }
+
+    return [...new Set(record.allowedGames.filter((gameId) => gameId !== "wordpuzzle"))];
+  }
+
+  return category === SENTENCE_TOPIC ? [...SENTENCE_GAMES] : [...STANDARD_GAMES];
 }
 
 export const HubAdapter = {
@@ -49,89 +119,86 @@ export const HubAdapter = {
   init() {
     const index = window.HUB_INDEX;
 
-    if (
-      !index ||
-      !Array.isArray(index.languages) ||
-      !Array.isArray(index.branches) ||
-      !Array.isArray(index.entries)
-    ) {
+    if (!index || !Array.isArray(index.languages) || !Array.isArray(index.entries)) {
       throw new Error("HUB_INDEX is missing or invalid");
     }
 
     this.index = index;
   },
 
+  getRootTitle() {
+    return this.index?.rootTitle || ROOT_TITLE;
+  },
+
+  normalizeTopicName(topicName, fallback = DEFAULT_LOCAL_TOPIC) {
+    return normalizeTopicName(topicName, fallback);
+  },
+
+  inferCategory(topicName, record = {}) {
+    return inferCategory(topicName, record);
+  },
+
+  getAllowedGamesForTopic(topicName, record = {}) {
+    return inferAllowedGames(inferCategory(topicName, record), record);
+  },
+
   getLanguages() {
     return this.index?.languages || [];
   },
 
-  getBranches() {
-    return this.index?.branches || [];
-  },
-
-  getPlacements(category = "vocabulary") {
-    const placements = new Map();
-    const fallbackGroup = category === "sentences" ? "sentences" : "grammar";
-
-    placements.set(`GRAMMER::${fallbackGroup}`, {
-      branch: "GRAMMER",
-      group: fallbackGroup,
-    });
-
-    (this.index?.entries || []).forEach((entry) => {
-      if (inferCategory(entry.group) !== category) {
+  getTopicSuggestions() {
+    const topics = new Map();
+    const addTopic = (topicName) => {
+      const normalized = normalizeTopicName(topicName, "");
+      if (!normalized || topics.has(normalized)) {
         return;
       }
 
-      const key = `${entry.branch}::${entry.group}`;
-      if (!placements.has(key)) {
-        placements.set(key, {
-          branch: entry.branch,
-          group: entry.group,
-        });
-      }
-    });
+      topics.set(normalized, normalized);
+    };
 
-    return [...placements.values()];
+    DEFAULT_TOPICS.forEach(addTopic);
+    (this.index?.topics || []).forEach((topic) => addTopic(topic.id || topic.title));
+    (this.index?.entries || []).forEach((entry) => addTopic(entry.topic));
+    Storage.getLibraryTopics().forEach((topic) => addTopic(topic.topicName));
+
+    return [...topics.values()];
   },
 
-  buildTree(lang, category = null, options = {}) {
-    const { gameId = null } = options;
+  buildTree(lang, options = {}) {
+    const { gameId = null, topicName = null } = options;
     const tree = {};
+    const rootTitle = this.getRootTitle();
+    const normalizedTopicFilter = normalizeTopicName(topicName, "");
 
     Storage.getLibraryTopics().forEach((topic) => {
       if (topic.lang !== lang) {
         return;
       }
 
-      if (category && topic.category !== category) {
+      const normalizedTopicName = resolveTopicName(topic);
+      const category = inferCategory(normalizedTopicName, topic);
+      const allowedGames = inferAllowedGames(category, topic);
+
+      if (normalizedTopicFilter && normalizedTopicName !== normalizedTopicFilter) {
         return;
       }
 
-      if (
-        gameId &&
-        Array.isArray(topic.allowedGames) &&
-        topic.allowedGames.length > 0 &&
-        !topic.allowedGames.includes(gameId)
-      ) {
+      if (gameId && !allowedGames.includes(gameId)) {
         return;
       }
 
-      const branch = normalizeLocalBranch(topic.branch || "GRAMMER");
-      const group = topic.group || (topic.category === "sentences" ? "sentences" : "grammar");
-
-      ensureTreeBranch(tree, branch, group);
-      tree[branch][group].push({
+      ensureRootTopic(tree, rootTitle, normalizedTopicName);
+      tree[rootTitle][normalizedTopicName].push({
         id: topic.id,
         name: topic.name,
         file: topic.fileName || topic.name,
         path: topic.path,
         lang: topic.lang,
-        branch,
-        group,
+        topicName: normalizedTopicName,
         source: topic.source || "local",
-        category: topic.category,
-        allowedGames: topic.allowedGames,
+        category,
+        allowedGames,
         originPath: topic.originPath || null,
         localId: topic.id,
         rowsCount: topic.rows.length,
@@ -139,9 +206,15 @@ export const HubAdapter = {
     });
 
     (this.index?.entries || []).forEach((entry) => {
-      const entryCategory = inferCategory(entry.group);
+      const normalizedTopicName = resolveTopicName(entry);
+      const category = inferCategory(normalizedTopicName, entry);
+      const allowedGames = inferAllowedGames(category, entry);
 
-      if (category && entryCategory !== category) {
+      if (normalizedTopicFilter && normalizedTopicName !== normalizedTopicFilter) {
+        return;
+      }
+
+      if (gameId && !allowedGames.includes(gameId)) {
         return;
       }
 
@@ -150,26 +223,26 @@ export const HubAdapter = {
         return;
       }
 
-      ensureTreeBranch(tree, entry.branch, entry.group);
+      ensureRootTopic(tree, rootTitle, normalizedTopicName);
 
       files.forEach((fileName) => {
-        const path = `hub/${lang}/${entry.branch}/${entry.group}/${fileName}`;
+        const path = `hub/${lang}/${entry.folder}/${fileName}`;
 
         if (Storage.findLibraryTopicByOrigin(path)) {
           return;
         }
 
-        tree[entry.branch][entry.group].push({
+        tree[rootTitle][normalizedTopicName].push({
           id: path,
           name: fileName.replace(/\.csv$/i, ""),
           file: fileName,
           path,
           lang,
-          branch: entry.branch,
-          group: entry.group,
+          topicName: normalizedTopicName,
           source: "hub",
-          category: entryCategory,
-          allowedGames: inferAllowedGames(entryCategory),
+          category,
+          allowedGames,
+          folder: entry.folder,
         });
       });
     });
@@ -223,22 +296,23 @@ export const HubAdapter = {
       return existingByOrigin;
     }
 
-    const category = options.category || inferCategory(topicMeta.group, topicMeta);
+    const topicName = resolveTopicName(topicMeta);
+    const category = options.category || inferCategory(topicName, topicMeta);
     const allowedGames = options.allowedGames || inferAllowedGames(category, topicMeta);
+
     const nextTopic = Storage.createLibraryTopic({
       name: topicMeta.name,
       fileName: topicMeta.file || topicMeta.fileName || `${topicMeta.name}.csv`,
       lang: topicMeta.lang,
-      branch: normalizeLocalBranch(topicMeta.branch || "GRAMMER"),
-      group: topicMeta.group || (category === "sentences" ? "sentences" : "grammar"),
+      topicName,
       source: topicMeta.source === "hub" ? "hub-copy" : topicMeta.source || "local",
       category,
       allowedGames,
       rows,
       originPath: topicMeta.originPath || topicMeta.path || null,
       originMeta: {
-        branch: topicMeta.branch || null,
-        group: topicMeta.group || null,
+        topic: topicName,
+        folder: topicMeta.folder || null,
         file: topicMeta.file || topicMeta.fileName || null,
       },
     });

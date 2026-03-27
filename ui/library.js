@@ -70,7 +70,7 @@ export function renderLibraryTopics(mount, options = {}) {
         : topic.source === "hub"
           ? "Hub file"
           : "Rows unavailable";
-    meta.textContent = `${topic.lang} | ${topic.branch} / ${topic.group} | ${rowCount} | ${formatSourceLabel(topic)}`;
+    meta.textContent = `${topic.lang} | ${topic.topicName} | ${rowCount} | ${formatSourceLabel(topic)}`;
     titleBlock.append(title, meta);
 
     const count = document.createElement("span");

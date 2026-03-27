@@ -91,17 +91,9 @@
               <label class="field-label" for="libraryLangSelect">Language pair</label>
               <select id="libraryLangSelect"></select>
 
-              <label class="field-label" for="libraryCategorySelect">Topic</label>
-              <select id="libraryCategorySelect">
-                <option value="vocabulary">Vocabulary</option>
-                <option value="sentences">Sentences</option>
-              </select>
-
-              <label class="field-label" for="libraryBranchSelect">Section</label>
-              <select id="libraryBranchSelect"></select>
-
-              <label class="field-label" for="libraryGroupSelect">Category</label>
-              <select id="libraryGroupSelect"></select>
+              <label class="field-label" for="libraryTopicInput">Topic</label>
+              <input id="libraryTopicInput" type="text" list="libraryTopicOptions" placeholder="grammer / daily / kitchen / sentences" />
+              <datalist id="libraryTopicOptions"></datalist>
 
               <label class="field-label" for="libraryTopicNameInput">New list name</label>
               <input id="libraryTopicNameInput" type="text" placeholder="My new topic" />
