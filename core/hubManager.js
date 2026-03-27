@@ -39,18 +39,6 @@ function getGameLabel(gameId) {
   return labels[gameId] || "Session";
 }
 
-function getLibrarySourceLabel(topic) {
-  if (topic.source === "hub-copy") {
-    return "Saved from hub";
-  }
-
-  if (topic.source === "import") {
-    return "Imported file";
-  }
-
-  return "Created locally";
-}
-
 function createCsvBlob(rows) {
   const lines = ['"Source","Target"'];
 
@@ -133,7 +121,6 @@ class HubManager {
       importLibraryFileButton: document.getElementById("importLibraryFileButton"),
       libraryTopicsMount: document.getElementById("libraryTopicsMount"),
       backFromLibraryButton: document.getElementById("backFromLibraryButton"),
-      libraryEditorTitle: document.getElementById("libraryEditorTitle"),
       libraryEditorMeta: document.getElementById("libraryEditorMeta"),
       addLibraryRowButton: document.getElementById("addLibraryRowButton"),
       exportLibraryTopicButton: document.getElementById("exportLibraryTopicButton"),
@@ -760,8 +747,25 @@ class HubManager {
       return;
     }
 
-    this.dom.libraryEditorTitle.textContent = topic.name;
-    this.dom.libraryEditorMeta.textContent = `${topic.lang} | ${topic.topicName} | ${topic.rows.length} rows | ${getLibrarySourceLabel(topic)}`;
+    this.dom.libraryEditorMeta.textContent = "";
+
+    const lang = document.createElement("span");
+    lang.textContent = topic.lang;
+
+    const topicName = document.createElement("span");
+    topicName.textContent = topic.topicName;
+
+    const name = document.createElement("span");
+    name.className = "library-topic-card__name";
+    name.textContent = topic.name;
+
+    this.dom.libraryEditorMeta.append(
+      lang,
+      document.createTextNode(" | "),
+      topicName,
+      document.createTextNode(" | "),
+      name,
+    );
 
     const query = normalizeWhitespace(this.dom.librarySearchInput.value).toLowerCase();
     const rows = topic.rows.filter((row) => {

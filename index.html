@@ -97,7 +97,7 @@
                   Create list
                 </button>
                 <button type="button" class="button button-primary" id="importLibraryFileButton">
-                  Import CSV to library
+                  Import list
                 </button>
               </div>
 
@@ -124,10 +124,8 @@
           <section class="panel">
             <div class="section-header">
               <div>
-                <p class="eyebrow">List editor</p>
-                <h2 id="libraryEditorTitle">Topic</h2>
+                <p class="library-editor-path" id="libraryEditorMeta"></p>
               </div>
-              <p class="support-text" id="libraryEditorMeta"></p>
             </div>
 
             <div class="button-row">
@@ -148,13 +146,12 @@
               </button>
             </div>
 
-            <label class="field-label" for="librarySearchInput">Search rows</label>
-            <input id="librarySearchInput" type="text" placeholder="Search source or translation" />
+            <input id="librarySearchInput" type="text" placeholder="Search" />
 
             <div id="libraryRowsMount" class="library-rows"></div>
 
             <button type="button" class="button button-secondary" id="backFromLibraryEditorButton">
-              Home
+              Back to library
             </button>
           </section>
         </section>
