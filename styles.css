@@ -232,7 +232,8 @@ select optgroup {
 
 .choice-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(13rem, 16rem));
+  justify-content: center;
   gap: 12px;
 }
 
