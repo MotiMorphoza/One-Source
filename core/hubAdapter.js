@@ -39,6 +39,10 @@ function inferAllowedGames(category, topic = {}) {
   return category === "sentences" ? ["wordpuzzle"] : ["flashcards", "wordmatch"];
 }
 
+function normalizeLocalBranch(branchName) {
+  return branchName === "my library" ? "GRAMMER" : branchName;
+}
+
 export const HubAdapter = {
   index: null,
 
@@ -65,6 +69,32 @@ export const HubAdapter = {
     return this.index?.branches || [];
   },
 
+  getPlacements(category = "vocabulary") {
+    const placements = new Map();
+    const fallbackGroup = category === "sentences" ? "sentences" : "grammar";
+
+    placements.set(`GRAMMER::${fallbackGroup}`, {
+      branch: "GRAMMER",
+      group: fallbackGroup,
+    });
+
+    (this.index?.entries || []).forEach((entry) => {
+      if (inferCategory(entry.group) !== category) {
+        return;
+      }
+
+      const key = `${entry.branch}::${entry.group}`;
+      if (!placements.has(key)) {
+        placements.set(key, {
+          branch: entry.branch,
+          group: entry.group,
+        });
+      }
+    });
+
+    return [...placements.values()];
+  },
+
   buildTree(lang, category = null, options = {}) {
     const { gameId = null } = options;
     const tree = {};
@@ -87,8 +117,8 @@ export const HubAdapter = {
         return;
       }
 
-      const branch = topic.branch || "my library";
-      const group = topic.group || (topic.category === "sentences" ? "sentences" : "my files");
+      const branch = normalizeLocalBranch(topic.branch || "GRAMMER");
+      const group = topic.group || (topic.category === "sentences" ? "sentences" : "grammar");
 
       ensureTreeBranch(tree, branch, group);
       tree[branch][group].push({
@@ -104,6 +134,7 @@ export const HubAdapter = {
         allowedGames: topic.allowedGames,
         originPath: topic.originPath || null,
         localId: topic.id,
+        rowsCount: topic.rows.length,
       });
     });
 
@@ -123,6 +154,11 @@ export const HubAdapter = {
 
       files.forEach((fileName) => {
         const path = `hub/${lang}/${entry.branch}/${entry.group}/${fileName}`;
+
+        if (Storage.findLibraryTopicByOrigin(path)) {
+          return;
+        }
+
         tree[entry.branch][entry.group].push({
           id: path,
           name: fileName.replace(/\.csv$/i, ""),
@@ -193,8 +229,8 @@ export const HubAdapter = {
       name: topicMeta.name,
       fileName: topicMeta.file || topicMeta.fileName || `${topicMeta.name}.csv`,
       lang: topicMeta.lang,
-      branch: "my library",
-      group: topicMeta.group || (category === "sentences" ? "sentences" : "my files"),
+      branch: normalizeLocalBranch(topicMeta.branch || "GRAMMER"),
+      group: topicMeta.group || (category === "sentences" ? "sentences" : "grammar"),
       source: topicMeta.source === "hub" ? "hub-copy" : topicMeta.source || "local",
       category,
       allowedGames,

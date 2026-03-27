@@ -10,6 +10,10 @@ function createButton(label, className, onClick) {
 function formatSourceLabel(topic) {
   const source = topic.source || "local";
 
+  if (source === "hub") {
+    return "Hub file";
+  }
+
   if (source === "hub-copy") {
     return "Saved from hub";
   }
@@ -34,7 +38,7 @@ function formatGameLabel(gameId) {
 export function renderLibraryTopics(mount, options = {}) {
   const {
     topics = [],
-    onEdit = () => {},
+    onManage = () => {},
     onStart = () => {},
   } = options;
 
@@ -43,7 +47,7 @@ export function renderLibraryTopics(mount, options = {}) {
   if (topics.length === 0) {
     const emptyState = document.createElement("div");
     emptyState.className = "empty-state";
-    emptyState.textContent = "No local lists yet. Create one, import a CSV, or start a hub topic to save it locally.";
+    emptyState.textContent = "No lists are available for this selection yet.";
     mount.appendChild(emptyState);
     return;
   }
@@ -60,19 +64,29 @@ export function renderLibraryTopics(mount, options = {}) {
     title.textContent = topic.name;
     const meta = document.createElement("p");
     meta.className = "support-text";
-    meta.textContent = `${topic.lang} | ${topic.category} | ${topic.rows.length} rows | ${formatSourceLabel(topic)}`;
+    const rowCount =
+      typeof topic.rowsCount === "number"
+        ? `${topic.rowsCount} rows`
+        : topic.source === "hub"
+          ? "Hub file"
+          : "Rows unavailable";
+    meta.textContent = `${topic.lang} | ${topic.branch} / ${topic.group} | ${rowCount} | ${formatSourceLabel(topic)}`;
     titleBlock.append(title, meta);
 
     const count = document.createElement("span");
     count.className = "library-count-pill";
-    count.textContent = `${topic.rows.length}`;
+    count.textContent = typeof topic.rowsCount === "number" ? `${topic.rowsCount}` : "HUB";
 
     titleRow.append(titleBlock, count);
 
     const actionRow = document.createElement("div");
     actionRow.className = "library-topic-card__actions";
     actionRow.appendChild(
-      createButton("Edit list", "button button-secondary button-small", () => onEdit(topic.id)),
+      createButton(
+        topic.source === "hub" ? "Manage list" : "Edit list",
+        "button button-secondary button-small",
+        () => onManage(topic),
+      ),
     );
 
     (topic.allowedGames || []).forEach((gameId) => {
@@ -80,7 +94,7 @@ export function renderLibraryTopics(mount, options = {}) {
         createButton(
           formatGameLabel(gameId),
           "button button-primary button-small",
-          () => onStart(topic.id, gameId),
+          () => onStart(topic, gameId),
         ),
       );
     });

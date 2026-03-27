@@ -412,6 +412,8 @@ select optgroup {
 
 #libraryLangSelect,
 #libraryCategorySelect,
+#libraryBranchSelect,
+#libraryGroupSelect,
 #libraryTopicNameInput,
 #librarySearchInput {
   width: min(100%, 19rem);

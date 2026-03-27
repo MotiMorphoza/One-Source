@@ -63,6 +63,28 @@ function createCsvBlob(rows) {
   return new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
 }
 
+function flattenTopicTree(tree) {
+  const records = [];
+
+  Object.values(tree).forEach((groups) => {
+    Object.values(groups).forEach((topics) => {
+      topics.forEach((topic) => {
+        records.push({
+          ...topic,
+          rowsCount:
+            typeof topic.rowsCount === "number"
+              ? topic.rowsCount
+              : Array.isArray(topic.rows)
+                ? topic.rows.length
+                : null,
+        });
+      });
+    });
+  });
+
+  return records;
+}
+
 class HubManager {
   constructor() {
     this.router = new Router();
@@ -81,6 +103,7 @@ class HubManager {
     HubAdapter.init();
     this.populateLanguages();
     this.populateLibraryLanguages();
+    this.populateLibraryPlacements();
     this.bindUi();
     this.bindAppEvents();
     this.router.navigate("home", { record: false });
@@ -104,6 +127,8 @@ class HubManager {
       openLibraryButton: document.getElementById("openLibraryButton"),
       libraryLangSelect: document.getElementById("libraryLangSelect"),
       libraryCategorySelect: document.getElementById("libraryCategorySelect"),
+      libraryBranchSelect: document.getElementById("libraryBranchSelect"),
+      libraryGroupSelect: document.getElementById("libraryGroupSelect"),
       libraryTopicNameInput: document.getElementById("libraryTopicNameInput"),
       createLibraryTopicButton: document.getElementById("createLibraryTopicButton"),
       importLibraryFileButton: document.getElementById("importLibraryFileButton"),
@@ -170,6 +195,16 @@ class HubManager {
     });
 
     this.dom.libraryCategorySelect.addEventListener("change", () => {
+      this.populateLibraryPlacements();
+      this.renderLibraryTopicList();
+    });
+
+    this.dom.libraryBranchSelect.addEventListener("change", () => {
+      this.populateLibraryGroups();
+      this.renderLibraryTopicList();
+    });
+
+    this.dom.libraryGroupSelect.addEventListener("change", () => {
       this.renderLibraryTopicList();
     });
 
@@ -307,6 +342,66 @@ class HubManager {
     });
   }
 
+  populateLibraryPlacements() {
+    this.populateLibraryBranches();
+    this.populateLibraryGroups();
+  }
+
+  populateLibraryBranches() {
+    const category = this.dom.libraryCategorySelect.value || "vocabulary";
+    const placements = HubAdapter.getPlacements(category);
+    const previous = this.dom.libraryBranchSelect.value;
+
+    this.dom.libraryBranchSelect.innerHTML = "";
+
+    placements.forEach(({ branch }) => {
+      if ([...this.dom.libraryBranchSelect.options].some((option) => option.value === branch)) {
+        return;
+      }
+
+      const option = document.createElement("option");
+      option.value = branch;
+      option.textContent = branch;
+      this.dom.libraryBranchSelect.appendChild(option);
+    });
+
+    if (
+      previous &&
+      [...this.dom.libraryBranchSelect.options].some((option) => option.value === previous)
+    ) {
+      this.dom.libraryBranchSelect.value = previous;
+    }
+  }
+
+  populateLibraryGroups() {
+    const category = this.dom.libraryCategorySelect.value || "vocabulary";
+    const branch = this.dom.libraryBranchSelect.value;
+    const previous = this.dom.libraryGroupSelect.value;
+    const placements = HubAdapter.getPlacements(category).filter(
+      (placement) => !branch || placement.branch === branch,
+    );
+
+    this.dom.libraryGroupSelect.innerHTML = "";
+
+    placements.forEach(({ group }) => {
+      if ([...this.dom.libraryGroupSelect.options].some((option) => option.value === group)) {
+        return;
+      }
+
+      const option = document.createElement("option");
+      option.value = group;
+      option.textContent = group;
+      this.dom.libraryGroupSelect.appendChild(option);
+    });
+
+    if (
+      previous &&
+      [...this.dom.libraryGroupSelect.options].some((option) => option.value === previous)
+    ) {
+      this.dom.libraryGroupSelect.value = previous;
+    }
+  }
+
   handleLanguageChange(lang) {
     this.selectedLang = lang || null;
     this.selectedGame = null;
@@ -384,17 +479,17 @@ class HubManager {
     }
   }
 
-  createUniqueTopicName(baseName, lang, category, excludeId = null) {
+  createUniqueTopicName(baseName, lang, category, branch = null, group = null, excludeId = null) {
     const cleanBase = normalizeWhitespace(baseName) || "Untitled";
 
-    if (!Storage.topicTitleExists(cleanBase, { lang, category, excludeId })) {
+    if (!Storage.topicTitleExists(cleanBase, { lang, category, branch, group, excludeId })) {
       return cleanBase;
     }
 
     let index = 2;
     let candidate = `${cleanBase} (${index})`;
 
-    while (Storage.topicTitleExists(candidate, { lang, category, excludeId })) {
+    while (Storage.topicTitleExists(candidate, { lang, category, branch, group, excludeId })) {
       index += 1;
       candidate = `${cleanBase} (${index})`;
     }
@@ -419,7 +514,13 @@ class HubManager {
       }
 
       const rows = await HubAdapter.loadTopic(topicMeta);
-      const localizedName = this.createUniqueTopicName(topicMeta.name, topicMeta.lang, category);
+      const localizedName = this.createUniqueTopicName(
+        topicMeta.name,
+        topicMeta.lang,
+        category,
+        topicMeta.branch,
+        topicMeta.group,
+      );
       const localTopic = HubAdapter.ensureLocalTopic(
         {
           ...topicMeta,
@@ -498,6 +599,10 @@ class HubManager {
   triggerLibraryImport() {
     const lang = this.dom.libraryLangSelect.value;
     const category = this.dom.libraryCategorySelect.value;
+    const branch = this.dom.libraryBranchSelect.value || "GRAMMER";
+    const group =
+      this.dom.libraryGroupSelect.value ||
+      (category === "sentences" ? "sentences" : "grammar");
 
     if (!lang) {
       Modal.alert("Choose a language pair for the local library import.");
@@ -507,6 +612,8 @@ class HubManager {
     this.importContext = {
       lang,
       category,
+      branch,
+      group,
       allowedGames: getAllowedGamesForCategory(category),
       autoLaunch: false,
     };
@@ -536,13 +643,19 @@ class HubManager {
       }
 
       const baseName = file.name.replace(/\.[^/.]+$/, "").trim() || "Imported file";
-      const uniqueName = this.createUniqueTopicName(baseName, context.lang, context.category);
+      const uniqueName = this.createUniqueTopicName(
+        baseName,
+        context.lang,
+        context.category,
+        context.branch,
+        context.group,
+      );
       const topic = Storage.createLibraryTopic({
         name: uniqueName,
         fileName: file.name,
         lang: context.lang,
-        branch: "my library",
-        group: context.category === "sentences" ? "sentences" : "my files",
+        branch: context.branch || "GRAMMER",
+        group: context.group || (context.category === "sentences" ? "sentences" : "grammar"),
         source: "import",
         category: context.category,
         allowedGames: context.allowedGames,
@@ -597,22 +710,39 @@ class HubManager {
   renderLibraryTopicList() {
     const lang = this.dom.libraryLangSelect.value || null;
     const category = this.dom.libraryCategorySelect.value || null;
+    const branch = this.dom.libraryBranchSelect.value || null;
+    const group = this.dom.libraryGroupSelect.value || null;
+    const languages = lang ? [lang] : HubAdapter.getLanguages().map((language) => language.id);
+    const seen = new Set();
+    const topics = languages
+      .flatMap((languageId) => flattenTopicTree(HubAdapter.buildTree(languageId, category)))
+      .filter((topic) => (!branch || topic.branch === branch))
+      .filter((topic) => (!group || topic.group === group))
+      .filter((topic) => {
+        const key = topic.originPath || topic.path || topic.id;
+        if (seen.has(key)) {
+          return false;
+        }
 
-    const topics = Storage.getLibraryTopics()
-      .filter((topic) => (!lang || topic.lang === lang))
-      .filter((topic) => (!category || topic.category === category))
-      .sort((a, b) => b.updatedAt - a.updatedAt);
+        seen.add(key);
+        return true;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     renderLibraryTopics(this.dom.libraryTopicsMount, {
       topics,
-      onEdit: (topicId) => this.showLibraryEditor(topicId),
-      onStart: (topicId, gameId) => this.startLibraryTopic(topicId, gameId),
+      onManage: (topicMeta) => this.manageLibraryTopic(topicMeta),
+      onStart: (topicMeta, gameId) => this.startLibraryTopic(topicMeta, gameId),
     });
   }
 
   createLibraryTopic() {
     const lang = this.dom.libraryLangSelect.value;
     const category = this.dom.libraryCategorySelect.value;
+    const branch = this.dom.libraryBranchSelect.value || "GRAMMER";
+    const group =
+      this.dom.libraryGroupSelect.value ||
+      (category === "sentences" ? "sentences" : "grammar");
     const name = normalizeWhitespace(this.dom.libraryTopicNameInput.value);
 
     if (!lang) {
@@ -625,7 +755,7 @@ class HubManager {
       return;
     }
 
-    if (Storage.topicTitleExists(name, { lang, category })) {
+    if (Storage.topicTitleExists(name, { lang, category, branch, group })) {
       Modal.alert("A local list with this name already exists for that language and type.");
       return;
     }
@@ -633,8 +763,8 @@ class HubManager {
     const topic = Storage.createLibraryTopic({
       name,
       lang,
-      branch: "my library",
-      group: category === "sentences" ? "sentences" : "my files",
+      branch,
+      group,
       source: "local",
       category,
       allowedGames: getAllowedGamesForCategory(category),
@@ -658,6 +788,11 @@ class HubManager {
     if (topic) {
       this.dom.libraryLangSelect.value = topic.lang || "";
       this.dom.libraryCategorySelect.value = topic.category || "vocabulary";
+      this.populateLibraryPlacements();
+      this.dom.libraryBranchSelect.value = topic.branch || "GRAMMER";
+      this.populateLibraryGroups();
+      this.dom.libraryGroupSelect.value =
+        topic.group || (topic.category === "sentences" ? "sentences" : "grammar");
     }
     this.dom.librarySearchInput.value = "";
     this.renderLibraryEditor();
@@ -810,6 +945,8 @@ class HubManager {
     if (Storage.topicTitleExists(cleanName, {
       lang: topic.lang,
       category: topic.category,
+      branch: topic.branch,
+      group: topic.group,
       excludeId: topic.id,
     })) {
       Modal.alert("A local list with this name already exists.");
@@ -867,11 +1004,34 @@ class HubManager {
     this.showLibrary();
   }
 
-  async startLibraryTopic(topicId, gameId) {
-    const topic = Storage.getLibraryTopic(topicId);
+  async manageLibraryTopic(topicMeta) {
+    if (topicMeta.source === "hub") {
+      try {
+        const rows = await HubAdapter.loadTopic(topicMeta);
+        const localTopic = HubAdapter.ensureLocalTopic(topicMeta, rows, {
+          category: topicMeta.category,
+          allowedGames: topicMeta.allowedGames,
+        });
+        this.renderLibraryTopicList();
+        this.renderTopicTreeIfReady();
+        this.showLibraryEditor(localTopic.id);
+      } catch (error) {
+        Modal.error(`Could not open the hub list: ${error.message}`);
+      }
+      return;
+    }
+
+    this.showLibraryEditor(topicMeta.id);
+  }
+
+  async startLibraryTopic(topicMeta, gameId) {
+    const topic =
+      topicMeta.source === "hub"
+        ? topicMeta
+        : Storage.getLibraryTopic(topicMeta.id);
 
     if (!topic) {
-      Modal.alert("The local topic could not be found.");
+      Modal.alert("The selected topic could not be found.");
       this.renderLibraryTopicList();
       return;
     }
@@ -880,7 +1040,7 @@ class HubManager {
     this.selectedGame = gameId;
     this.selectedTopic = {
       ...topic,
-      localId: topic.id,
+      localId: topic.source === "hub" ? null : topic.id,
     };
     this.dom.languageSelect.value = topic.lang;
     this.dom.gameButtons.forEach((button) => {

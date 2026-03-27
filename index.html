@@ -97,6 +97,12 @@
                 <option value="sentences">Sentences</option>
               </select>
 
+              <label class="field-label" for="libraryBranchSelect">Section</label>
+              <select id="libraryBranchSelect"></select>
+
+              <label class="field-label" for="libraryGroupSelect">Category</label>
+              <select id="libraryGroupSelect"></select>
+
               <label class="field-label" for="libraryTopicNameInput">New list name</label>
               <input id="libraryTopicNameInput" type="text" placeholder="My new topic" />
 
@@ -106,6 +112,12 @@
                 </button>
                 <button type="button" class="button button-primary" id="importLibraryFileButton">
                   Import CSV to library
+                </button>
+              </div>
+
+              <div class="button-row">
+                <button type="button" class="button button-secondary" id="backFromLibraryButton">
+                  Back to home
                 </button>
               </div>
             </section>
@@ -118,10 +130,6 @@
               </div>
 
               <div id="libraryTopicsMount" class="library-topics"></div>
-
-              <button type="button" class="button button-secondary" id="backFromLibraryButton">
-                Back to home
-              </button>
             </section>
           </div>
         </section>
@@ -175,16 +183,17 @@
               <div>
                 <h2>Statistics</h2>
               </div>
-              <button type="button" class="button button-danger button-small" id="resetStatsButton">
-                Reset stats
-              </button>
+              <div class="button-row">
+                <button type="button" class="button button-danger button-small" id="resetStatsButton">
+                  Reset stats
+                </button>
+                <button type="button" class="button button-secondary button-small" id="backFromStatsButton">
+                  Back to home
+                </button>
+              </div>
             </div>
 
             <div id="statsMount"></div>
-
-            <button type="button" class="button button-secondary" id="backFromStatsButton">
-              Back to home
-            </button>
           </section>
         </section>
 

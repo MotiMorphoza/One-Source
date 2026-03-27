@@ -4,6 +4,7 @@ import { normalizeWhitespace } from "../utils/text.js";
 const VERSION = "v4";
 const PREFIX = "LLH";
 const LIBRARY_KEY = `${PREFIX}_${VERSION}_library_topics_global`;
+const LOCAL_BRANCH = "GRAMMER";
 
 function keyPart(value) {
   return encodeURIComponent(value ?? "global");
@@ -80,9 +81,9 @@ function sanitizeTopic(topic = {}, existing = null) {
     topicId,
   );
   const name = normalizeWhitespace(topic.name ?? topic.title ?? existing?.name ?? "Untitled");
-  const branch = topic.branch ?? existing?.branch ?? "my library";
+  const branch = topic.branch ?? existing?.branch ?? LOCAL_BRANCH;
   const group =
-    topic.group ?? existing?.group ?? (category === "sentences" ? "sentences" : "my files");
+    topic.group ?? existing?.group ?? (category === "sentences" ? "sentences" : "grammar");
   const source = topic.source ?? existing?.source ?? "local";
   const createdAt = existing?.createdAt ?? topic.createdAt ?? Date.now();
   const updatedAt = topic.updatedAt ?? existing?.updatedAt ?? Date.now();
@@ -164,7 +165,13 @@ export const Storage = {
 
   topicTitleExists(name, options = {}) {
     const normalized = normalizeWhitespace(name).toLowerCase();
-    const { lang = null, category = null, excludeId = null } = options;
+    const {
+      lang = null,
+      category = null,
+      branch = null,
+      group = null,
+      excludeId = null,
+    } = options;
 
     return this.getLibraryTopics().some((topic) => {
       if (excludeId && topic.id === excludeId) {
@@ -176,6 +183,14 @@ export const Storage = {
       }
 
       if (category && topic.category !== category) {
+        return false;
+      }
+
+      if (branch && topic.branch !== branch) {
+        return false;
+      }
+
+      if (group && topic.group !== group) {
         return false;
       }
 
