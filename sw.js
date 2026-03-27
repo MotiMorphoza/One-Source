@@ -1,7 +1,8 @@
-const CACHE_NAME = "llh-core-v1";
+const CACHE_NAME = "llh-core-v2";
 const ASSETS = [
   "./",
   "./index.html",
+  "./manifest.json",
   "./styles.css",
   "./hubIndex.js",
   "./core/audio.js",
@@ -17,6 +18,7 @@ const ASSETS = [
   "./games/wordmatch.js",
   "./games/wordpuzzle.js",
   "./ui/accordion.js",
+  "./ui/library.js",
   "./ui/modals.js",
   "./ui/stats.js",
   "./utils/csv.js",

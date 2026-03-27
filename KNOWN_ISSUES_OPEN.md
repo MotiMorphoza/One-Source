@@ -10,10 +10,6 @@ The install-time asset list is manual and can fall out of sync with actual impor
 
 ## Medium Priority
 
-### 2. Dead or unused app paths
-
-`triggerHomeImport()` exists in `core/hubManager.js`, but there is no current home-screen control wired to it.
-
-### 3. Search rerenders on every keystroke
+### 2. Search rerenders on every keystroke
 
 Library row search has no debounce and rerenders the editor immediately on each input event.

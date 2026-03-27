@@ -52,7 +52,6 @@ Then open `http://localhost:4173`.
 - `hubIndex.js` is still the live source of hub content metadata.
 - there is still no live `index.json`
 - `sw.js` uses a manual asset list that can drift from the actual import graph
-- `triggerHomeImport()` still exists in the shell without a current home-screen control
 
 ## Scope Notes
 

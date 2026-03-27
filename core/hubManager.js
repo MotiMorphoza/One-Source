@@ -497,29 +497,6 @@ class HubManager {
     this.router.navigate("game");
   }
 
-  triggerHomeImport() {
-    if (!this.selectedLang) {
-      Modal.alert("Choose a language pair before importing a CSV.");
-      return;
-    }
-
-    if (!this.selectedGame) {
-      Modal.alert("Choose a game before importing a CSV.");
-      return;
-    }
-
-    const category = getCategoryForGame(this.selectedGame);
-    this.importContext = {
-      lang: this.selectedLang,
-      category,
-      allowedGames: getAllowedGamesForCategory(category),
-      autoLaunch: true,
-      launchGameId: this.selectedGame,
-    };
-
-    this.dom.importFileInput.click();
-  }
-
   triggerLibraryImport() {
     const lang = this.dom.libraryLangSelect.value;
     const category = this.dom.libraryCategorySelect.value;
@@ -792,11 +769,6 @@ class HubManager {
   async deleteLibraryRow(rowId) {
     const topic = this.getEditingTopic();
     if (!topic) {
-      return;
-    }
-
-    const confirmed = await Modal.confirm("Delete this row from the local list?");
-    if (!confirmed) {
       return;
     }
 
