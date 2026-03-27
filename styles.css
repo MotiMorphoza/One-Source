@@ -346,6 +346,7 @@ select optgroup {
   display: grid;
   gap: 12px;
   margin-bottom: 16px;
+  width: min(100%, 66%);
 }
 
 .accordion {
@@ -395,6 +396,10 @@ select optgroup {
   background: linear-gradient(180deg, var(--gray-top), var(--gray-bottom));
   color: #222222;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+#languageSelect {
+  width: min(100%, 19rem);
 }
 
 .topic-button.is-selected {
@@ -791,5 +796,10 @@ select optgroup {
   .library-topic-card__title-row,
   .library-row-card {
     flex-direction: column;
+  }
+
+  .topic-tree,
+  #languageSelect {
+    width: 100%;
   }
 }
