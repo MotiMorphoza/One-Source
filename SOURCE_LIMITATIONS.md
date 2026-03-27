@@ -1,25 +1,19 @@
 # SOURCE LIMITATIONS
 
-This ZIP was assembled from conversation history and remembered project context.
+This documentation set has been rewritten from the current repo contents.
 
-## What It Is Good For
+## What It Reflects
 
-- capturing architectural intent
-- preserving known decisions
-- preserving known bugs
-- preserving previously discussed fixes
-- guiding a repo-aware agent
-- preventing loss of project memory
+- file structure present in the repo
+- static code inspection of the current implementation
+- current app flow and storage model
 
-## What It Cannot Guarantee
+## What It Still Does Not Guarantee
 
-- exact current file names
-- exact current function names
-- exact current repo structure
-- whether every discussed fix still exists in current code
-- whether every bug is still open
-- whether implementation details drifted after the last remembered discussion
+- runtime behavior not exercised in browser
+- every edge case in import/export flows
+- whether deployed hosting exactly matches local testing
 
-## Required Next Step
+## Safe Reading Rule
 
-A repo-aware agent must compare these docs against the actual codebase and update them accordingly.
+When code and docs disagree, trust the code and update the docs again.

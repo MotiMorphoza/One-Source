@@ -242,19 +242,55 @@ export const Storage = {
   },
 
   updateLibraryRow(topicId, rowId, changes) {
-    return updateTopicInCollection(topicId, (topic) => ({
-      ...topic,
-      rows: topic.rows.map((row) =>
-        row.id === rowId ? sanitizeRow({ ...row, ...changes }, `${topicId}-row`) : row,
-      ),
-    }));
+    return updateTopicInCollection(topicId, (topic) => {
+      const existingRow = topic.rows.find((row) => row.id === rowId);
+      if (!existingRow) {
+        return null;
+      }
+
+      const nextRow = sanitizeRow({ ...existingRow, ...changes }, `${topicId}-row`);
+      if (!nextRow) {
+        return null;
+      }
+
+      return {
+        ...topic,
+        rows: topic.rows.map((row) => (row.id === rowId ? nextRow : row)),
+      };
+    });
   },
 
   removeLibraryRow(topicId, rowId) {
-    return updateTopicInCollection(topicId, (topic) => ({
-      ...topic,
-      rows: topic.rows.filter((row) => row.id !== rowId),
-    }));
+    const topics = this.getLibraryTopics();
+    const index = topics.findIndex((topic) => topic.id === topicId);
+
+    if (index < 0) {
+      return null;
+    }
+
+    const topic = topics[index];
+    const nextRows = topic.rows.filter((row) => row.id !== rowId);
+
+    if (nextRows.length === topic.rows.length) {
+      return topic;
+    }
+
+    if (nextRows.length === 0) {
+      topics.splice(index, 1);
+      safeSet(LIBRARY_KEY, topics);
+      return null;
+    }
+
+    topics[index] = sanitizeTopic(
+      {
+        ...topic,
+        rows: nextRows,
+        updatedAt: Date.now(),
+      },
+      topic,
+    );
+    safeSet(LIBRARY_KEY, topics);
+    return topics[index];
   },
 
   removeLibraryTopic(topicId) {

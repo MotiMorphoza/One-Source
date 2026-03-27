@@ -1,104 +1,40 @@
 # STORAGE MODEL
 
-## 1. Known Storage Direction
+## Current Namespace
 
-The project uses browser storage, especially localStorage.
-
-A backend is intentionally absent.
-
-## 2. Known / Referenced Storage Concepts
-
-Historical conversation references included concepts such as:
-
-- `flashData`
-- `stats`
-- `hardWords`
-- `soundOn`
-
-In some versions, keys may have version suffixes such as:
-
-- `flashData_vX`
-- `stats_vX`
-
-The repo agent must verify exact current names.
-
-## 3. Why Storage Matters
-
-Storage powers:
-
-- user-imported topics
-- progress
-- hard-item lists
-- preferences
-- possibly session persistence
-
-## 4. Current Weaknesses
-
-Known concerns previously identified:
-
-- no strong formal versioning across all storage
-- possible schema drift across modules
-- weak generated IDs
-- localStorage size limitations for future scale
-
-## 5. Intentional Near-Term Decision
-
-A full migration to IndexedDB or backend was not treated as immediately necessary.
-That was intentionally deferred.
-
-## 6. Future Direction
-
-Potential v4-style unified naming pattern was discussed conceptually, for example:
+The app uses browser `localStorage` under the prefix:
 
 ```text
-LLH_v4_{type}_{game}_{topic}
+LLH_v4_
 ```
 
-This is a design direction only and must be validated before implementation.
+## Main Key Families
 
-## 7. Hard Items
+- library topics: `LLH_v4_library_topics_global`
+- preferences
+- sessions
+- best times
+- hard items
 
-Known concepts include:
+## Current Storage Responsibilities
 
-- hard words in FC
-- hard manager concepts in WP
-- likely game-specific hard-item schemas today
+- local library topics
+- imported topics
+- hub-derived local copies
+- user preferences for audio and speech
+- session history
+- best times
+- hard-item counts
 
-A future unification path should standardize this while preserving behavior.
+## Topic Persistence
 
-## 8. Stats
+Library topics are stored as sanitized topic objects with embedded row arrays.
 
-Stats likely differ between games but could eventually sit behind a unified API.
+## Current Good News
 
-Possible tracked items across the project include:
+Storage versioning already exists in code.
 
-- correct answers
-- mistakes
-- timing
-- best time
-- session state
-- progress
+## Current Gaps
 
-## 9. Preferences
-
-Known preference examples:
-
-- sound on/off
-
-Potential future preferences:
-
-- speech voice
-- accent / pronunciation
-- text direction or display preferences
-- difficulty mode
-
-## 10. Recommended Verification Tasks
-
-Repo agent should inspect:
-
-- all `localStorage.setItem`
-- all `localStorage.getItem`
-- all reset/migration keys
-- version constants
-- data clearing flows
-- compatibility between FC / WM / WP schemas
+- no formal migration layer beyond versioned keys
+- no storage corruption reporting beyond safe fallbacks

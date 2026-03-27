@@ -108,7 +108,9 @@ export const HubAdapter = {
     });
 
     (this.index?.entries || []).forEach((entry) => {
-      if (category && entry.group !== category) {
+      const entryCategory = inferCategory(entry.group);
+
+      if (category && entryCategory !== category) {
         return;
       }
 
@@ -130,8 +132,8 @@ export const HubAdapter = {
           branch: entry.branch,
           group: entry.group,
           source: "hub",
-          category: inferCategory(entry.group),
-          allowedGames: inferAllowedGames(inferCategory(entry.group)),
+          category: entryCategory,
+          allowedGames: inferAllowedGames(entryCategory),
         });
       });
     });

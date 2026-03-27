@@ -1,100 +1,49 @@
 # HUB SPEC
 
-## 1. Role of the HUB
+## Current HUB Files
 
-The HUB is the central entry and routing/content-selection layer for ONE SOURCE.
+- `hubIndex.js`
+- `core/hubAdapter.js`
+- `core/hubManager.js`
+- `ui/accordion.js`
 
-It is not an optional add-on.
-It is the unifying spine of the system.
+## Current HUB Responsibilities
 
-## 2. HUB Responsibilities
+- expose bundled language pairs
+- merge bundled hub files with local library topics
+- filter topic tree by selected game
+- load local topics from storage
+- fetch bundled CSV files from `hub/`
+- create a local editable copy of a hub topic on first use
 
-The HUB should be responsible for:
+## Current Source Of Truth
 
-- exposing available languages
-- exposing branches/topics/groups if used
-- exposing files within topics
-- reading `index.json`
-- letting the user select what to study
-- loading/downloading/importing the selected data
-- passing context/data into FC / WM / WP
+Bundled metadata currently comes from `window.HUB_INDEX` in `hubIndex.js`.
 
-## 3. Source of Truth Rule
+There is no live `index.json` file in this repo.
 
-A key preserved decision:
+## Current Bundled Structure
 
-`index.json` must become the single source of truth for file availability.
+The bundled registry is based on:
 
-Meaning:
+- `language`
+- `branch`
+- `group`
+- `files`
 
-- no browser HEAD probing
-- no guessed availability
-- no UI built on assumptions
-- no “maybe this file exists” logic
+It is not yet a fully normalized topic registry.
 
-## 4. Target Index Shape
+## Current Filtering Rule
 
-Target direction:
+Bundled hub entries are classified by inferred category:
 
-```text
-language -> topics -> files
-```
+- `sentences` group -> sentence content
+- any other current bundled group -> vocabulary content
 
-If the current repo still uses branches/groups/etc., that may remain internally, but the repo agent should clarify the actual structure and whether it matches the intended target.
+## Local Library Integration
 
-## 5. Multi-File Topics
+Local topics are mixed into the HUB tree with:
 
-This is a core requirement.
-The HUB must support topics with more than one file.
-
-Conversation history suggests this is a pain point:
-support exists conceptually, but UI behavior is incomplete.
-
-## 6. Active Topic Behavior
-
-At least in FC-related flow, there were discussions around:
-
-- current active topic
-- visual indication for active downloaded topic
-- downloaded files sitting locally for the user
-- better state sync between HUB and app
-
-These areas should be verified in real code.
-
-## 7. Download / Import Expectations
-
-Important behaviors that the user cared about:
-
-- downloaded file should actually sit with the user, not only remain online
-- active/downloaded topic state should be shown correctly
-- duplicate imports should be blocked or handled clearly
-- library-driven topic creation should be clean
-
-## 8. Likely HUB Components To Verify
-
-Repo agent should locate actual code for:
-
-- library accordion
-- download language selector
-- topic/file list rendering
-- active topic highlighting
-- current topic tracking
-- import trigger
-- export trigger
-- index parsing
-- error handling when index/file paths fail
-
-## 9. Failure Modes To Test
-
-- file listed in index but missing in repo
-- multiple files under one topic
-- duplicate topic import
-- index with malformed structure
-- topic selection followed by game launch
-- app refresh after active topic set
-- case-sensitivity issues on GitHub Pages
-
-## 10. Design Goal
-
-The HUB should evolve toward a thin but authoritative adapter between content registry and games.
-The games should not each reimplement library/file-discovery logic.
+- branch default: `my library`
+- group default: `my files` or `sentences`
+- source types such as `local`, `import`, and `hub-copy`

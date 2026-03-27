@@ -1,32 +1,44 @@
 # FIXES RESOLVED OR PARTIAL
 
-This file records fixes or stabilizations that were discussed as done or partially done at some point in prior conversations.
+This file only lists items that are supported by the current repo structure.
 
-## 1. Duplicate Topic Import Blocking
-There was a working version in which importing a file with a topic name that already existed would block the import and alert the user.
+## Verified Or Largely Verified
 
-This is useful but must be verified in current repo state.
+### Shared session runtime exists
 
-## 2. Hard Words Synchronization
-Hard-word add/remove flows were discussed as working/synced in at least some FC versions.
+`core/engine.js` is real and used by all three games.
 
-## 3. Sound Softening / Tuning
-Softer sounds were part of adjustments in various modules and especially remembered for WP.
+### Shared storage namespace exists
 
-## 4. HUB Progress
-The unification through a HUB existed and was considered meaningful progress.
-Not final, but real.
+`core/storage.js` already uses the `LLH_v4_*` namespace pattern.
 
-## 5. PWA / Shell Direction
-A more unified shell / PWA-ready direction was discussed and apparently partially implemented in a v3-like stage.
+### Hub copies can be saved locally
 
-## 6. Intentional Removal From Bug List
-Double BACK buttons were explicitly marked as intentional and removed from the issue list.
+When a hub file is launched, `HubManager` can create a local library copy tied to `originPath`.
 
-## 7. Behavior Rule Added
-If all words are deleted from a topic, the topic should also be deleted.
-This was preserved as an intended behavior, not just a suggestion.
+### Rename is in-place in current storage code
 
-## Important Caveat
+`Storage.renameLibraryTopic()` updates an existing topic object by id instead of creating a new one.
 
-Because this document comes from history rather than live repo inspection, every “fixed” or “partial” item must still be validated against the current repository state.
+### HUB vocabulary filtering was corrected
+
+Bundled hub entries are now filtered by inferred category instead of raw group name.
+
+### Topic titles are no longer interpolated directly into game HTML
+
+The game headers now render title text through DOM assignment instead of direct template interpolation.
+
+### Deleting the last row now deletes the topic
+
+Removing the final row from a local list removes the topic from storage and returns the editor to the library view.
+
+### CSV parsing is stricter
+
+Malformed rows now raise explicit validation errors instead of being silently accepted.
+
+## Not Marked Resolved Here
+
+Do not treat the following as resolved from this file:
+
+- hub metadata redesign
+- vocabulary tree filtering mismatch

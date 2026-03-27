@@ -39,7 +39,7 @@ export class WordMatchGame extends GameInterface {
         <header class="game-header">
           <div>
             <p class="game-label">Word Match</p>
-            <h2>${this.context.topic.name}</h2>
+            <h2 id="matchTopicTitle"></h2>
           </div>
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="matchTimer">0s</strong></span>
@@ -58,10 +58,12 @@ export class WordMatchGame extends GameInterface {
       </section>
     `;
 
+    this.topicTitle = this.container.querySelector("#matchTopicTitle");
     this.timerValue = this.container.querySelector("#matchTimer");
     this.remainingValue = this.container.querySelector("#matchRemaining");
     this.board = this.container.querySelector("#matchBoard");
     this.exitButton = this.container.querySelector("#matchExit");
+    this.topicTitle.textContent = this.context.topic.name;
     this.handleExit = () => this.emit("app:show-home");
     this.exitButton.addEventListener("click", this.handleExit);
   }

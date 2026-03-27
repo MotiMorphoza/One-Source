@@ -1,79 +1,32 @@
 # PROMPT FOR REPO AGENT
 
-Use the following prompt with the repo-aware coding agent.
+You are working on the ONE SOURCE repository.
 
----
+Treat the code as the primary source of truth.
 
-You are working on the ONE SOURCE repository, which unifies FC, WM, WP, and a shared HUB/library/topic-loading system.
+## Repo Facts You Should Start From
 
-You have access to the real repository. Treat the attached markdown docs as historical memory and architectural intent, not as guaranteed code truth.
+- entry page: `index.html`
+- app controller: `core/hubManager.js`
+- live bundled hub registry: `hubIndex.js`
+- no live `index.json`
+- shared storage: `core/storage.js`
+- shared session engine: `core/engine.js`
+- games: Flash Cards, Word Match, Word Puzzle
 
-## Your job
+## Your Job
 
-1. inspect the actual repo
-2. map the historical/project intent to the real code
-3. correct any drift between docs and repo
-4. preserve intentional behavior
-5. identify real open bugs vs already-fixed issues
-6. produce updated repo-grounded docs
+1. preserve the working static app
+2. prefer targeted patches
+3. keep relative-path deployment safe
+4. distinguish current fact from future goal
+5. verify every claim against the repo before documenting it
 
-## Non-negotiable rules
+## Known Current Issues Worth Checking First
 
-- do not introduce frameworks
-- do not introduce a backend
-- do not break GitHub Pages compatibility
-- do not break the HUB flow
-- do not break CSV-based workflows
-- prioritize stability over deep refactor
-
-## Critical preserved decisions
-
-- `index.json` should be the source of truth for file availability
-- target structure is language -> topics -> files
-- double BACK buttons were intentional
-- if all words are deleted from a topic, the topic should be deleted
-- multi-file topics are a real requirement
-- CSV outputs should keep strict comma discipline
-- shared TTS should be a future direction, not three separate long-term systems
-
-## Known historically important open areas to verify
-
-- rename-topic bug
-- multi-file topic UI completeness
-- sanitization / XSS exposure
-- CSV validation
-- search debounce
-- storage versioning consistency
-- WP mistake counting / long sentence / mobile / session persistence issues
-
-## Deliverables required from you
-
-1. real repo map
-2. actual file/function mapping for HUB, FC, WM, WP
-3. corrected README
-4. corrected AGENTS.md
-5. corrected architecture doc
-6. open issues list: verified only
-7. resolved issues list: verified only
-8. prioritized action plan:
-   - must fix now
-   - should fix next
-   - later improvements
-9. explicit list of intentional quirks that should not be “fixed”
-10. risk list for security / deployment / storage
-
-## Important method rule
-
-Do not assume the docs are right if the repo disagrees.
-Do not assume the repo is right if the docs reveal intentional design choices not reflected in comments.
-Reconcile both.
-
-## Preferred output style
-
-- direct
-- file-specific
-- concrete
-- no vague handwaving
-- distinguish facts from assumptions
-
----
+- vocabulary tree filtering mismatch
+- topic-title DOM interpolation
+- empty-topic auto-delete missing
+- permissive CSV parsing
+- service worker asset drift
+- dead code around import paths

@@ -14,8 +14,12 @@ function parseCsvLine(line) {
       if (inQuotes && nextCharacter === '"') {
         current += '"';
         index += 1;
-      } else {
+      } else if (inQuotes) {
         inQuotes = !inQuotes;
+      } else if (current.length === 0) {
+        inQuotes = true;
+      } else {
+        current += character;
       }
 
       continue;
@@ -31,7 +35,10 @@ function parseCsvLine(line) {
   }
 
   cells.push(current.trim());
-  return cells;
+  return {
+    cells,
+    hasUnclosedQuote: inQuotes,
+  };
 }
 
 function isHeader(cells) {
@@ -48,29 +55,47 @@ function isHeader(cells) {
   );
 }
 
-export function parseCsv(text, sourceId = "csv") {
+export function parseCsv(text, sourceId = "csv", options = {}) {
+  const { strict = true } = options;
   const rows = [];
+  const errors = [];
 
   String(text || "")
     .split(/\r?\n/)
     .forEach((line, index) => {
+      const lineNumber = index + 1;
+
       if (!line.trim()) {
         return;
       }
 
-      const cells = parseCsvLine(line);
+      const { cells, hasUnclosedQuote } = parseCsvLine(line);
       if (index === 0 && isHeader(cells)) {
         return;
       }
 
+      if (hasUnclosedQuote) {
+        errors.push(`line ${lineNumber}: unclosed quoted value`);
+        return;
+      }
+
       if (cells.length < 2) {
+        errors.push(`line ${lineNumber}: expected two columns`);
+        return;
+      }
+
+      if (strict && cells.length !== 2) {
+        errors.push(`line ${lineNumber}: expected exactly two columns`);
         return;
       }
 
       const source = normalizeWhitespace(cells[0]);
-      const target = normalizeWhitespace(cells.slice(1).join(","));
+      const target = normalizeWhitespace(
+        strict ? cells[1] : cells.slice(1).join(","),
+      );
 
       if (!source || !target) {
+        errors.push(`line ${lineNumber}: source and target are required`);
         return;
       }
 
@@ -80,6 +105,10 @@ export function parseCsv(text, sourceId = "csv") {
         target,
       });
     });
+
+  if (errors.length > 0) {
+    throw new Error(`Invalid CSV in ${sourceId}: ${errors.slice(0, 3).join("; ")}`);
+  }
 
   return rows;
 }

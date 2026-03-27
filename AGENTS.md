@@ -1,129 +1,68 @@
 # AGENTS.md
 
-This file is for any external coding agent working on ONE SOURCE.
-
-## Read This First
-
-You are not designing a fresh greenfield product.
-
-You are inheriting an already-evolved project with working parts, old constraints, intentional quirks, and unfinished unification work.
-
-The primary task is not innovation.
-The primary task is controlled stabilization.
+This file is for coding agents working in the ONE SOURCE repo.
 
 ## Mission
 
-Preserve the working system while moving it toward a cleaner unified architecture for:
+Preserve the working static app while improving correctness and clarity.
 
-- FC
-- WM
-- WP
-- shared HUB
-- shared topic/data pipeline
+Do not redesign the project as if it were a greenfield app.
+
+## Current Repo Facts
+
+- The app entry point is `index.html`.
+- The app shell is controlled by `core/hubManager.js`.
+- The current bundled hub registry is `hubIndex.js`.
+- There is no live `index.json` in this repo.
+- Hub content files live under `hub/`.
+- Local user lists live in `localStorage` through `core/storage.js`.
+- The three games are:
+  - `games/flashcards.js`
+  - `games/wordmatch.js`
+  - `games/wordpuzzle.js`
 
 ## Hard Rules
 
-### 1. Do not break the HUB
-The HUB is central to the project and should remain the content entry point.
+1. Do not add a product backend.
+2. Do not add frameworks unless explicitly requested.
+3. Keep the app static-host friendly.
+4. Preserve the shared HUB flow.
+5. Patch in place before proposing a deep refactor.
+6. Do not assume docs are correct if code disagrees.
 
-### 2. Do not break `index.json`
-The project is moving toward `index.json` as the source of truth for content availability.
+## Known Current Risks
 
-### 3. Do not introduce a backend
-Do not solve client-side problems by introducing a server unless explicitly requested.
+- HUB filtering mismatch for vocabulary content
+- no live `index.json`
+- weak CSV validation
+- empty-topic auto-delete not implemented
+- topic names rendered into game template strings
+- service worker cache list is easy to drift
 
-### 4. Do not introduce frameworks
-No React/Vue/etc. unless explicitly approved.
+## What To Verify Before Editing
 
-### 5. Do not force a massive refactor before stability
-Several deeper refactors were intentionally postponed.
+1. Whether the change touches home shell, library, or a game runtime
+2. Whether the change affects bundled hub content, local library content, or both
+3. Whether the affected text reaches the DOM through `innerHTML`
+4. Whether the change impacts GitHub Pages style relative paths
+5. Whether the storage shape in `core/storage.js` must stay backward compatible
 
-### 6. Keep GitHub Pages compatibility
-Static deployment matters.
+## Preferred Work Style
 
-## Project Philosophy
+- inspect the real file first
+- keep behavior stable
+- use existing shared utilities when possible
+- call out dead code and drift explicitly
+- separate "current fact" from "future target"
 
-- browser-first
-- static-first
-- simple data model
-- CSV-friendly
-- modular but not over-engineered
-- stable over fancy
+## Current Intentional Structure
 
-## Known Intentional Behavior
+- One app shell
+- One local library
+- One shared storage namespace prefix: `LLH_v4_*`
+- One shared session engine
+- Bundled hub content plus local editable copies
 
-### Double BACK buttons
-Previously flagged, later explicitly marked as intentional.
-Do not “fix” this unless the user changes direction.
+## Important Accuracy Note
 
-### Topic deletion rule
-If all words are deleted from a list, the topic itself should be deleted.
-
-### Stability before deep cleanup
-Security fixes and key behavior fixes were prioritized over deep modularization.
-
-## Known High-Priority Open Areas
-
-- rename-topic bug
-- incomplete multi-file topic handling
-- sanitization / XSS hardening
-- CSV validation
-- search debounce
-- localStorage versioning strategy
-- unification of shared engines/utilities
-
-## Expected Work Style
-
-When changing code:
-
-- inspect the real file structure first
-- identify existing working paths
-- preserve working behavior
-- patch in place when possible
-- avoid speculative redesign
-- if a deep refactor is proposed, isolate it and justify it
-
-## Preferred Deliverables
-
-The user often prefers:
-
-- precise file-by-file instructions
-- explicit replacement blocks
-- complete paste-ready files when practical
-- direct identification of what is intentional vs accidental
-- clear separation between “must fix now” and “future nice-to-have”
-
-## Areas That Likely Exist In Code
-
-The repo agent should verify actual names, but these concepts are expected to exist somewhere:
-
-- HUB / hubIndex / library loading
-- `index.json`
-- import/export logic
-- topic management
-- hard words / hard items manager
-- stats storage
-- sound toggles
-- app switching / shell flow
-- localStorage constants
-- language / topic selectors
-
-## What To Verify Immediately
-
-1. actual file names for HUB logic
-2. actual file names for FC / WM / WP runtime
-3. whether storage keys are shared or per-game
-4. how `index.json` is currently shaped
-5. how multi-file topics are represented and rendered
-6. current rename-topic implementation
-7. current CSV parsing and sanitization behavior
-8. current service worker / PWA behavior
-9. whether absolute paths break GitHub Pages deployment
-10. whether any intentional quirks are documented in code comments
-
-## Final Rule
-
-When in doubt, prefer:
-working and understandable
-over
-clever and fragile
+Historical docs in this repo previously described goals such as `index.json` and wider v4 unification. Treat those as design direction only when the current code does not already implement them.

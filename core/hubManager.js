@@ -800,7 +800,22 @@ class HubManager {
       return;
     }
 
-    Storage.removeLibraryRow(topic.id, rowId);
+    const updatedTopic = Storage.removeLibraryRow(topic.id, rowId);
+
+    if (!updatedTopic) {
+      if (this.selectedTopic?.id === topic.id) {
+        this.selectedTopic = null;
+        this.dom.startButton.disabled = true;
+        this.dom.startButton.textContent = "Select a topic first";
+      }
+
+      this.editingTopicId = null;
+      this.renderLibraryTopicList();
+      this.renderTopicTreeIfReady();
+      this.showLibrary();
+      return;
+    }
+
     this.renderLibraryTopicList();
     this.renderLibraryEditor();
     this.renderTopicTreeIfReady();

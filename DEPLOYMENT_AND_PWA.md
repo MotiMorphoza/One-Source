@@ -1,45 +1,37 @@
 # DEPLOYMENT AND PWA
 
-## 1. Deployment Target
+## Current Files
 
-ONE SOURCE is intended to be deployable as a static application, especially on GitHub Pages.
+- `index.html`
+- `manifest.json`
+- `sw.js`
+- `server.js`
 
-## 2. Deployment Conditions Previously Discussed
+## Current Behavior
 
-Deployment should work if:
+- `manifest.json` uses `./index.html` as `start_url`
+- `core/hubManager.js` registers `./sw.js`
+- `server.js` serves the repo over HTTP on port `4173`
+- the app warns when opened over `file://`
 
-- folder structure matches what the HUB expects
-- `manifest.json` uses correct relative paths / start_url
-- fetch paths are not broken by absolute URLs
-- case-sensitive paths match repo reality
-- service worker versioning is handled correctly
-- testing is performed through an HTTP server, not `file://`
+## Good Current Signs
 
-## 3. Areas To Verify
+- app asset paths are relative
+- service worker registration is relative
+- manifest path is relative
+- hub file fetches use relative paths
 
-Repo agent should inspect:
+## Current Risks
 
-- manifest pathing
-- start_url
-- icon references
-- service worker registration
-- cache versioning
-- absolute vs relative fetches
-- path assumptions in HUB loaders
+1. `sw.js` precaches core assets but does not list every module used by the app. For example `ui/library.js` is not in the install list.
+2. Hub CSV files are not precached in the install step and will be runtime-cached only after they are fetched.
+3. The service worker cache name is a hard-coded string and will need bumps when shipped assets change.
+4. The app currently depends on `hubIndex.js`, so metadata and content deployment must stay in sync.
 
-## 4. Failure Modes
+## Practical Rule
 
-Potential breakages include:
+Always test through HTTP:
 
-- works locally, fails on GitHub Pages
-- works on Windows paths, fails due to repo case sensitivity
-- stale service worker caches old assets
-- index file path mismatch
-- active topic/file path mismatch in production
-
-## 5. Practical Rule
-
-No deployment assumption should be trusted until verified on:
-- local HTTP server
-- GitHub Pages-like path structure
-- hard refresh / cache-refresh scenario
+```bash
+node server.js
+```

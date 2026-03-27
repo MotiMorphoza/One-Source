@@ -1,75 +1,38 @@
 # TEST PLAN
 
-This is a practical regression-oriented test plan based on known project behavior.
+## Home And HUB
 
-## 1. HUB / Library
+- select each language pair
+- select each game
+- verify the topic tree appears
+- verify bundled vocabulary content appears for Flash Cards and Word Match after the hub filtering bug is fixed
+- verify sentence content appears for Word Puzzle
 
-- open HUB
-- list languages
-- list topics
-- open topic with one file
-- open topic with multiple files
-- select file and launch FC
-- select file and launch WM
-- select file and launch WP
-- refresh after selection
-- test missing file referenced in index
+## Library
 
-## 2. FC
+- create a local topic
+- import a valid CSV
+- rename a topic
+- delete rows until empty and verify topic deletion behavior
+- export a topic
+- search rows
 
-- import valid CSV
-- import duplicate topic name
-- rename topic
-- delete word
-- delete all words in topic
-- verify topic auto-deletes
-- add hard word
-- remove hard word
-- export topic
-- search within topic/bank
-- sound on/off persistence
-- active topic highlight after HUB selection
+## Games
 
-## 3. WM
+- start each game from bundled hub content
+- start each game from local library content
+- restart a completed session
+- exit back to home
 
-- load topic
-- generate match board
-- complete round
-- verify timing/best-time behavior
-- verify reset/restart
-- verify RTL/LTR display
+## Security
 
-## 4. WP
+- import a topic name containing HTML-like text
+- verify topic name does not execute when shown in a game header
+- import malformed CSV rows and verify errors
 
-- load short sentence topic
-- load long sentence topic
-- verify token layout on mobile width
-- verify mistake counting
-- verify hard manager behavior
-- verify session persistence
-- verify sound stability
-- verify directionality on Hebrew/Arabic content
+## PWA And Deployment
 
-## 5. Security
-
-- import CSV with HTML-like content
-- topic name with angle brackets
-- quotes/apostrophes in values
-- malformed rows
-- empty cells
-- extra commas
-
-## 6. Deployment
-
-- test via local HTTP server
-- test via GitHub Pages
-- hard refresh
-- reopen after service worker cache
-- verify manifest load
-- verify relative paths
-
-## 7. Cross-Game
-
-- load same topic into FC, WM, WP
-- verify same source data is accepted by all three
-- verify storage isolation/shared behavior is intentional
+- run via `node server.js`
+- verify service worker registration
+- hard refresh after asset changes
+- verify relative paths still resolve

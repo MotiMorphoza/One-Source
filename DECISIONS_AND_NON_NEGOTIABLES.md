@@ -1,41 +1,24 @@
 # DECISIONS AND NON-NEGOTIABLES
 
-## 1. `index.json` must be the source of truth
-This is one of the clearest project decisions preserved from prior work.
+## Confirmed From The Repo
 
-Reasoning included:
+1. The app is static-first.
+2. The repo uses plain browser JavaScript, not a framework.
+3. `server.js` is a local static dev server, not a product backend.
+4. Relative paths are used throughout the app shell and service worker setup.
+5. The current bundled hub source is `hubIndex.js`.
+6. Local editable copies of hub content are part of the current behavior.
+7. Word Puzzle is the only sentence-mode game.
+8. Flash Cards and Word Match currently share vocabulary-mode content.
 
-- prevent browser HEAD checks
-- prevent wrong UI states
-- support multiple files cleanly
-- one authoritative availability model
+## Important Clarification
 
-## 2. No backend for routine stabilization
-The project is intended to remain static/client-side.
+`index.json` is not a current repo fact. It is a future design target that older docs mentioned. Do not build changes that assume it already exists.
 
-## 3. No framework migration by default
-The project should remain lightweight and browser-native unless the user explicitly changes direction.
+## Verified Guardrails For Future Work
 
-## 4. Stability before deep refactor
-A broad cleanup was considered but intentionally postponed.
-
-## 5. Double BACK buttons are intentional
-Do not remove them just because they look redundant.
-
-## 6. Empty topic must auto-delete
-If all words are deleted, the topic should be removed.
-
-## 7. Shared TTS should exist eventually
-Future direction:
-one shared speech/TTS engine rather than one per game.
-
-## 8. Multi-file topics are required
-This is not optional future fantasy.
-It is part of the intended model.
-
-## 9. CSV output must stay strict
-User requirement:
-only the separator comma should exist in CSV outputs.
-
-## 10. GitHub Pages compatibility matters
-Pathing, manifest, static behavior, and service worker setup must respect this.
+- do not break the home -> hub -> game flow
+- do not break local library editing
+- do not break local storage compatibility without a migration plan
+- do not replace the static app with a backend architecture
+- do not hide current repo issues behind vague future abstractions

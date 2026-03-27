@@ -1,47 +1,27 @@
 # PERFORMANCE AND CLEANUP
 
-## 1. Known Issues Previously Identified
+## Current Observations
 
-### Search without debounce
-This can cause unnecessary rendering and poor responsiveness.
+### Library search rerenders on each keystroke
 
-### Full rerenders
-At least some code was described as rerendering too broadly.
+`core/hubManager.js` rerenders the library editor directly on every `input` event.
 
-### Large monolithic script blocks
-The code was described as having a very large JS file with mixed concerns.
+### Topic tree rerenders frequently
 
-### Inline-heavy style/script structure
-May complicate testing and maintenance.
+Selection and several library actions rebuild the topic tree from scratch. This is acceptable at current scale but worth keeping in mind.
 
-## 2. Intentional Boundary
+### Manual asset lists can drift
 
-Even though deeper modularization was recommended, a major immediate refactor was intentionally deferred.
+`sw.js` keeps a manual cache list. This is maintenance-sensitive.
 
-So the priority is:
+### Some dead code remains
 
-- fix the biggest performance and safety issues first
-- then modularize carefully
+`triggerHomeImport()` exists but is not exposed by the current home UI.
 
-## 3. Near-Term Recommended Fixes
+## Recommended Cleanup Order
 
-These were effectively prioritized for near-future stabilization:
-
-1. sanitize before DOM insertion
-2. debounce search
-3. replace fragile IDs with UUIDs
-
-## 4. Cleanup Direction
-
-Later, after stability:
-
-- split UI/data/storage concerns
-- move reusable helpers to shared utilities
-- reduce duplicate logic between games
-- normalize lifecycle handling
-
-## 5. What To Avoid
-
-- giant speculative rewrite
-- changing working flow just to make architecture “look cleaner”
-- introducing abstraction layers with no immediate value
+1. correctness bugs
+2. DOM hardening
+3. CSV validation
+4. dead-code cleanup
+5. render optimization only if needed

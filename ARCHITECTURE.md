@@ -1,181 +1,101 @@
 # ARCHITECTURE
 
-## 1. System Overview
+## Overview
 
-ONE SOURCE is a unified language-learning platform that combines multiple game modes under one content system.
-
-At a conceptual level:
+ONE SOURCE is a single-page static application with one shell and three game modules.
 
 ```text
-                HUB / Library / Index
-                        |
-        -----------------------------------------
-        |                   |                   |
-       FC                  WM                  WP
-        \                  |                  /
-         \                 |                 /
-          -------- Shared Storage / Utils -----
+index.html
+  -> core/hubManager.js
+    -> core/hubAdapter.js
+    -> core/storage.js
+    -> core/engine.js
+    -> games/*
+    -> ui/*
+    -> utils/*
 ```
 
-## 2. Architectural Goals
+## Main Layers
 
-The architecture is intended to achieve:
+### 1. Shell
 
-- one shared content source
-- one shared topic selection flow
-- one shared storage layer or compatible storage contract
-- reusable parsing / utility logic
-- multiple learning experiences on top of the same dataset
+- `index.html`
+- `styles.css`
+- `core/hubManager.js`
+- `core/router.js`
 
-## 3. Main Layers
+The shell owns screen switching, app state, imports, library editing, stats, and game launch.
 
-### A. HUB Layer
-Responsibilities:
+### 2. Content Registry
 
-- expose available content
-- list languages / branches / topics / files
-- download or load a selected topic
-- pass selected data into a game
-- act as the user-facing library
+- `hubIndex.js`
+- `hub/`
+- `core/hubAdapter.js`
 
-Target truth model:
+The bundled content registry is currently `window.HUB_INDEX`, not `index.json`.
 
-- do not probe the filesystem in the browser
-- do not rely on HEAD requests for availability
-- trust `index.json`
+`HubAdapter.buildTree()` merges:
 
-### B. Data Layer
-Responsibilities:
+- bundled hub files from `hubIndex.js`
+- local library topics from `localStorage`
 
-- parse CSV
-- normalize rows
-- validate content
-- sanitize unsafe text
-- optionally detect RTL / language direction
-- provide a shared topic/data format to games
+### 3. Shared Runtime
 
-### C. Game Layer
-Contains:
+- `core/engine.js`
+- `core/audio.js`
+- `core/speech.js`
+- `core/eventBus.js`
 
-- FC
-- WM
-- WP
+Games use a common session engine for timing, correctness, hard-item marking, and session persistence.
 
-Each game should consume normalized data rather than implementing its own incompatible parsing rules.
+### 4. Storage
 
-### D. Storage Layer
-Responsibilities:
+- `core/storage.js`
 
-- save user topics
-- save stats
-- save hard items
-- save preferences such as sound
-- later possibly version data safely
+Storage is already versioned under the `LLH_v4_*` namespace.
 
-### E. Shared UX / Shell Layer
-Potential responsibilities:
+### 5. Game Modules
 
-- navigation
-- app switching
-- shared screen transitions
-- common controls
-- PWA integration
+- `games/flashcards.js`
+- `games/wordmatch.js`
+- `games/wordpuzzle.js`
 
-## 4. Current Reality vs Target Reality
+All games are launched through the same interface:
 
-### Current / Historical Reality
-From conversation history, the system appears to be partly unified but not fully.
-
-Observed state:
-
-- HUB exists
-- shared data ideas exist
-- games are present under the same umbrella
-- some storage/utilities are shared
-- some lifecycle control is still game-specific
-
-### Target Reality
-A more standardized runtime was discussed where all games follow a common contract and receive data/context from the shell instead of pulling everything themselves.
-
-Possible target interface:
-
-```text
-game.init(container, context)
-game.destroy()
+```js
+game.init(container, context, engine)
 ```
 
-## 5. Proposed Shared Engine Direction
+## Current Data Flow
 
-A future v4-style direction was discussed, including:
+1. User picks a language pair.
+2. User picks a game.
+3. `HubManager` asks `HubAdapter` for a filtered topic tree.
+4. The selected file is loaded from local library or fetched from `hub/`.
+5. Rows are parsed by `utils/csv.js`.
+6. The game receives normalized data and a shared `SessionEngine`.
 
-### Session/Core Engine
-Potential centralized handling of:
+## Important Current Limitation
 
-- session lifecycle
-- timer
-- stats
-- mistakes
-- progress bookkeeping
+The game-to-category mapping uses:
 
-### Shared Storage API
-Potential unified namespace pattern, for example:
+- `wordpuzzle -> "sentences"`
+- `flashcards` / `wordmatch -> "vocabulary"`
 
-```text
-LLH_v4_{type}_{game}_{topic}
-```
+But bundled hub entries currently use groups such as `daily_use`, `important_words`, and `sentences`. That mismatch is a real repo issue and affects the topic tree.
 
-This pattern must be verified against the repo before use.
+## What Is Already Unified
 
-### Shared Hub Adapter
-Games should not own HUB logic.
-Games should receive already-resolved context/data.
+- app shell
+- game launch path
+- session timing and stats
+- local storage namespace
+- audio and speech helpers
 
-### Shared Utilities
-Likely candidates:
+## What Is Not Yet Unified
 
-- CSV parse
-- sanitize
-- shuffle
-- detect RTL
-- tokenize / split logic
-- audio helpers
-- speech/TTS helpers
-
-## 6. Design Principles
-
-### Stability over refactor
-Large structural changes were intentionally postponed at times.
-
-### Source of truth over inference
-`index.json` should say what exists.
-
-### Unified content, multiple learning modes
-Same content, different pedagogic interfaces.
-
-### Static deployability
-Everything should work without server-side logic.
-
-## 7. Current Weak Points
-
-- missing sanitization
-- incomplete CSV validation
-- localStorage versioning not fully formalized
-- some logic likely mixed across UI/data/state
-- multi-file topic support incomplete in UI
-- some game-specific managers still isolated
-
-## 8. Security Boundaries
-
-Any user-provided or CSV-derived text that reaches the DOM must be treated as unsafe until sanitized.
-
-This was explicitly identified as a concern.
-
-## 9. Future Architectural Milestones
-
-1. complete shared data contract
-2. complete shared storage contract
-3. centralize HUB adapter
-4. standardize game interface
-5. shared speech/audio module
-6. performance cleanup
-7. optional deeper modular split
+- hub metadata shape
+- strict topic abstraction of `language -> topics -> files`
+- CSV validation policy
+- DOM hardening policy
+- empty-topic deletion behavior

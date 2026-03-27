@@ -1,117 +1,59 @@
 # ONE SOURCE
 
-ONE SOURCE is the current umbrella project name for the unified language-learning system that consolidates:
+ONE SOURCE is a static browser app that unifies three language-learning modes behind one shell:
 
-- Flash Cards (`FC`)
-- Word Match (`WM`)
-- Word Puzzle (`WP`)
-- A shared HUB / library / topic-loading layer
+- Flash Cards
+- Word Match
+- Word Puzzle
 
-This repository is intended to become a single static browser-based application that runs without a backend and can be deployed on GitHub Pages.
+The repo is plain HTML/CSS/JavaScript. It is designed to run without a product backend and stay compatible with GitHub Pages style hosting.
 
-## Project Intent
+## Current Repo Reality
 
-The goal is not just to host several separate mini-games in one repo.
+- Entry point: `index.html`
+- Main app controller: `core/hubManager.js`
+- Content registry shipped in repo: `hubIndex.js`
+- Shared data loader: `core/hubAdapter.js`
+- Shared storage: `core/storage.js`
+- Shared session logic: `core/engine.js`
+- Games: `games/flashcards.js`, `games/wordmatch.js`, `games/wordpuzzle.js`
+- Local content lives in browser `localStorage`
+- Bundled hub content lives in `hub/`
 
-The goal is to create:
+Important: this repo does **not** currently ship an `index.json` file. The app currently reads `window.HUB_INDEX` from `hubIndex.js`.
 
-- one shared data source
-- one shared topic library
-- one shared storage model
-- one shared user flow
-- multiple learning modes powered by the same content
+## How The App Works Today
 
-## Core Principle
+1. The home screen lets the user choose a language pair.
+2. The user chooses a game.
+3. The HUB tree is built from bundled hub content plus local library topics.
+4. When a hub file is started for the first time, the app saves a local copy in the library.
+5. Games run through a shared `SessionEngine`.
 
-`index.json` must become the single source of truth for file availability.
+## Content Rules In Code
 
-Target shape:
+- Vocabulary content is available to Flash Cards and Word Match.
+- Sentence content is available to Word Puzzle.
+- Rows are normalized to `{ id, source, target }`.
+- Imported and edited lists are stored locally and stay editable.
 
-```json
-language -> topics -> files
+## Local Development
+
+Open the project through HTTP, not `file://`.
+
+```bash
+node server.js
 ```
 
-That means the UI should not guess file existence from the filesystem and should not rely on browser-side HEAD probing to decide what exists.
+Then open `http://localhost:4173`.
 
-## Current Known Product Scope
+## Current Gaps Confirmed In Repo
 
-### FC
-Flash card style vocabulary learning.
+- `hubIndex.js` is still the live source of hub content metadata.
+- there is still no live `index.json`
+- `sw.js` uses a manual asset list that can drift from the actual import graph
+- `triggerHomeImport()` still exists in the shell without a current home-screen control
 
-### WM
-Word pair matching game.
+## Scope Notes
 
-### WP
-Sentence / phrase ordering game.
-
-### HUB
-Entry layer that exposes available content and routes or loads the chosen dataset into the games.
-
-## High-Level Technical Direction
-
-- static only
-- client-side only
-- GitHub Pages compatible
-- no framework required
-- no backend required
-- lightweight and modular
-- future-proof enough for unification
-
-## Current State Summary
-
-Based on prior work history:
-
-- FC is the most mature and most discussed module
-- WM is working and structurally simpler
-- WP is functional but still has more behavior/polish issues
-- HUB exists and is central
-- unification has started but is not yet fully complete
-- a deeper v4-style shared engine was discussed as a future upgrade path
-
-## Non-Negotiable Constraints
-
-- Do not convert the project into a framework-based app unless explicitly requested
-- Do not add a backend just to solve local issues
-- Do not break GitHub Pages compatibility
-- Do not break the HUB flow
-- Do not break the existing CSV-based content model
-- Prefer stability over ambitious refactors
-
-## Priority Order
-
-1. Stabilize behavior
-2. Preserve existing working flows
-3. Fix open bugs
-4. Improve shared structure
-5. Expand features only after stability
-
-## What This Documentation Pack Is
-
-This ZIP is a handoff pack generated from conversation history and remembered project context.
-
-It is not a repo scan.
-
-It captures:
-
-- architecture intent
-- known decisions
-- known bugs
-- fixes already discussed
-- future roadmap
-- external-agent guidance
-- assumptions that the repo agent should verify against actual files
-
-## What The Repo Agent Must Do Next
-
-The repo-aware agent should:
-
-1. compare these docs against the real codebase
-2. correct any naming drift
-3. map these concepts to actual files/functions
-4. preserve the decisions that are intentional
-5. fill any gaps using the repository itself
-
-## Important Limitation
-
-This package is based on conversation history and stored project knowledge, not on direct repository file access in this turn.
-Where exact file names or implementation details are unknown, that uncertainty is documented explicitly.
+`server.js` is only a local static file server for development. It is not a product backend.

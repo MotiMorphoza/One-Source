@@ -1,49 +1,30 @@
 # WM DETAILS
 
-WM is the word-matching game in ONE SOURCE.
+## File
 
-Conversation history contains less granular WM debugging detail than FC, but the following is known or strongly implied.
+- `games/wordmatch.js`
 
-## 1. Purpose
+## Current Runtime
 
-Use the same topic content to create a matching game between source and target terms.
+Word Match:
 
-## 2. Likely Runtime Concepts
+- shuffles the incoming rows
+- shows up to 6 active pairs at a time
+- uses left/right card selection
+- records correct and wrong attempts through `SessionEngine`
+- refills the board from a queue until all pairs are cleared
 
-- pair generation
-- shuffle
-- match validation
-- timer
-- best time or session performance
-- sound feedback
-- topic context from HUB
+## Shared Dependencies
 
-## 3. Unification Requirement
+- `core/engine.js`
+- `core/audio.js`
+- `utils/helpers.js`
+- `utils/text.js`
 
-WM should consume the same normalized topic data as FC and WP.
-It should not require a separate incompatible dataset shape.
+## Current Risks
 
-## 4. Likely Areas To Audit
+- wrong-attempt fallback ids can still use a timestamp-based string for misses
 
-Repo agent should inspect:
+## Behavioral Note
 
-- how pairs are built
-- whether duplicate words are safe
-- whether shuffling is fair and stable
-- whether RTL/LTR is handled correctly
-- whether sound logic is duplicated vs shared
-- whether stats are isolated or reusable
-- whether cleanup occurs when changing games/topics
-
-## 5. Possible Shared Utility Opportunities
-
-- shuffle utility
-- timer utility
-- sound utility
-- storage utility
-- direction detection
-
-## 6. Delivery Goal
-
-WM should remain simple and stable.
-Avoid overcomplicating it during unification.
+Cleanup is simple and mostly adequate. The game clears pending timeouts on destroy.

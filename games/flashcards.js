@@ -42,7 +42,7 @@ export class FlashCardsGame extends GameInterface {
         <header class="game-header">
           <div>
             <p class="game-label">Flash Cards</p>
-            <h2>${this.context.topic.name}</h2>
+            <h2 id="flashTopicTitle"></h2>
           </div>
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="flashTimer">0s</strong></span>
@@ -73,6 +73,7 @@ export class FlashCardsGame extends GameInterface {
       </section>
     `;
 
+    this.topicTitle = this.container.querySelector("#flashTopicTitle");
     this.timerValue = this.container.querySelector("#flashTimer");
     this.remainingValue = this.container.querySelector("#flashRemaining");
     this.cardButton = this.container.querySelector("#flashCard");
@@ -82,6 +83,7 @@ export class FlashCardsGame extends GameInterface {
     this.shuffleButton = this.container.querySelector("#flashShuffle");
     this.directionButton = this.container.querySelector("#flashDirection");
     this.exitButton = this.container.querySelector("#flashExit");
+    this.topicTitle.textContent = this.context.topic.name;
   }
 
   bindEvents() {

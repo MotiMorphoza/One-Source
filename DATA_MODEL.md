@@ -1,133 +1,85 @@
 # DATA MODEL
 
-## 1. Input Format
+## Current Normalized Row Shape
 
-The project is CSV-driven.
-
-A core remembered rule from the user:
-
-In CSV outputs, the only comma allowed is the comma that separates the languages.
-
-That implies generated/exported content should preserve a strict two-column pattern and avoid introducing extra commas inside values.
-
-## 2. Minimal CSV Shape
-
-Expected conceptual form:
-
-```csv
-source,target
-```
-
-In many FC examples, this is effectively:
-
-```csv
-word,translation
-```
-
-The repo agent must verify the exact canonical field names used internally.
-
-## 3. Topic Representation
-
-Conceptually, a topic is a collection of rows, typically represented as pairs:
+Rows are normalized to:
 
 ```js
-[
-  { front: "...", back: "..." },
-  { front: "...", back: "..." }
-]
+{
+  id: "string",
+  source: "string",
+  target: "string"
+}
 ```
 
-Actual field names may differ in code and must be verified.
+This shape is produced by:
 
-## 4. HUB Index Representation
+- `utils/csv.js`
+- `core/storage.js`
 
-Target structure that has been explicitly remembered:
+## CSV Parsing Today
 
-```json
+The parser now:
+
+- supports quoted values
+- skips blank lines
+- skips two known header styles
+- requires exactly two columns
+- rejects malformed non-empty rows
+- throws validation errors for unclosed quotes or missing cells
+
+## Bundled Hub Metadata Shape
+
+The live bundled registry is `window.HUB_INDEX` from `hubIndex.js`.
+
+Current shape:
+
+```js
 {
-  "languages": {
-    "he-en": {
-      "topics": {
-        "basics": {
-          "files": ["file1.csv", "file2.csv"]
-        }
+  version,
+  languages: [{ id, title }],
+  branches: [{ id, title }],
+  entries: [
+    {
+      branch,
+      group,
+      files: {
+        "lang-pair": ["file.csv"]
       }
     }
-  }
+  ]
 }
 ```
 
-This is not guaranteed to match the current repo exactly.
-It is the intended direction and must be reconciled against reality.
+## Local Library Topic Shape
 
-## 5. Why This Model Matters
-
-The design intent is:
-
-- multiple files can belong to one topic
-- availability is explicit
-- UI is generated from known metadata
-- browser does not need to infer or probe file existence
-
-## 6. Storage-Backed Topic Data
-
-The apps likely keep loaded/imported topics in localStorage.
-
-Conceptual buckets include:
-
-- topics / flashData
-- stats
-- hard items
-- preferences such as sound
-
-## 7. Deletion Rule
-
-A preserved project rule:
-
-If all words are deleted from a list, the topic itself must be deleted.
-
-This affects both data integrity and UI behavior.
-
-## 8. Import Behavior Expectations
-
-Expected import concerns:
-
-- avoid duplicate topic collisions
-- use file name as topic name or derivative of it in some flows
-- reject or protect against duplicate topic creation
-- parse CSV rows safely
-- validate malformed content
-
-## 9. Export Expectations
-
-Exports should likely preserve:
-
-- row order where relevant
-- strict CSV format
-- safe filename generation
-- no accidental extra commas in fields
-
-## 10. Data Risks Currently Known
-
-- malformed rows may pass
-- empty values may pass
-- special characters may not be sanitized
-- DOM insertion may happen from unsafe text
-- IDs may be weak if generated from timestamps/random
-
-## 11. Recommended Normalized Internal Shape
-
-A future-safe normalized model might include:
+`core/storage.js` sanitizes topics to:
 
 ```js
 {
-  id: "uuid",
-  topicId: "string",
-  front: "string",
-  back: "string",
-  rtlFront: true/false,
-  rtlBack: true/false
+  id,
+  name,
+  fileName,
+  path,
+  lang,
+  branch,
+  group,
+  source,
+  category,
+  allowedGames,
+  rows,
+  createdAt,
+  updatedAt,
+  originPath,
+  originMeta
 }
 ```
 
-But this is a proposal, not a confirmed current implementation.
+## Category Rules In Code
+
+- `sentences` -> `wordpuzzle`
+- `vocabulary` -> `flashcards`, `wordmatch`
+
+## Important Repo Fact
+
+The current bundled hub does not yet model a true `language -> topics -> files` hierarchy. It models `branch + group + files-by-language`.

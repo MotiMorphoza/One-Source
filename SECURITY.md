@@ -1,70 +1,23 @@
 # SECURITY
 
-## 1. Primary Known Risk: XSS
+## Current Safe Patterns
 
-A major issue previously identified:
-user-generated or CSV-derived content may be inserted into the DOM without sanitization.
+Most user-facing content rows are rendered with `textContent` or DOM node creation, which is safer than HTML string injection.
 
-This is a real risk in any client-side app that renders imported text.
+Game topic titles are now also assigned through DOM text assignment rather than direct template interpolation.
 
-## 2. Required Principle
+## Current Unsafe Or Fragile Patterns
 
-Anything that comes from:
+### Import validation is weak
 
-- CSV
-- manual input
-- imported files
-- topic names
-- custom word/translation values
+This area is improved, but import and edit flows still rely on lightweight prompt-based UX rather than structured field validation.
 
-must be treated as unsafe until sanitized.
+### Local topic names come from prompts and imports
 
-## 3. Basic Sanitization Pattern Previously Discussed
+That makes topic names untrusted input and they should be treated accordingly.
 
-```js
-function sanitizeInput(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-```
+## Recommended Fix Order
 
-This was discussed as a defensive pattern, but the repo agent should determine whether a better render strategy is possible.
-
-## 4. CSV Validation Gaps
-
-Known missing validation concerns:
-
-- malformed rows
-- missing separator
-- too many separators
-- empty values
-- unexpected long content
-- invalid control characters
-
-## 5. Recommended Security Audit
-
-The repo agent should identify all places where text reaches the DOM through:
-
-- `innerHTML`
-- template strings inserted as HTML
-- dynamic list rendering
-- topic naming UI
-- imported CSV content
-
-## 6. Recommended Priority
-
-Security hardening should happen before cosmetic refactors.
-
-## 7. What Not To Do
-
-Do not solve this by replacing working code with an oversized framework.
-Fix the vulnerable paths directly.
-
-## 8. Additional Considerations
-
-- filename sanitization
-- export filename safety
-- localStorage corruption handling
-- malformed `index.json` handling
-- safe fallback rendering for bad data
+1. keep validating imported CSV structure strictly
+2. add clearer user-facing errors for malformed imports
+3. continue removing any future dynamic HTML interpolation of untrusted text
