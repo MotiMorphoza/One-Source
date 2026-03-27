@@ -80,48 +80,50 @@
         </section>
 
         <section class="screen" id="screen-library">
-          <section class="panel">
-            <div class="section-header">
-              <div>
-                <h2>Create new list</h2>
+          <div class="library-layout">
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Create new list</h2>
+                </div>
               </div>
-            </div>
 
-            <label class="field-label" for="libraryLangSelect">Language pair</label>
-            <select id="libraryLangSelect"></select>
+              <label class="field-label" for="libraryLangSelect">Language pair</label>
+              <select id="libraryLangSelect"></select>
 
-            <label class="field-label" for="libraryCategorySelect">Topic</label>
-            <select id="libraryCategorySelect">
-              <option value="vocabulary">Vocabulary</option>
-              <option value="sentences">Sentences</option>
-            </select>
+              <label class="field-label" for="libraryCategorySelect">Topic</label>
+              <select id="libraryCategorySelect">
+                <option value="vocabulary">Vocabulary</option>
+                <option value="sentences">Sentences</option>
+              </select>
 
-            <label class="field-label" for="libraryTopicNameInput">New list name</label>
-            <input id="libraryTopicNameInput" type="text" placeholder="My new topic" />
+              <label class="field-label" for="libraryTopicNameInput">New list name</label>
+              <input id="libraryTopicNameInput" type="text" placeholder="My new topic" />
 
-            <div class="button-row">
-              <button type="button" class="button button-success" id="createLibraryTopicButton">
-                Create list
-              </button>
-              <button type="button" class="button button-primary" id="importLibraryFileButton">
-                Import CSV to library
-              </button>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="section-header">
-              <div>
-                <h2>Your lists</h2>
+              <div class="button-row">
+                <button type="button" class="button button-success" id="createLibraryTopicButton">
+                  Create list
+                </button>
+                <button type="button" class="button button-primary" id="importLibraryFileButton">
+                  Import CSV to library
+                </button>
               </div>
-            </div>
+            </section>
 
-            <div id="libraryTopicsMount" class="library-topics"></div>
+            <section class="panel">
+              <div class="section-header">
+                <div>
+                  <h2>Your lists</h2>
+                </div>
+              </div>
 
-            <button type="button" class="button button-secondary" id="backFromLibraryButton">
-              Back to home
-            </button>
-          </section>
+              <div id="libraryTopicsMount" class="library-topics"></div>
+
+              <button type="button" class="button button-secondary" id="backFromLibraryButton">
+                Back to home
+              </button>
+            </section>
+          </div>
         </section>
 
         <section class="screen" id="screen-library-editor">

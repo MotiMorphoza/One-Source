@@ -661,6 +661,13 @@ select optgroup {
   margin: 16px 0;
 }
 
+.library-layout {
+  display: grid;
+  grid-template-columns: minmax(19rem, 24rem) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
 .library-topic-card,
 .library-row-card {
   padding: 14px;
@@ -817,6 +824,10 @@ select optgroup {
   .library-topic-card__title-row,
   .library-row-card {
     flex-direction: column;
+  }
+
+  .library-layout {
+    grid-template-columns: 1fr;
   }
 
   .topic-tree,
