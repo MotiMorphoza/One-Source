@@ -291,8 +291,8 @@ select optgroup {
 }
 
 .button-primary {
-  background: linear-gradient(180deg, var(--blue), var(--blue-strong));
-  color: var(--blue-deep);
+  background: linear-gradient(180deg, var(--amber), var(--sunset-strong));
+  color: #4a1d00;
 }
 
 .button-secondary {
@@ -346,7 +346,8 @@ select optgroup {
   display: grid;
   gap: 12px;
   margin-bottom: 16px;
-  width: min(100%, 66%);
+  width: min(100%, 50%);
+  margin-inline: auto;
 }
 
 .accordion {

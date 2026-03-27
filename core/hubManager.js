@@ -98,7 +98,6 @@ class HubManager {
       contact: document.getElementById("screen-contact"),
       languageSelect: document.getElementById("languageSelect"),
       gameButtons: [...document.querySelectorAll("[data-game]")],
-      gameHint: document.getElementById("gameHint"),
       topicPanel: document.getElementById("topicPanel"),
       topicTree: document.getElementById("topicTree"),
       startButton: document.getElementById("startTopicButton"),
@@ -316,7 +315,6 @@ class HubManager {
     this.dom.startButton.disabled = true;
     this.dom.startButton.textContent = "Select a topic first";
     this.dom.topicTree.innerHTML = "";
-    this.dom.gameHint.textContent = this.selectedLang ? "Choose one of the games below." : "";
 
     this.dom.gameButtons.forEach((button) => {
       button.classList.remove("is-selected");
