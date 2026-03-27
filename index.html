@@ -85,10 +85,9 @@
               <label class="field-label" for="libraryLangSelect">Language pair</label>
               <select id="libraryLangSelect"></select>
 
-              <label class="field-label" for="libraryTopicSelect">Topic</label>
-              <select id="libraryTopicSelect"></select>
-
-              <input id="libraryTopicInput" type="text" placeholder="New topic" hidden />
+              <label class="field-label" for="libraryTopicInput">Topic</label>
+              <input id="libraryTopicInput" type="text" list="libraryTopicOptions" placeholder="Choose or create topic" />
+              <datalist id="libraryTopicOptions"></datalist>
 
               <label class="field-label" for="libraryTopicNameInput">List name</label>
               <input id="libraryTopicNameInput" type="text" placeholder="My new topic" />

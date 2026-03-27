@@ -114,8 +114,8 @@ class HubManager {
       startButton: document.getElementById("startTopicButton"),
       openLibraryButton: document.getElementById("openLibraryButton"),
       libraryLangSelect: document.getElementById("libraryLangSelect"),
-      libraryTopicSelect: document.getElementById("libraryTopicSelect"),
       libraryTopicInput: document.getElementById("libraryTopicInput"),
+      libraryTopicOptions: document.getElementById("libraryTopicOptions"),
       libraryTopicNameInput: document.getElementById("libraryTopicNameInput"),
       createLibraryTopicButton: document.getElementById("createLibraryTopicButton"),
       importLibraryFileButton: document.getElementById("importLibraryFileButton"),
@@ -177,11 +177,6 @@ class HubManager {
     });
 
     this.dom.libraryLangSelect.addEventListener("change", () => {
-      this.renderLibraryTopicList();
-    });
-
-    this.dom.libraryTopicSelect.addEventListener("change", () => {
-      this.updateLibraryTopicInputState();
       this.renderLibraryTopicList();
     });
 
@@ -324,57 +319,25 @@ class HubManager {
   }
 
   populateLibraryTopicOptions() {
-    const currentSelection = this.dom.libraryTopicSelect.value;
     const currentValue = this.dom.libraryTopicInput.value;
     const suggestions = HubAdapter.getTopicSuggestions();
 
-    this.dom.libraryTopicSelect.innerHTML = "";
-
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "Choose topic";
-    this.dom.libraryTopicSelect.appendChild(placeholder);
-
-    const createNew = document.createElement("option");
-    createNew.value = "__new__";
-    createNew.textContent = "Create new topic";
-    this.dom.libraryTopicSelect.appendChild(createNew);
+    this.dom.libraryTopicOptions.innerHTML = "";
 
     suggestions.forEach((topicName) => {
       const option = document.createElement("option");
       option.value = topicName;
-      option.textContent = topicName;
-      this.dom.libraryTopicSelect.appendChild(option);
+      this.dom.libraryTopicOptions.appendChild(option);
     });
 
-    if (
-      currentSelection &&
-      [...this.dom.libraryTopicSelect.options].some((option) => option.value === currentSelection)
-    ) {
-      this.dom.libraryTopicSelect.value = currentSelection;
-    } else if (currentValue) {
-      this.dom.libraryTopicSelect.value = "__new__";
+    if (currentValue) {
       this.dom.libraryTopicInput.value = HubAdapter.normalizeTopicName(currentValue);
     }
-
-    this.updateLibraryTopicInputState();
-  }
-
-  updateLibraryTopicInputState() {
-    const isCreatingTopic = this.dom.libraryTopicSelect.value === "__new__";
-    this.dom.libraryTopicInput.hidden = !isCreatingTopic;
-    this.dom.libraryTopicInput.disabled = !isCreatingTopic;
   }
 
   getSelectedLibraryTopicName() {
-    const selectedValue = this.dom.libraryTopicSelect.value;
-
-    if (selectedValue === "__new__") {
-      const customTopic = normalizeWhitespace(this.dom.libraryTopicInput.value);
-      return customTopic ? HubAdapter.normalizeTopicName(customTopic) : "";
-    }
-
-    return selectedValue ? HubAdapter.normalizeTopicName(selectedValue) : "";
+    const rawTopic = normalizeWhitespace(this.dom.libraryTopicInput.value);
+    return rawTopic ? HubAdapter.normalizeTopicName(rawTopic) : "";
   }
 
   handleLanguageChange(lang) {
@@ -903,7 +866,6 @@ class HubManager {
 
       this.editingTopicId = null;
       this.dom.libraryLangSelect.value = "";
-      this.dom.libraryTopicSelect.value = "";
       this.dom.libraryTopicInput.value = "";
       this.renderLibraryTopicList();
       this.renderTopicTreeIfReady();
@@ -994,7 +956,6 @@ class HubManager {
 
     this.editingTopicId = null;
     this.dom.libraryLangSelect.value = "";
-    this.dom.libraryTopicSelect.value = "";
     this.dom.libraryTopicInput.value = "";
     this.renderLibraryTopicList();
     this.renderTopicTreeIfReady();
