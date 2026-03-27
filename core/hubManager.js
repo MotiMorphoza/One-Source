@@ -629,9 +629,11 @@ class HubManager {
     }
   }
 
-  showLibrary() {
+  showLibrary(options = {}) {
+    const { syncSelectedLanguage = true } = options;
+
     this.destroyActiveGame();
-    if (!this.dom.libraryLangSelect.value && this.selectedLang) {
+    if (syncSelectedLanguage && !this.dom.libraryLangSelect.value && this.selectedLang) {
       this.dom.libraryLangSelect.value = this.selectedLang;
     }
     this.populateLibraryTopicOptions();
@@ -724,12 +726,6 @@ class HubManager {
 
   showLibraryEditor(topicId) {
     this.editingTopicId = topicId;
-    const topic = this.getEditingTopic();
-    if (topic) {
-      this.dom.libraryLangSelect.value = topic.lang || "";
-      this.populateLibraryTopicOptions();
-      this.dom.libraryTopicInput.value = topic.topicName || "grammer";
-    }
     this.dom.librarySearchInput.value = "";
     this.renderLibraryEditor();
     this.router.navigate("libraryEditor");
@@ -868,9 +864,11 @@ class HubManager {
       }
 
       this.editingTopicId = null;
+      this.dom.libraryLangSelect.value = "";
+      this.dom.libraryTopicInput.value = "";
       this.renderLibraryTopicList();
       this.renderTopicTreeIfReady();
-      this.showLibrary();
+      this.showLibrary({ syncSelectedLanguage: false });
       return;
     }
 
@@ -951,9 +949,11 @@ class HubManager {
     }
 
     this.editingTopicId = null;
+    this.dom.libraryLangSelect.value = "";
+    this.dom.libraryTopicInput.value = "";
     this.renderLibraryTopicList();
     this.renderTopicTreeIfReady();
-    this.showLibrary();
+    this.showLibrary({ syncSelectedLanguage: false });
   }
 
   async manageLibraryTopic(topicMeta) {
