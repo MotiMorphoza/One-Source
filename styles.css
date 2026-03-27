@@ -404,6 +404,15 @@ select optgroup {
   width: min(100%, 19rem);
 }
 
+#libraryLangSelect,
+#libraryCategorySelect,
+#libraryTopicNameInput,
+#librarySearchInput {
+  width: min(100%, 19rem);
+  display: block;
+  margin-inline: auto;
+}
+
 .topic-button.is-selected {
   background: linear-gradient(180deg, var(--blue), var(--blue-strong));
   color: var(--blue-deep);
@@ -491,6 +500,7 @@ select optgroup {
 .button-row {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
 }
 
