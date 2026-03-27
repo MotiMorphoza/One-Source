@@ -412,6 +412,7 @@ select optgroup {
 }
 
 #libraryLangSelect,
+#libraryTopicSelect,
 #libraryTopicInput,
 #libraryTopicNameInput,
 #librarySearchInput {

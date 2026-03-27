@@ -114,8 +114,8 @@ class HubManager {
       startButton: document.getElementById("startTopicButton"),
       openLibraryButton: document.getElementById("openLibraryButton"),
       libraryLangSelect: document.getElementById("libraryLangSelect"),
+      libraryTopicSelect: document.getElementById("libraryTopicSelect"),
       libraryTopicInput: document.getElementById("libraryTopicInput"),
-      libraryTopicOptions: document.getElementById("libraryTopicOptions"),
       libraryTopicNameInput: document.getElementById("libraryTopicNameInput"),
       createLibraryTopicButton: document.getElementById("createLibraryTopicButton"),
       importLibraryFileButton: document.getElementById("importLibraryFileButton"),
@@ -177,6 +177,11 @@ class HubManager {
     });
 
     this.dom.libraryLangSelect.addEventListener("change", () => {
+      this.renderLibraryTopicList();
+    });
+
+    this.dom.libraryTopicSelect.addEventListener("change", () => {
+      this.updateLibraryTopicInputState();
       this.renderLibraryTopicList();
     });
 
@@ -307,7 +312,7 @@ class HubManager {
 
     const placeholder = document.createElement("option");
     placeholder.value = "";
-    placeholder.textContent = "All languages / choose one";
+    placeholder.textContent = "בחר שפה";
     this.dom.libraryLangSelect.appendChild(placeholder);
 
     HubAdapter.getLanguages().forEach((language) => {
@@ -319,20 +324,57 @@ class HubManager {
   }
 
   populateLibraryTopicOptions() {
+    const currentSelection = this.dom.libraryTopicSelect.value;
     const currentValue = this.dom.libraryTopicInput.value;
     const suggestions = HubAdapter.getTopicSuggestions();
 
-    this.dom.libraryTopicOptions.innerHTML = "";
+    this.dom.libraryTopicSelect.innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Choose topic";
+    this.dom.libraryTopicSelect.appendChild(placeholder);
+
+    const createNew = document.createElement("option");
+    createNew.value = "__new__";
+    createNew.textContent = "Create new topic";
+    this.dom.libraryTopicSelect.appendChild(createNew);
 
     suggestions.forEach((topicName) => {
       const option = document.createElement("option");
       option.value = topicName;
-      this.dom.libraryTopicOptions.appendChild(option);
+      option.textContent = topicName;
+      this.dom.libraryTopicSelect.appendChild(option);
     });
 
-    if (currentValue) {
+    if (
+      currentSelection &&
+      [...this.dom.libraryTopicSelect.options].some((option) => option.value === currentSelection)
+    ) {
+      this.dom.libraryTopicSelect.value = currentSelection;
+    } else if (currentValue) {
+      this.dom.libraryTopicSelect.value = "__new__";
       this.dom.libraryTopicInput.value = HubAdapter.normalizeTopicName(currentValue);
     }
+
+    this.updateLibraryTopicInputState();
+  }
+
+  updateLibraryTopicInputState() {
+    const isCreatingTopic = this.dom.libraryTopicSelect.value === "__new__";
+    this.dom.libraryTopicInput.hidden = !isCreatingTopic;
+    this.dom.libraryTopicInput.disabled = !isCreatingTopic;
+  }
+
+  getSelectedLibraryTopicName() {
+    const selectedValue = this.dom.libraryTopicSelect.value;
+
+    if (selectedValue === "__new__") {
+      const customTopic = normalizeWhitespace(this.dom.libraryTopicInput.value);
+      return customTopic ? HubAdapter.normalizeTopicName(customTopic) : "";
+    }
+
+    return selectedValue ? HubAdapter.normalizeTopicName(selectedValue) : "";
   }
 
   handleLanguageChange(lang) {
@@ -529,19 +571,17 @@ class HubManager {
 
   triggerLibraryImport() {
     const lang = this.dom.libraryLangSelect.value;
-    const rawTopicName = normalizeWhitespace(this.dom.libraryTopicInput.value);
+    const topicName = this.getSelectedLibraryTopicName();
 
     if (!lang) {
       Modal.alert("Choose a language pair for the local library import.");
       return;
     }
 
-    if (!rawTopicName) {
+    if (!topicName) {
       Modal.alert("Type or choose a topic for the library import.");
       return;
     }
-
-    const topicName = HubAdapter.normalizeTopicName(rawTopicName);
     const category = getCategoryForTopic(topicName);
 
     this.importContext = {
@@ -644,8 +684,7 @@ class HubManager {
   renderLibraryTopicList() {
     this.populateLibraryTopicOptions();
     const lang = this.dom.libraryLangSelect.value || null;
-    const rawTopicFilter = normalizeWhitespace(this.dom.libraryTopicInput.value);
-    const topicName = rawTopicFilter ? HubAdapter.normalizeTopicName(rawTopicFilter) : null;
+    const topicName = this.getSelectedLibraryTopicName() || null;
     const languages = lang ? [lang] : HubAdapter.getLanguages().map((language) => language.id);
     const seen = new Set();
     const topics = languages
@@ -676,7 +715,7 @@ class HubManager {
 
   createLibraryTopic() {
     const lang = this.dom.libraryLangSelect.value;
-    const rawTopicName = normalizeWhitespace(this.dom.libraryTopicInput.value);
+    const topicName = this.getSelectedLibraryTopicName();
     const name = normalizeWhitespace(this.dom.libraryTopicNameInput.value);
 
     if (!lang) {
@@ -684,7 +723,7 @@ class HubManager {
       return;
     }
 
-    if (!rawTopicName) {
+    if (!topicName) {
       Modal.alert("Type a topic before creating a local list.");
       return;
     }
@@ -694,7 +733,6 @@ class HubManager {
       return;
     }
 
-    const topicName = HubAdapter.normalizeTopicName(rawTopicName);
     const category = getCategoryForTopic(topicName);
     const allowedGames = getAllowedGamesForTopic(topicName);
 
@@ -865,6 +903,7 @@ class HubManager {
 
       this.editingTopicId = null;
       this.dom.libraryLangSelect.value = "";
+      this.dom.libraryTopicSelect.value = "";
       this.dom.libraryTopicInput.value = "";
       this.renderLibraryTopicList();
       this.renderTopicTreeIfReady();
@@ -955,6 +994,7 @@ class HubManager {
 
     this.editingTopicId = null;
     this.dom.libraryLangSelect.value = "";
+    this.dom.libraryTopicSelect.value = "";
     this.dom.libraryTopicInput.value = "";
     this.renderLibraryTopicList();
     this.renderTopicTreeIfReady();
