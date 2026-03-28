@@ -49,7 +49,7 @@ function createCsvBlob(rows) {
     lines.push(`"${source}","${target}"`);
   });
 
-  return new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  return new Blob(["\uFEFF", lines.join("\n")], { type: "text/csv;charset=utf-8" });
 }
 
 function flattenTopicTree(tree) {
@@ -287,6 +287,17 @@ class HubManager {
       : "Speech off";
   }
 
+  handleStorageFailure(message) {
+    const error = Storage.consumeLastError();
+    if (!error) {
+      return false;
+    }
+
+    const detail = error?.message ? ` ${error.message}` : "";
+    Modal.error(`${message}${detail}`);
+    return true;
+  }
+
   populateLanguages() {
     this.dom.languageSelect.innerHTML = "";
 
@@ -472,11 +483,16 @@ class HubManager {
   async prepareTopicForLaunch(gameId, topicMeta) {
     if (topicMeta.source === "hub") {
       const rows = await HubAdapter.loadTopic(topicMeta);
-      HubAdapter.ensureLocalTopic(topicMeta, rows, {
+      const cachedTopic = HubAdapter.ensureLocalTopic(topicMeta, rows, {
         category: topicMeta.category,
         allowedGames: topicMeta.allowedGames,
         source: "hub-cache",
       });
+      if (!cachedTopic) {
+        this.handleStorageFailure(
+          "The session started, but the local cached copy could not be saved.",
+        );
+      }
       this.renderLibraryTopicList();
 
       return {
@@ -605,6 +621,13 @@ class HubManager {
       });
 
       if (!topic) {
+        if (
+          this.handleStorageFailure(
+            "The file could not be saved to the local library.",
+          )
+        ) {
+          return;
+        }
         throw new Error("The file could not be saved to the local library.");
       }
 
@@ -724,6 +747,9 @@ class HubManager {
     });
 
     if (!topic) {
+      if (this.handleStorageFailure("The list could not be created.")) {
+        return;
+      }
       Modal.error("The list could not be created.");
       return;
     }
@@ -830,6 +856,10 @@ class HubManager {
       target,
     });
 
+    if (this.handleStorageFailure("The row could not be saved locally.")) {
+      return;
+    }
+
     if (!updated) {
       Modal.alert("Both sides of the row are required.");
       return;
@@ -865,6 +895,10 @@ class HubManager {
       target,
     });
 
+    if (this.handleStorageFailure("The row changes could not be saved locally.")) {
+      return;
+    }
+
     if (!updated) {
       Modal.alert("Both sides of the row are required.");
       return;
@@ -884,6 +918,10 @@ class HubManager {
     topic = this.ensureMineTopic(topic);
 
     const updatedTopic = Storage.removeLibraryRow(topic.id, rowId);
+
+    if (this.handleStorageFailure("The row could not be deleted locally.")) {
+      return;
+    }
 
     if (!updatedTopic) {
       if (topic.originPath) {
@@ -937,6 +975,9 @@ class HubManager {
     }
 
     Storage.renameLibraryTopic(topic.id, cleanName);
+    if (this.handleStorageFailure("The list rename could not be saved locally.")) {
+      return;
+    }
     this.renderLibraryTopicList();
     this.renderLibraryEditor();
     this.renderTopicTreeIfReady();
@@ -971,6 +1012,10 @@ class HubManager {
           allowedGames: topicMeta.allowedGames,
           source: "hub-cache",
         });
+        if (!localTopic) {
+          this.handleStorageFailure("The hub list could not be opened for local editing.");
+          return;
+        }
         this.renderLibraryTopicList();
         this.renderTopicTreeIfReady();
         this.showLibraryEditor(localTopic.id);

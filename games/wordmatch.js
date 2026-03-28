@@ -53,7 +53,7 @@ export class WordMatchGame extends GameInterface {
         </div>
 
         <div class="button-row">
-          <button type="button" class="button button-ghost" id="matchExit">Exit</button>
+          <button type="button" class="button button-ghost" id="matchExit">Home</button>
         </div>
       </section>
     `;

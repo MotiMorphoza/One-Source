@@ -59,7 +59,7 @@ export class WordPuzzleGame extends GameInterface {
             <button type="button" class="button button-success" id="puzzleNext" disabled>Next sentence</button>
           </div>
           <div class="button-row">
-            <button type="button" class="button button-ghost" id="puzzleExit">Exit</button>
+            <button type="button" class="button button-ghost" id="puzzleExit">Home</button>
           </div>
         </div>
       </section>

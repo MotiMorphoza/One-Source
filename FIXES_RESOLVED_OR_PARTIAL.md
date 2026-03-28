@@ -52,9 +52,21 @@ Removing the final row from a local list removes the topic from storage and retu
 
 Malformed rows now raise explicit validation errors instead of being silently accepted.
 
+### CSV export is safer for spreadsheet apps
+
+Exported CSV files now include a UTF-8 BOM so non-Latin text is less likely to break when opened in Excel on Windows.
+
 ### Service worker now prefers fresh app shell and HUB content
 
 `sw.js` uses network-first for shell files and bundled HUB assets, which reduces stale-shell behavior.
+
+### Desktop game shells are now less likely to clip controls
+
+The game screen uses a denser desktop layout and no longer hard-clips overflowing game content.
+
+### Local storage write failures are surfaced more clearly
+
+Library and HUB-cache flows now surface local save failures instead of silently acting as if the change definitely persisted.
 
 ### Hard lists can now be generated from real mistake data
 

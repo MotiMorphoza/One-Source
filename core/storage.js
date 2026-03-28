@@ -10,6 +10,7 @@ const LOCAL_TOPIC_NAME = "grammer";
 const SENTENCE_TOPIC_NAME = "sentences";
 const STANDARD_GAMES = ["flashcards", "wordmatch"];
 const SENTENCE_GAMES = ["flashcards", "wordmatch", "wordpuzzle"];
+let lastStorageError = null;
 
 function keyPart(value) {
   return encodeURIComponent(value ?? "global");
@@ -31,8 +32,10 @@ function safeGet(key, fallback = null) {
 function safeSet(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    lastStorageError = null;
     return true;
   } catch (error) {
+    lastStorageError = error;
     console.error("Storage write failed", error);
     return false;
   }
@@ -250,9 +253,10 @@ function updateTopicInCollection(topicId, updater) {
     return null;
   }
 
-  topics[index] = sanitizeTopic(updated, topics[index]);
-  safeSet(LIBRARY_KEY, topics);
-  return topics[index];
+  const existing = topics[index];
+  topics[index] = sanitizeTopic(updated, existing);
+  const saved = safeSet(LIBRARY_KEY, topics);
+  return saved ? topics[index] : existing;
 }
 
 export const Storage = {
@@ -266,6 +270,12 @@ export const Storage = {
 
   set(key, value) {
     return safeSet(key, value);
+  },
+
+  consumeLastError() {
+    const error = lastStorageError;
+    lastStorageError = null;
+    return error;
   },
 
   remove(key) {
@@ -424,8 +434,8 @@ export const Storage = {
 
     if (nextRows.length === 0) {
       topics.splice(index, 1);
-      safeSet(LIBRARY_KEY, topics);
-      return null;
+      const saved = safeSet(LIBRARY_KEY, topics);
+      return saved ? null : topic;
     }
 
     topics[index] = sanitizeTopic(
@@ -436,8 +446,8 @@ export const Storage = {
       },
       topic,
     );
-    safeSet(LIBRARY_KEY, topics);
-    return topics[index];
+    const saved = safeSet(LIBRARY_KEY, topics);
+    return saved ? topics[index] : topic;
   },
 
   removeLibraryTopic(topicId) {

@@ -21,11 +21,13 @@
 - start a bundled HUB list from Home and verify it appears in the Library with `HUB`
 - open that cached HUB list and make a real edit
 - verify it becomes `MINE`
+- verify quota / storage failure paths surface a visible error instead of silently failing
 - delete a local list from the Library card
 - remove a bundled HUB list from the Library card and verify it still exists on Home
 - rename a list
 - delete rows until empty and verify topic deletion behavior
 - export a list
+- open an exported CSV in Excel and verify Hebrew / Arabic text stays readable
 - verify the editor has a top `Back to library` button near `Export CSV`
 - search rows
 
@@ -47,6 +49,8 @@
 - verify Flash Cards shows `Home` next to `Time` and `Remaining`
 - verify Flash Cards action buttons use distinct colors
 - verify desktop game screens fit the viewport without unnecessary page scrolling
+- verify Word Match and Word Puzzle use `Home` instead of `Exit`
+- verify long game content stays reachable and does not get visually clipped on desktop
 - restart a completed session
 - exit back to Home
 

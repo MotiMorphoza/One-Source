@@ -455,6 +455,10 @@ select optgroup {
   gap: 16px;
 }
 
+#gameMount {
+  width: 100%;
+}
+
 .game-header {
   display: flex;
   justify-content: center;
@@ -646,63 +650,102 @@ select optgroup {
     align-items: flex-start;
   }
 
+  #screen-game #gameMount {
+    width: min(100%, 64rem);
+  }
+
   #screen-game .game-shell,
   #screen-game .results-shell {
-    width: min(100%, 64rem);
-    max-height: calc(100vh - 9rem);
+    width: 100%;
+    max-height: calc(100vh - 7.75rem);
+    min-height: 0;
     align-content: start;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable both-edges;
+    padding-inline-end: 4px;
   }
 
   .game-shell {
-    gap: 12px;
+    gap: 10px;
   }
 
   .game-header {
-    gap: 12px;
+    gap: 10px;
+  }
+
+  #screen-game .game-header h2,
+  #screen-game .results-shell h2 {
+    font-size: clamp(1.35rem, 2vw, 1.8rem);
+  }
+
+  #screen-game .panel {
+    padding: 12px;
+    margin-bottom: 0;
+  }
+
+  #screen-game .support-text {
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+
+  #screen-game .button {
+    padding: 8px 12px;
+  }
+
+  #screen-game .button-small {
+    padding: 7px 12px;
   }
 
   .metric-pill {
-    padding: 8px 12px;
+    padding: 7px 11px;
   }
 
   .button-row {
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
   .flash-panel {
-    gap: 12px;
-    padding: 12px;
+    width: min(100%, 42rem);
+    gap: 10px;
+    padding: 10px;
+    border-width: 4px;
   }
 
   .flash-card {
-    min-height: 8.5rem;
-    padding: 12px 16px;
+    min-height: clamp(6.5rem, 18vh, 8rem);
+    padding: 10px 14px;
+    font-size: clamp(1.35rem, 3vw, 2.9rem);
   }
 
   .match-card {
-    min-height: 64px;
-    padding: 10px;
+    min-height: 58px;
+    padding: 9px 10px;
   }
 
   .translation-card {
-    padding: 12px;
-    margin-bottom: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
   }
 
   .token-zone {
-    min-height: 74px;
-    margin-bottom: 10px;
-    padding: 12px;
+    min-height: 66px;
+    margin-bottom: 8px;
+    padding: 10px;
+    gap: 8px;
   }
 
   .token-zone--built {
-    min-height: 92px;
+    min-height: 80px;
+  }
+
+  .token-button {
+    padding: 7px 10px;
   }
 
   .results-shell {
-    gap: 14px;
+    gap: 12px;
   }
 }
 
