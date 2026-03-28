@@ -6,6 +6,7 @@
 - select each game
 - verify the Home accordion appears
 - verify the topic chooser is compact and the start button sits below it
+- leave Home and return to it, then verify the accordion is collapsed again
 - verify Home shows:
   - `Choose a topic` for bundled HUB content
   - `My lists` for local editable content
@@ -62,6 +63,7 @@
 
 - open Home on a narrow phone viewport and verify the shell keeps useful width
 - verify Home button rows stack cleanly without clipped labels
+- verify mobile buttons shrink to fit their text instead of keeping oversized fixed widths
 - verify Library create controls fill the width cleanly and do not overflow
 - verify Library action buttons stack into comfortable tap targets
 - verify the editor modal flows stay usable above the mobile keyboard

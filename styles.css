@@ -1154,6 +1154,12 @@ select optgroup {
     align-items: center;
   }
 
+  .button,
+  .button-small,
+  .icon-button {
+    min-inline-size: 0;
+  }
+
   .home-actions > .button,
   .button-row > .button,
   .library-topic-card__main-actions > .button,
@@ -1161,7 +1167,8 @@ select optgroup {
   .library-row-card__actions > .button,
   #startTopicButton,
   #backFromLibraryEditorButton {
-    width: min(100%, 22rem);
+    width: auto;
+    max-width: 100%;
   }
 
   .library-topic-card__actions {

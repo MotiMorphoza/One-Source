@@ -1,5 +1,5 @@
 export function renderAccordionTree(tree, options = {}) {
-  const { onSelect = () => {}, selectedId = null } = options;
+  const { onSelect = () => {}, selectedId = null, openFirstRoot = true } = options;
   const fragment = document.createDocumentFragment();
   const branches = Object.keys(tree);
 
@@ -14,7 +14,7 @@ export function renderAccordionTree(tree, options = {}) {
   branches.forEach((branchName, branchIndex) => {
     const accordion = document.createElement("section");
     accordion.className = "accordion";
-    accordion.classList.toggle("open", branchIndex === 0);
+    accordion.classList.toggle("open", openFirstRoot && branchIndex === 0);
 
     const header = document.createElement("button");
     header.type = "button";

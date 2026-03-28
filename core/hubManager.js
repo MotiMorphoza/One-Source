@@ -84,6 +84,7 @@ class HubManager {
     this.editingTopicId = null;
     this.importContext = null;
     this.librarySearchTimer = null;
+    this.forceCollapsedTopicTree = false;
   }
 
   init() {
@@ -431,6 +432,7 @@ class HubManager {
     this.dom.topicTree.appendChild(
       renderAccordionTree(tree, {
         selectedId: this.selectedTopic?.id || null,
+        openFirstRoot: !this.forceCollapsedTopicTree,
         onSelect: (fileMeta) => {
           this.selectedTopic = fileMeta;
           this.dom.startButton.disabled = false;
@@ -439,6 +441,7 @@ class HubManager {
         },
       }),
     );
+    this.forceCollapsedTopicTree = false;
   }
 
   async startSelectedTopic() {
@@ -1167,6 +1170,7 @@ class HubManager {
   showHome() {
     this.destroyActiveGame();
     this.router.navigate("home", { record: false });
+    this.forceCollapsedTopicTree = true;
 
     if (this.selectedLang) {
       this.dom.languageSelect.value = this.selectedLang;

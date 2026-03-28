@@ -14,6 +14,8 @@ All games are launched from `core/hubManager.js` and receive:
 - a context object with `lang`, `topic`, and `data`
 - a shared `SessionEngine`
 
+Return-to-home navigation during active screens now comes from the shared shell top bar instead of duplicated per-screen `Home` buttons.
+
 ## Content Gating In Code
 
 - `flashcards` -> vocabulary content

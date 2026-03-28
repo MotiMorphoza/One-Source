@@ -28,6 +28,10 @@ The shell now uses one shared `Home` button near `Sound` and `Speech` instead of
 
 Home no longer keeps the start action beside the topic chooser.
 
+### Returning to Home now collapses the topic accordion again
+
+Coming back to the Home screen now resets the accordion to a collapsed state instead of keeping it open from the previous visit.
+
 ### Starting a HUB file now makes it available in the Library
 
 Playing a bundled HUB file creates a local cached record so the user can later edit it from the Library.
