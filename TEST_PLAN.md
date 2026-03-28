@@ -20,6 +20,7 @@
 - create a local list
 - import a valid CSV
 - verify the new list appears in the Library
+- verify a newly created list shows `language | topic | list name` in the expected order
 - verify the Library list view shows only touched local lists, not the entire bundled HUB
 - verify the Library list section title is `Lists`
 - start a bundled HUB list from Home and verify it appears in the Library with `HUB`

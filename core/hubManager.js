@@ -289,6 +289,9 @@ class HubManager {
     this.dom.openHomeTopButton.hidden = !showHomeButton;
     this.dom.toggleSound.hidden = !showAudioButtons;
     this.dom.toggleSpeech.hidden = !showAudioButtons;
+    this.dom.toggleSound.style.display = showAudioButtons ? "" : "none";
+    this.dom.toggleSpeech.style.display = showAudioButtons ? "" : "none";
+    this.dom.openHomeTopButton.style.display = showHomeButton ? "" : "none";
     this.dom.topbarControls.hidden = !showHomeButton && !showAudioButtons;
   }
 

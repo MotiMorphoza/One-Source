@@ -620,7 +620,7 @@ export const Storage = {
 
     sessions.push({
       date: Date.now(),
-      topic: topicMeta.name,
+      topic: normalizeTopicName(topicMeta.topicName, ""),
       topicName: normalizeTopicName(topicMeta.topicName, ""),
       lang: topicMeta.lang,
       path: topicMeta.path,
@@ -642,7 +642,7 @@ export const Storage = {
     sessions.push({
       date: Date.now(),
       game,
-      topic: topicMeta.name,
+      topic: normalizeTopicName(topicMeta.topicName, ""),
       topicName: normalizeTopicName(topicMeta.topicName, ""),
       lang: topicMeta.lang,
       path: topicMeta.path,

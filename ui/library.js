@@ -54,11 +54,11 @@ export function renderLibraryTopics(mount, options = {}) {
     lang.textContent = topic.lang;
 
     const topicName = document.createElement("span");
-    topicName.textContent = topic.topicName;
+    topicName.textContent = topic.topicName || topic.originMeta?.topic || "";
 
     const name = document.createElement("span");
     name.className = "library-topic-card__name";
-    name.textContent = topic.name;
+    name.textContent = topic.name || topic.fileName || "";
 
     const badge = document.createElement("span");
     badge.className = `library-topic-card__badge library-topic-card__badge--${getSourceBadge(topic).toLowerCase()}`;
