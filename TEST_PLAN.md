@@ -53,6 +53,7 @@
 - start a HUB list, edit it into `MINE`, and verify best-time continuity still behaves as one topic identity
 - verify the Flash Cards word frame stays compact for short items and expands naturally for long sentences
 - verify the Flash Cards shuffle button label is `Shuffle`
+- verify the Flash Cards `Another round` button label is correct
 - verify Flash Cards action buttons use distinct colors
 - verify desktop game screens fit the viewport without unnecessary page scrolling
 - verify long game content stays reachable and does not get visually clipped on desktop
@@ -64,6 +65,7 @@
 - open Home on a narrow phone viewport and verify the shell keeps useful width
 - verify Home button rows stack cleanly without clipped labels
 - verify mobile buttons shrink to fit their text instead of keeping oversized fixed widths
+- verify the shared top-bar puts `Home` above `Sound` and `Speech` when one row is too tight
 - verify Library create controls fill the width cleanly and do not overflow
 - verify Library action buttons stack into comfortable tap targets
 - verify the editor modal flows stay usable above the mobile keyboard

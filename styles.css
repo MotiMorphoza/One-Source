@@ -1128,6 +1128,18 @@ select optgroup {
     justify-content: center;
   }
 
+  .toggle-row {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    justify-content: center;
+    justify-items: center;
+    gap: 8px;
+  }
+
+  #openHomeTopButton:not([hidden]) {
+    grid-column: 1 / -1;
+  }
+
   .results-grid,
   .stats-grid,
   .choice-grid {
@@ -1160,14 +1172,17 @@ select optgroup {
     min-inline-size: 0;
   }
 
+  .toggle-row > .icon-button,
   .home-actions > .button,
   .button-row > .button,
   .library-topic-card__main-actions > .button,
-  .library-topic-card__delete,
+  .library-topic-card__delete > .button,
   .library-row-card__actions > .button,
   #startTopicButton,
   #backFromLibraryEditorButton {
-    width: auto;
+    width: fit-content;
+    inline-size: auto;
+    min-width: 0;
     max-width: 100%;
   }
 
@@ -1183,6 +1198,10 @@ select optgroup {
 
   .library-topic-card__delete {
     margin-inline-start: 0;
+  }
+
+  .library-topic-card__delete > .button {
+    align-self: center;
   }
 
   .topic-tree,

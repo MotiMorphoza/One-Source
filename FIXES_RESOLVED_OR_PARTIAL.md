@@ -32,6 +32,10 @@ Home no longer keeps the start action beside the topic chooser.
 
 Coming back to the Home screen now resets the accordion to a collapsed state instead of keeping it open from the previous visit.
 
+### Mobile buttons now shrink more closely to their labels
+
+On narrow screens, shared action buttons and top-bar controls now prefer content width instead of stretching like full-width bars.
+
 ### Starting a HUB file now makes it available in the Library
 
 Playing a bundled HUB file creates a local cached record so the user can later edit it from the Library.
@@ -115,6 +119,10 @@ The editor now uses in-app modal dialogs for add, edit, rename, alert, and confi
 ### Global mobile layout is now tighter and more touch-safe
 
 The shell now uses smaller side margins on narrow screens, form controls expand to safe widths, button rows stack more predictably, and core tap targets such as topic buttons and puzzle tokens keep a safer minimum height.
+
+### The shared top bar now stacks `Home` above `Sound` and `Speech` on narrow screens
+
+If the top controls cannot sit comfortably on one row, the `Home` button moves to a centered row above the other two instead of forcing awkward wrapping.
 
 ### Word Match and Word Puzzle mobile wrapping is less fragile
 
