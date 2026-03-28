@@ -681,11 +681,15 @@ class HubManager {
       .flatMap((languageId) =>
         flattenTopicTree(
           HubAdapter.buildTree(languageId, {
-            sourceScope: "local",
+            sourceScope: "all",
           }),
         ),
       )
       .filter((topic) => {
+        if (topic.source === "hub" || topic.source === "hard-list") {
+          return false;
+        }
+
         const key = topic.originPath || topic.path || topic.id;
         if (seen.has(key)) {
           return false;

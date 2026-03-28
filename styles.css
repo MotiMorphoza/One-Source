@@ -378,7 +378,7 @@ select optgroup {
 .topic-tree {
   display: grid;
   gap: 12px;
-  width: min(100%, 34rem);
+  width: min(100%, 29rem);
   margin-inline: auto;
 }
 
