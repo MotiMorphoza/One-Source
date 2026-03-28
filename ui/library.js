@@ -20,7 +20,8 @@ function formatGameLabel(gameId) {
 export function renderLibraryTopics(mount, options = {}) {
   const {
     topics = [],
-    onManage = () => {},
+    onEdit = () => {},
+    onDelete = () => {},
     onStart = () => {},
   } = options;
 
@@ -63,9 +64,16 @@ export function renderLibraryTopics(mount, options = {}) {
     actionRow.className = "library-topic-card__actions";
     actionRow.appendChild(
       createButton(
-        topic.source === "hub" ? "Manage list" : "Edit list",
+        "Edit",
         "button button-secondary button-small",
-        () => onManage(topic),
+        () => onEdit(topic),
+      ),
+    );
+    actionRow.appendChild(
+      createButton(
+        "Delete",
+        "button button-danger button-small",
+        () => onDelete(topic),
       ),
     );
 

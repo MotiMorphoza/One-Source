@@ -1,4 +1,4 @@
-const CACHE_NAME = "llh-core-v4";
+const CACHE_NAME = "llh-core-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -53,10 +53,30 @@ self.addEventListener("fetch", (event) => {
   }
 
   const requestUrl = new URL(event.request.url);
+  const isSameOrigin = requestUrl.origin === self.location.origin;
   const isHubMetadataRequest = requestUrl.pathname.endsWith("/hubIndex.js");
   const isHubContentRequest = requestUrl.pathname.includes("/hub/");
+  const isAppShellRequest =
+    isSameOrigin &&
+    (event.request.mode === "navigate" ||
+      /\.(?:html|css|js|json)$/i.test(requestUrl.pathname));
 
   if (isHubMetadataRequest || isHubContentRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request)),
+    );
+    return;
+  }
+
+  if (isAppShellRequest) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -78,7 +98,6 @@ self.addEventListener("fetch", (event) => {
       }
 
       return fetch(event.request).then((response) => {
-        const isSameOrigin = new URL(event.request.url).origin === self.location.origin;
         if (isSameOrigin && response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));

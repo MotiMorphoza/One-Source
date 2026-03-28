@@ -5,6 +5,7 @@ const VERSION = "v4";
 const PREFIX = "LLH";
 const LIBRARY_KEY = `${PREFIX}_${VERSION}_library_topics_global`;
 const HIDDEN_ORIGINS_KEY = `${PREFIX}_${VERSION}_hidden_hub_origins`;
+const HIDDEN_LIBRARY_HUB_ORIGINS_KEY = `${PREFIX}_${VERSION}_hidden_library_hub_origins`;
 const LOCAL_TOPIC_NAME = "grammer";
 const SENTENCE_TOPIC_NAME = "sentences";
 const STANDARD_GAMES = ["flashcards", "wordmatch"];
@@ -43,6 +44,14 @@ function getHiddenOrigins() {
 
 function setHiddenOrigins(origins) {
   return safeSet(HIDDEN_ORIGINS_KEY, [...new Set(origins.filter(Boolean))]);
+}
+
+function getHiddenLibraryHubOrigins() {
+  return safeGet(HIDDEN_LIBRARY_HUB_ORIGINS_KEY, []);
+}
+
+function setHiddenLibraryHubOrigins(origins) {
+  return safeSet(HIDDEN_LIBRARY_HUB_ORIGINS_KEY, [...new Set(origins.filter(Boolean))]);
 }
 
 function normalizeTopicName(topicName, fallback = LOCAL_TOPIC_NAME) {
@@ -406,6 +415,32 @@ export const Storage = {
 
   isOriginHidden(originPath) {
     return Boolean(originPath) && getHiddenOrigins().includes(originPath);
+  },
+
+  getHiddenLibraryHubOrigins() {
+    return getHiddenLibraryHubOrigins();
+  },
+
+  isLibraryOriginHidden(originPath) {
+    return Boolean(originPath) && getHiddenLibraryHubOrigins().includes(originPath);
+  },
+
+  hideLibraryOrigin(originPath) {
+    if (!originPath) {
+      return false;
+    }
+
+    return setHiddenLibraryHubOrigins([...getHiddenLibraryHubOrigins(), originPath]);
+  },
+
+  unhideLibraryOrigin(originPath) {
+    if (!originPath) {
+      return false;
+    }
+
+    return setHiddenLibraryHubOrigins(
+      getHiddenLibraryHubOrigins().filter((entry) => entry !== originPath),
+    );
   },
 
   hideOrigin(originPath) {

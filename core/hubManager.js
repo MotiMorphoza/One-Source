@@ -632,12 +632,7 @@ class HubManager {
   }
 
   showLibrary(options = {}) {
-    const { syncSelectedLanguage = true } = options;
-
     this.destroyActiveGame();
-    if (syncSelectedLanguage && !this.dom.libraryLangSelect.value && this.selectedLang) {
-      this.dom.libraryLangSelect.value = this.selectedLang;
-    }
     this.populateLibraryTopicOptions();
     this.renderLibraryTopicList();
     this.router.navigate("library");
@@ -645,19 +640,20 @@ class HubManager {
 
   renderLibraryTopicList() {
     this.populateLibraryTopicOptions();
-    const lang = this.dom.libraryLangSelect.value || null;
-    const topicName = this.getSelectedLibraryTopicName() || null;
-    const languages = lang ? [lang] : HubAdapter.getLanguages().map((language) => language.id);
+    const languages = HubAdapter.getLanguages().map((language) => language.id);
     const seen = new Set();
     const topics = languages
       .flatMap((languageId) =>
         flattenTopicTree(
           HubAdapter.buildTree(languageId, {
-            topicName,
           }),
         ),
       )
       .filter((topic) => {
+        if (topic.source === "hub" && Storage.isLibraryOriginHidden(topic.path)) {
+          return false;
+        }
+
         const key = topic.originPath || topic.path || topic.id;
         if (seen.has(key)) {
           return false;
@@ -666,11 +662,16 @@ class HubManager {
         seen.add(key);
         return true;
       })
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => {
+        const left = `${a.lang}|${a.topicName}|${a.name}`.toLowerCase();
+        const right = `${b.lang}|${b.topicName}|${b.name}`.toLowerCase();
+        return left.localeCompare(right);
+      });
 
     renderLibraryTopics(this.dom.libraryTopicsMount, {
       topics,
-      onManage: (topicMeta) => this.manageLibraryTopic(topicMeta),
+      onEdit: (topicMeta) => this.manageLibraryTopic(topicMeta),
+      onDelete: (topicMeta) => this.deleteTopicFromLibrary(topicMeta),
       onStart: (topicMeta, gameId) => this.startLibraryTopic(topicMeta, gameId),
     });
   }
@@ -780,7 +781,7 @@ class HubManager {
       onDelete: (rowId) => this.deleteLibraryRow(rowId),
     });
 
-    this.dom.deleteLibraryTopicButton.hidden = topic.source === "hub";
+    this.dom.deleteLibraryTopicButton.hidden = false;
   }
 
   addLibraryRow() {
@@ -866,11 +867,9 @@ class HubManager {
       }
 
       this.editingTopicId = null;
-      this.dom.libraryLangSelect.value = "";
-      this.dom.libraryTopicInput.value = "";
       this.renderLibraryTopicList();
       this.renderTopicTreeIfReady();
-      this.showLibrary({ syncSelectedLanguage: false });
+      this.showLibrary();
       return;
     }
 
@@ -885,7 +884,7 @@ class HubManager {
       return;
     }
 
-    const nextName = window.prompt("New topic name:", topic.name);
+    const nextName = window.prompt("New list name:", topic.name);
     if (nextName === null) {
       return;
     }
@@ -956,11 +955,9 @@ class HubManager {
     }
 
     this.editingTopicId = null;
-    this.dom.libraryLangSelect.value = "";
-    this.dom.libraryTopicInput.value = "";
     this.renderLibraryTopicList();
     this.renderTopicTreeIfReady();
-    this.showLibrary({ syncSelectedLanguage: false });
+    this.showLibrary();
   }
 
   async manageLibraryTopic(topicMeta) {
@@ -981,6 +978,50 @@ class HubManager {
     }
 
     this.showLibraryEditor(topicMeta.id);
+  }
+
+  async deleteTopicFromLibrary(topicMeta) {
+    if (!topicMeta) {
+      return;
+    }
+
+    if (topicMeta.source === "hub") {
+      const confirmed = await Modal.confirm(
+        "Remove this hub list from the Library? It will remain available in Home.",
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      Storage.hideLibraryOrigin(topicMeta.path);
+      this.renderLibraryTopicList();
+      return;
+    }
+
+    const confirmed = await Modal.confirm("Delete this local list from the Library?");
+    if (!confirmed) {
+      return;
+    }
+
+    const removed = Storage.removeLibraryTopic(topicMeta.id);
+    if (!removed) {
+      Modal.error("The list could not be deleted.");
+      return;
+    }
+
+    if (this.editingTopicId === topicMeta.id) {
+      this.editingTopicId = null;
+    }
+
+    if (this.selectedTopic?.id === topicMeta.id) {
+      this.selectedTopic = null;
+      this.dom.startButton.disabled = true;
+      this.dom.startButton.textContent = "Select a topic first";
+    }
+
+    this.renderLibraryTopicList();
+    this.renderTopicTreeIfReady();
   }
 
   async startLibraryTopic(topicMeta, gameId) {
