@@ -116,8 +116,8 @@ export class SessionEngine {
     };
 
     Storage.saveGameSession(this.gameType, this.topicMeta, stats);
-    const isBest = Storage.updateBestTime(this.gameType, this.topicMeta.id, stats.time);
-    const bestTime = Storage.getBestTime(this.gameType, this.topicMeta.id);
+    const isBest = Storage.updateBestTime(this.gameType, this.topicMeta, stats.time);
+    const bestTime = Storage.getBestTime(this.gameType, this.topicMeta);
 
     const result = { stats, isBest, bestTime };
     this.callbacks.onEnd?.(result);

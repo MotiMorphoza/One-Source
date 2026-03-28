@@ -83,6 +83,7 @@ class HubManager {
     this.selectedTopic = null;
     this.editingTopicId = null;
     this.importContext = null;
+    this.librarySearchTimer = null;
   }
 
   init() {
@@ -177,14 +178,6 @@ class HubManager {
       this.showLibrary();
     });
 
-    this.dom.libraryLangSelect.addEventListener("change", () => {
-      this.renderLibraryTopicList();
-    });
-
-    this.dom.libraryTopicInput.addEventListener("input", () => {
-      this.renderLibraryTopicList();
-    });
-
     this.dom.createLibraryTopicButton.addEventListener("click", () => {
       this.createLibraryTopic();
     });
@@ -206,7 +199,10 @@ class HubManager {
     });
 
     this.dom.librarySearchInput.addEventListener("input", () => {
-      this.renderLibraryEditor();
+      window.clearTimeout(this.librarySearchTimer);
+      this.librarySearchTimer = window.setTimeout(() => {
+        this.renderLibraryEditor();
+      }, 120);
     });
 
     this.dom.addLibraryRowButton.addEventListener("click", () => {
@@ -536,6 +532,7 @@ class HubManager {
       id: topicMeta.id,
       name: topicMeta.name,
       path: topicMeta.path,
+      originPath: topicMeta.originPath || null,
       lang: topicMeta.lang,
       topicName: topicMeta.topicName,
       category: topicMeta.category,
@@ -762,6 +759,7 @@ class HubManager {
 
   showLibraryEditor(topicId) {
     this.editingTopicId = topicId;
+    window.clearTimeout(this.librarySearchTimer);
     this.dom.librarySearchInput.value = "";
     this.renderLibraryEditor();
     this.router.navigate("libraryEditor");
@@ -830,7 +828,7 @@ class HubManager {
     });
   }
 
-  addLibraryRow() {
+  async addLibraryRow() {
     let topic = this.getEditingTopic();
     if (!topic) {
       return;
@@ -840,20 +838,38 @@ class HubManager {
 
     const sourceLabel =
       topic.category === "sentences" ? "Source sentence" : "Learning language";
-    const targetLabel = topic.category === "sentences" ? "Translation" : "Translation";
-    const source = window.prompt(sourceLabel, "");
-    if (source === null) {
-      return;
-    }
+    const rowValues = await Modal.form({
+      title: topic.category === "sentences" ? "Add sentence" : "Add row",
+      message: "Add a new source and translation pair.",
+      confirmLabel: "Save row",
+      fields: [
+        {
+          id: "source",
+          label: sourceLabel,
+          value: "",
+          placeholder: sourceLabel,
+        },
+        {
+          id: "target",
+          label: "Translation",
+          value: "",
+          placeholder: "Translation",
+        },
+      ],
+      validate: (values) => (
+        !normalizeWhitespace(values.source) || !normalizeWhitespace(values.target)
+          ? "Both sides of the row are required."
+          : ""
+      ),
+    });
 
-    const target = window.prompt(targetLabel, "");
-    if (target === null) {
+    if (!rowValues) {
       return;
     }
 
     const updated = Storage.addLibraryRow(topic.id, {
-      source,
-      target,
+      source: rowValues.source,
+      target: rowValues.target,
     });
 
     if (this.handleStorageFailure("The row could not be saved locally.")) {
@@ -870,7 +886,7 @@ class HubManager {
     this.renderTopicTreeIfReady();
   }
 
-  editLibraryRow(rowId) {
+  async editLibraryRow(rowId) {
     let topic = this.getEditingTopic();
     const row = topic?.rows.find((entry) => entry.id === rowId);
 
@@ -878,21 +894,40 @@ class HubManager {
       return;
     }
 
-    const source = window.prompt("Edit source text", row.source);
-    if (source === null) {
-      return;
-    }
+    const rowValues = await Modal.form({
+      title: "Edit row",
+      message: "Update the source and translation text.",
+      confirmLabel: "Save changes",
+      fields: [
+        {
+          id: "source",
+          label: "Source",
+          value: row.source,
+          placeholder: "Source",
+        },
+        {
+          id: "target",
+          label: "Translation",
+          value: row.target,
+          placeholder: "Translation",
+        },
+      ],
+      validate: (values) => (
+        !normalizeWhitespace(values.source) || !normalizeWhitespace(values.target)
+          ? "Both sides of the row are required."
+          : ""
+      ),
+    });
 
-    const target = window.prompt("Edit translation", row.target);
-    if (target === null) {
+    if (!rowValues) {
       return;
     }
 
     topic = this.ensureMineTopic(topic);
 
     const updated = Storage.updateLibraryRow(topic.id, rowId, {
-      source,
-      target,
+      source: rowValues.source,
+      target: rowValues.target,
     });
 
     if (this.handleStorageFailure("The row changes could not be saved locally.")) {
@@ -946,13 +981,21 @@ class HubManager {
     this.renderTopicTreeIfReady();
   }
 
-  renameLibraryTopic() {
+  async renameLibraryTopic() {
     let topic = this.getEditingTopic();
     if (!topic) {
       return;
     }
 
-    const nextName = window.prompt("New list name:", topic.name);
+    const nextName = await Modal.prompt("Rename this list.", topic.name, {
+      title: "Rename list",
+      label: "List name",
+      confirmLabel: "Save name",
+      placeholder: "List name",
+      validate: (values) => (
+        !normalizeWhitespace(values.value) ? "List name is required." : ""
+      ),
+    });
     if (nextName === null) {
       return;
     }

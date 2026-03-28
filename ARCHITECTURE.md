@@ -102,6 +102,7 @@ The Library is where editing and removal are managed.
 The editor works on stored local topic objects from `core/storage.js`.
 
 Bundled HUB rows are loaded and stored locally before editing. The editor no longer owns full-list deletion.
+Editing prompts and confirmations now run through in-app modal UI instead of native browser dialogs.
 
 ## Current Data Flow
 

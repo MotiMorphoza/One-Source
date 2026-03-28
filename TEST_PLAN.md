@@ -30,6 +30,7 @@
 - open an exported CSV in Excel and verify Hebrew / Arabic text stays readable
 - verify the editor has a top `Back to library` button near `Export CSV`
 - search rows
+- verify add/edit/rename/delete flows use in-app modal dialogs instead of browser-native prompts
 
 ## Hard Lists
 
@@ -44,6 +45,7 @@
 
 - start each game from bundled HUB content
 - start each game from Library content
+- start a HUB list, edit it into `MINE`, and verify best-time continuity still behaves as one topic identity
 - verify the Flash Cards word frame stays compact for short items and expands naturally for long sentences
 - verify the Flash Cards shuffle button label is `Shuffle`
 - verify Flash Cards shows `Home` next to `Time` and `Remaining`

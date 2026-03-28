@@ -68,6 +68,18 @@ The game screen uses a denser desktop layout and no longer hard-clips overflowin
 
 Library and HUB-cache flows now surface local save failures instead of silently acting as if the change definitely persisted.
 
+### Topic-scoped persistence is more stable across HUB edits
+
+Topic-scoped sessions and best times now prefer bundled origin identity when available, which reduces split records between a HUB file and its edited local copy.
+
+### Library editor search is less noisy
+
+The editor search now uses a short debounce, and the create-form inputs no longer trigger list rerenders on each keystroke.
+
+### Library editing no longer depends on native browser dialogs
+
+The editor now uses in-app modal dialogs for add, edit, rename, alert, and confirm flows, which is a better fit for PWA and mobile usage.
+
 ### Hard lists can now be generated from real mistake data
 
 Wrong answers are now stored with stable row signatures, and Home can generate `Hard words` and `Hard sentences` under `My lists` once an item reaches 2 mistakes.
@@ -83,5 +95,4 @@ The Library no longer reuses the create-form inputs as implicit list filters. Th
 Do not treat the following as resolved from this file:
 
 - live `index.json`
-- search debounce
 - manual service worker asset graph management

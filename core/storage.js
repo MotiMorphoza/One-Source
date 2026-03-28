@@ -20,6 +20,26 @@ function buildKey(type, game = "global", topicId = "global") {
   return `${PREFIX}_${VERSION}_${type}_${keyPart(game)}_${keyPart(topicId)}`;
 }
 
+function resolveTopicStorageCandidates(topicRef = null) {
+  if (!topicRef || typeof topicRef === "undefined") {
+    return ["global"];
+  }
+
+  if (typeof topicRef === "string") {
+    return [topicRef || "global"];
+  }
+
+  const candidates = [
+    topicRef.originPath,
+    topicRef.path,
+    topicRef.id,
+  ]
+    .map((value) => normalizeWhitespace(String(value || "")))
+    .filter(Boolean);
+
+  return candidates.length > 0 ? [...new Set(candidates)] : ["global"];
+}
+
 function safeGet(key, fallback = null) {
   try {
     const value = localStorage.getItem(key);
@@ -536,7 +556,8 @@ export const Storage = {
   },
 
   saveGameSession(game, topicMeta, stats) {
-    const sessionKey = buildKey("sessions", game, topicMeta.id);
+    const [primaryTopicId] = resolveTopicStorageCandidates(topicMeta);
+    const sessionKey = buildKey("sessions", game, primaryTopicId);
     const sessions = safeGet(sessionKey, []);
 
     sessions.push({
@@ -582,7 +603,18 @@ export const Storage = {
   },
 
   getGameSessions(game, topicId = null) {
-    return safeGet(buildKey("sessions", game, topicId), []);
+    const candidates = resolveTopicStorageCandidates(topicId);
+    const merged = candidates.flatMap((candidate) =>
+      safeGet(buildKey("sessions", game, candidate), []),
+    );
+
+    if (merged.length === 0) {
+      return [];
+    }
+
+    return merged
+      .sort((left, right) => (right.date || 0) - (left.date || 0))
+      .slice(0, 100);
   },
 
   getAllSessions() {
@@ -590,11 +622,23 @@ export const Storage = {
   },
 
   updateBestTime(game, topicId, time) {
-    const key = buildKey("best", game, topicId);
-    const current = safeGet(key, 0);
+    const candidates = resolveTopicStorageCandidates(topicId);
+    const primaryKey = buildKey("best", game, candidates[0]);
+    const current = candidates.reduce((best, candidate) => {
+      const value = safeGet(buildKey("best", game, candidate), 0);
+      if (!value) {
+        return best;
+      }
+
+      if (!best || value < best) {
+        return value;
+      }
+
+      return best;
+    }, 0);
 
     if (!current || time < current) {
-      safeSet(key, time);
+      safeSet(primaryKey, time);
       return true;
     }
 
@@ -602,7 +646,18 @@ export const Storage = {
   },
 
   getBestTime(game, topicId) {
-    return safeGet(buildKey("best", game, topicId), 0);
+    return resolveTopicStorageCandidates(topicId).reduce((best, candidate) => {
+      const value = safeGet(buildKey("best", game, candidate), 0);
+      if (!value) {
+        return best;
+      }
+
+      if (!best || value < best) {
+        return value;
+      }
+
+      return best;
+    }, 0);
   },
 
   addHardItem(game, topicMeta, item) {

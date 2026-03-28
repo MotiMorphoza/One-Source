@@ -47,6 +47,7 @@ Important current source values:
 - editing a cached HUB list promotes it to `hub-copy`
 - deleting a local list removes its stored topic object
 - removing a bundled HUB list from the Library uses Library-only hidden origin storage instead of deleting a bundled file
+- topic-scoped sessions and best times now prefer `originPath` when available, so a HUB file and its edited local copy can share the same identity more cleanly
 - hard marks are recorded with stable encoded row signatures
 - generated hard lists are built from hard marks with a threshold of 2 wrong answers
 
