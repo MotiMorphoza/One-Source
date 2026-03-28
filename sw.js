@@ -1,35 +1,20 @@
-const CACHE_NAME = "llh-core-v6";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./styles.css",
-  "./assets/icons/app-icon.svg",
-  "./assets/icons/favicon-32.png",
-  "./assets/icons/apple-touch-icon.png",
-  "./assets/icons/icon-192.png",
-  "./assets/icons/icon-512.png",
-  "./hubIndex.js",
-  "./core/audio.js",
-  "./core/engine.js",
-  "./core/eventBus.js",
-  "./core/hubAdapter.js",
-  "./core/hubManager.js",
-  "./core/router.js",
-  "./core/speech.js",
-  "./core/storage.js",
-  "./games/flashcards.js",
-  "./games/gameInterface.js",
-  "./games/wordmatch.js",
-  "./games/wordpuzzle.js",
-  "./ui/accordion.js",
-  "./ui/library.js",
-  "./ui/modals.js",
-  "./ui/stats.js",
-  "./utils/csv.js",
-  "./utils/helpers.js",
-  "./utils/text.js"
-];
+try {
+  importScripts("./sw-assets.js");
+} catch (error) {
+  console.warn("Generated service-worker asset manifest could not be loaded.", error);
+}
+
+const CACHE_NAME = "llh-core-v7";
+const ASSETS = Array.isArray(self.APP_SHELL_ASSETS) && self.APP_SHELL_ASSETS.length > 0
+  ? self.APP_SHELL_ASSETS
+  : [
+      "./",
+      "./index.html",
+      "./manifest.json",
+      "./styles.css",
+      "./hubIndex.js",
+      "./core/hubManager.js",
+    ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

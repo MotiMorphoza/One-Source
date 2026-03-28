@@ -1,0 +1,52 @@
+name: Rebuild SW Assets
+
+on:
+  push:
+    paths:
+      - "index.html"
+      - "manifest.json"
+      - "styles.css"
+      - "core/**"
+      - "games/**"
+      - "ui/**"
+      - "utils/**"
+      - "assets/icons/**"
+      - "scripts/build_sw_assets.py"
+      - ".github/workflows/rebuild-sw-assets.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebuild-sw-assets
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Rebuild sw-assets.js
+        run: python scripts/build_sw_assets.py
+
+      - name: Commit updated sw-assets.js
+        run: |
+          if git diff --quiet -- sw-assets.js; then
+            echo "sw-assets.js is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sw-assets.js
+          git commit -m "Auto-update service worker assets"
+          git push

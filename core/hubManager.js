@@ -1221,9 +1221,12 @@ class HubManager {
     }
 
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch((error) => {
-        console.warn("Service worker registration failed", error);
-      });
+      navigator.serviceWorker
+        .register("./sw.js", { updateViaCache: "none" })
+        .then((registration) => registration.update().catch(() => {}))
+        .catch((error) => {
+          console.warn("Service worker registration failed", error);
+        });
     });
   }
 }

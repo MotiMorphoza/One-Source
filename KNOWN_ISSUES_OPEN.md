@@ -4,9 +4,9 @@ These items are based on the current repo contents after the latest stabilizatio
 
 ## High Priority
 
-### 1. Service worker install list can still drift
+### 1. Service worker updates still need live refresh verification
 
-`sw.js` still has a manual precache asset list. The runtime strategy is better now, but the install list is not generated from the real import graph.
+The shell asset list is now generated, but cache version bumps and reopened-PWA behavior still need live verification after frontend changes.
 
 ### 2. No live `index.json`
 

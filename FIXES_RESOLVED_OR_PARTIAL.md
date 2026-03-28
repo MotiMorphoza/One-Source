@@ -60,6 +60,14 @@ Exported CSV files now include a UTF-8 BOM so non-Latin text is less likely to b
 
 `sw.js` uses network-first for shell files and bundled HUB assets, which reduces stale-shell behavior.
 
+### Service-worker shell assets are now generated from the real frontend graph
+
+`sw-assets.js` is now rebuilt from `index.html`, the static module imports, and the manifest icon list instead of being maintained by hand inside `sw.js`.
+
+### Service-worker registration now checks updates more aggressively
+
+The app now registers `sw.js` with `updateViaCache: "none"` and asks the registration to check for updates on load.
+
 ### Desktop game shells are now less likely to clip controls
 
 The game screen uses a denser desktop layout and no longer hard-clips overflowing game content.

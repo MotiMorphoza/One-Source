@@ -5,6 +5,7 @@
 - `index.html`
 - `manifest.json`
 - `sw.js`
+- `sw-assets.js`
 - `server.js`
 - `assets/icons/app-icon.svg`
 - `assets/icons/favicon-32.png`
@@ -12,13 +13,15 @@
 - `assets/icons/icon-192.png`
 - `assets/icons/icon-512.png`
 - `.github/workflows/rebuild-hub-index.yml`
+- `.github/workflows/rebuild-sw-assets.yml`
 
 ## Current Behavior
 
 - `manifest.json` uses `./index.html` as `start_url`
 - `index.html` links a favicon, PNG fallback, and Apple touch icon from `assets/icons/`
 - `manifest.json` now ships 192px and 512px app icons
-- `core/hubManager.js` registers `./sw.js`
+- `core/hubManager.js` registers `./sw.js` with `updateViaCache: "none"`
+- `sw.js` now consumes generated shell assets from `sw-assets.js`
 - `server.js` serves the repo over HTTP on port `4173`
 - the UI no longer shows a local-server warning banner
 
@@ -26,7 +29,7 @@
 
 `sw.js` currently uses:
 
-- install-time precache for a manual asset list
+- install-time precache from generated `sw-assets.js`
 - network-first for:
   - app shell requests (`html`, `css`, `js`, `json`)
   - `hubIndex.js`
@@ -46,10 +49,9 @@ Current cache name:
 
 ## Current Risks
 
-1. The service worker install list is still manual and can drift from the actual import graph.
-2. Cache name bumps are still required when shipped assets change.
-3. The app currently depends on `hubIndex.js`, so metadata and content deployment must stay in sync.
-4. After major frontend changes, a hard refresh or reopening the PWA may still be needed to pick up the new shell.
+1. Cache name bumps are still required when shipped assets change.
+2. The app currently depends on `hubIndex.js`, so metadata and content deployment must stay in sync.
+3. After major frontend changes, a hard refresh or reopening the PWA may still be needed to pick up the new shell.
 
 ## Practical Rule
 
@@ -62,3 +64,5 @@ node server.js
 ## GitHub Deployment Rule
 
 Bundled content should be updated by changing `hub/` and letting the GitHub Action regenerate `hubIndex.js`.
+
+App-shell assets should be updated by changing the frontend source files and letting the GitHub Action regenerate `sw-assets.js`.

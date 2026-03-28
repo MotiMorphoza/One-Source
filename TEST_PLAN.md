@@ -66,10 +66,12 @@
 
 - run via `node server.js`
 - verify service worker registration
+- verify the registration requests updates without relying on HTTP cache reuse
 - hard refresh after asset changes
 - verify the browser favicon resolves
 - verify Apple touch icon / installed app icon use the new asset set
 - verify relative paths still resolve
+- verify `sw-assets.js` contains the current shell files after frontend changes
 - verify a new `hub/` file appears after the GitHub Action rebuilds `hubIndex.js`
 
 ## Statistics

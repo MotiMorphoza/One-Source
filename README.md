@@ -13,6 +13,7 @@ The repo is plain HTML, CSS, and JavaScript. It is designed to stay GitHub Pages
 - Entry point: `index.html`
 - Main app controller: `core/hubManager.js`
 - Bundled content registry: `hubIndex.js`
+- Generated app-shell cache manifest: `sw-assets.js`
 - Shared data loader: `core/hubAdapter.js`
 - Shared storage: `core/storage.js`
 - Shared session logic: `core/engine.js`
@@ -111,9 +112,18 @@ To rebuild the bundled hub index locally:
 python scripts/build_hub_index.py
 ```
 
+To rebuild the generated service-worker asset manifest locally:
+
+```bash
+python scripts/build_sw_assets.py
+```
+
 ## GitHub Automation
 
-The repo includes `.github/workflows/rebuild-hub-index.yml`.
+The repo includes:
+
+- `.github/workflows/rebuild-hub-index.yml`
+- `.github/workflows/rebuild-sw-assets.yml`
 
 When you push changes under `hub/`, GitHub Actions:
 
@@ -133,14 +143,14 @@ After the workflow finishes, the new bundled content is reflected on the site.
 
 - `hubIndex.js` is still the live metadata source
 - there is still no live `index.json`
-- `sw.js` still uses a manual precache asset list that can drift
-- Library row search still rerenders on every keystroke
+- cache name bumps are still required when the shipped shell changes
+- recent Library/HUB flows still need live browser and PWA regression coverage
 
 ## PWA Assets
 
 - The app now ships a favicon SVG, a 32px PNG fallback, an Apple touch icon, and 192px/512px manifest icons under `assets/icons/`.
 - `manifest.json` includes the current install icons.
-- `sw.js` precaches those icon assets with the current shell cache.
+- `sw.js` now precaches the app shell from generated `sw-assets.js`, which is built from `index.html` and the current static import graph.
 
 ## Scope Note
 
