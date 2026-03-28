@@ -1,9 +1,14 @@
-const CACHE_NAME = "llh-core-v5";
+const CACHE_NAME = "llh-core-v6";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./styles.css",
+  "./assets/icons/app-icon.svg",
+  "./assets/icons/favicon-32.png",
+  "./assets/icons/apple-touch-icon.png",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
   "./hubIndex.js",
   "./core/audio.js",
   "./core/engine.js",

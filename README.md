@@ -17,6 +17,7 @@ The repo is plain HTML, CSS, and JavaScript. It is designed to stay GitHub Pages
 - Shared storage: `core/storage.js`
 - Shared session logic: `core/engine.js`
 - Games: `games/flashcards.js`, `games/wordmatch.js`, `games/wordpuzzle.js`
+- App icons: `assets/icons/`
 - Bundled hub content lives in `hub/`
 - Local user content lives in browser `localStorage`
 
@@ -134,6 +135,12 @@ After the workflow finishes, the new bundled content is reflected on the site.
 - there is still no live `index.json`
 - `sw.js` still uses a manual precache asset list that can drift
 - Library row search still rerenders on every keystroke
+
+## PWA Assets
+
+- The app now ships a favicon SVG, a 32px PNG fallback, an Apple touch icon, and 192px/512px manifest icons under `assets/icons/`.
+- `manifest.json` includes the current install icons.
+- `sw.js` precaches those icon assets with the current shell cache.
 
 ## Scope Note
 

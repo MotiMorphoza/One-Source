@@ -61,6 +61,8 @@
 - run via `node server.js`
 - verify service worker registration
 - hard refresh after asset changes
+- verify the browser favicon resolves
+- verify Apple touch icon / installed app icon use the new asset set
 - verify relative paths still resolve
 - verify a new `hub/` file appears after the GitHub Action rebuilds `hubIndex.js`
 

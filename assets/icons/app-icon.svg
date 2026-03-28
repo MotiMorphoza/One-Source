@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">ONE SOURCE app icon</title>
+  <desc id="desc">Dark rounded square with an amber frame, a stylized number one, and a blue accent dot.</desc>
+
+  <rect x="64" y="64" width="896" height="896" rx="224" fill="#111111" />
+  <rect
+    x="92"
+    y="92"
+    width="840"
+    height="840"
+    rx="196"
+    fill="none"
+    stroke="#ffd966"
+    stroke-width="56"
+  />
+
+  <rect x="354" y="248" width="238" height="92" rx="46" fill="#ffd966" />
+  <rect x="422" y="250" width="120" height="468" rx="50" fill="#ffd966" />
+  <rect x="327" y="700" width="290" height="76" rx="38" fill="#9fc5ff" />
+  <circle cx="742" cy="282" r="54" fill="#9fc5ff" />
+</svg>

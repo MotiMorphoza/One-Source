@@ -6,11 +6,18 @@
 - `manifest.json`
 - `sw.js`
 - `server.js`
+- `assets/icons/app-icon.svg`
+- `assets/icons/favicon-32.png`
+- `assets/icons/apple-touch-icon.png`
+- `assets/icons/icon-192.png`
+- `assets/icons/icon-512.png`
 - `.github/workflows/rebuild-hub-index.yml`
 
 ## Current Behavior
 
 - `manifest.json` uses `./index.html` as `start_url`
+- `index.html` links a favicon, PNG fallback, and Apple touch icon from `assets/icons/`
+- `manifest.json` now ships 192px and 512px app icons
 - `core/hubManager.js` registers `./sw.js`
 - `server.js` serves the repo over HTTP on port `4173`
 - the UI no longer shows a local-server warning banner
@@ -28,7 +35,7 @@
 
 Current cache name:
 
-- `llh-core-v5`
+- `llh-core-v6`
 
 ## Good Current Signs
 
