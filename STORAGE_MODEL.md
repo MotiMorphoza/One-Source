@@ -44,6 +44,7 @@ Important current source values:
 
 - starting a HUB list can create a `hub-cache` entry
 - editing a cached HUB list promotes it to `hub-copy`
+- if browser storage is tight, older `hub-cache` entries can be evicted before local editable saves fail
 - deleting a local list removes its stored topic object
 - removing a bundled HUB list from the Library uses Library-only hidden origin storage instead of deleting a bundled file
 - legacy `LLH_v4_hidden_hub_origins` entries are migrated into the Library-only hidden key on startup

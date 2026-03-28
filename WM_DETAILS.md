@@ -13,6 +13,7 @@ Word Match:
 - uses left/right card selection
 - records correct and wrong attempts through `SessionEngine`
 - refills the board from a queue until all pairs are cleared
+- keeps the `Home` action in the header metrics row for faster return on smaller screens
 
 ## Shared Dependencies
 
@@ -23,7 +24,7 @@ Word Match:
 
 ## Current Risks
 
-- wrong-attempt fallback ids can still use a timestamp-based string for misses
+- live mobile tap behavior still needs browser/device verification
 
 ## Behavioral Note
 

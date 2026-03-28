@@ -13,6 +13,7 @@ Word Puzzle:
 - lets the user build the source sentence from a bank
 - enables speech playback only after the sentence is solved
 - records a wrong attempt when the built token count matches the target length but the order is wrong
+- keeps the `Home` action in the header metrics row so the main controls stay closer to the top on smaller screens
 
 ## Shared Dependencies
 

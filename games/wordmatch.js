@@ -44,16 +44,13 @@ export class WordMatchGame extends GameInterface {
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="matchTimer">0s</strong></span>
             <span class="metric-pill">Pairs left <strong id="matchRemaining">${this.remaining}</strong></span>
+            <button type="button" class="button button-ghost button-small" id="matchHome">Home</button>
           </div>
         </header>
 
         <div class="panel">
           <p class="support-text">Match the words on the left with their translations on the right.</p>
           <div class="match-board" id="matchBoard"></div>
-        </div>
-
-        <div class="button-row">
-          <button type="button" class="button button-ghost" id="matchExit">Home</button>
         </div>
       </section>
     `;
@@ -62,7 +59,7 @@ export class WordMatchGame extends GameInterface {
     this.timerValue = this.container.querySelector("#matchTimer");
     this.remainingValue = this.container.querySelector("#matchRemaining");
     this.board = this.container.querySelector("#matchBoard");
-    this.exitButton = this.container.querySelector("#matchExit");
+    this.exitButton = this.container.querySelector("#matchHome");
     this.topicTitle.textContent = this.context.topic.name;
     this.handleExit = () => this.emit("app:show-home");
     this.exitButton.addEventListener("click", this.handleExit);
@@ -84,6 +81,7 @@ export class WordMatchGame extends GameInterface {
     const leftCards = shuffle(
       this.activePairs.map((pair) => ({
         pairId: pair.id,
+        pair,
         side: "left",
         text: pair.source,
       })),
@@ -92,6 +90,7 @@ export class WordMatchGame extends GameInterface {
     const rightCards = shuffle(
       this.activePairs.map((pair) => ({
         pairId: pair.id,
+        pair,
         side: "right",
         text: pair.target,
       })),
@@ -174,7 +173,10 @@ export class WordMatchGame extends GameInterface {
     }
 
     const pair =
-      this.activePairs.find((entry) => entry.id === this.selectedLeft?.pairId) || null;
+      this.selectedLeft?.pair ||
+      this.selectedRight?.pair ||
+      this.activePairs.find((entry) => entry.id === this.selectedLeft?.pairId) ||
+      null;
     this.engine.recordWrong(pair || { id: this.selectedLeft?.pairId || `miss-${Date.now()}` });
     this.selectedLeft?.element?.classList.add("is-wrong");
     this.selectedRight?.element?.classList.add("is-wrong");

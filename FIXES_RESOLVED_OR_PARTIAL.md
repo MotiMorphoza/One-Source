@@ -80,6 +80,10 @@ The game screen uses a denser desktop layout and no longer hard-clips overflowin
 
 Library and HUB-cache flows now surface local save failures instead of silently acting as if the change definitely persisted.
 
+### Expendable HUB cache can now be pruned before local saves fail
+
+When the library collection runs out of browser storage, the app now tries to evict older `hub-cache` entries before giving up on saving editable local data.
+
 ### Topic-scoped persistence is more stable across HUB edits
 
 Topic-scoped sessions and best times now prefer bundled origin identity when available, which reduces split records between a HUB file and its edited local copy.
@@ -100,6 +104,10 @@ The shell now uses smaller side margins on narrow screens, form controls expand 
 
 Word Match now keeps its two-column structure longer before collapsing, and long match/token text can wrap instead of forcing awkward overflow.
 
+### Word Match wrong attempts now keep the real pair identity more reliably
+
+The mismatch path now carries the underlying pair object forward, which reduces fallback timestamp-only hard-mark records.
+
 ### Hard lists can now be generated from real mistake data
 
 Wrong answers are now stored with stable row signatures, and Home can generate `Hard words` and `Hard sentences` under `My lists` once an item reaches 2 mistakes.
@@ -115,4 +123,3 @@ The Library no longer reuses the create-form inputs as implicit list filters. Th
 Do not treat the following as resolved from this file:
 
 - live `index.json`
-- manual service worker asset graph management

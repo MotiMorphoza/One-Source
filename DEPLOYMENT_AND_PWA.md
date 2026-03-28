@@ -19,6 +19,7 @@
 
 - `manifest.json` uses `./index.html` as `start_url`
 - `index.html` links a favicon, PNG fallback, and Apple touch icon from `assets/icons/`
+- `index.html` now uses `viewport-fit=cover` and Apple standalone meta tags for safer mobile/PWA framing
 - `manifest.json` now ships 192px and 512px app icons
 - `core/hubManager.js` registers `./sw.js` with `updateViaCache: "none"`
 - `sw.js` now consumes generated shell assets from `sw-assets.js`
@@ -38,7 +39,7 @@
 
 Current cache name:
 
-- `llh-core-v6`
+- `llh-core-v7`
 
 ## Good Current Signs
 

@@ -22,6 +22,7 @@
 - open that cached HUB list and make a real edit
 - verify it becomes `MINE`
 - verify quota / storage failure paths surface a visible error instead of silently failing
+- fill storage pressure with old cached HUB topics and verify saving a real local edit can evict expendable `hub-cache` first
 - delete a local list from the Library card
 - remove a bundled HUB list from the Library card and verify it still exists on Home
 - seed legacy `LLH_v4_hidden_hub_origins` data, reload, and verify the list is hidden only from Library while still present on Home
@@ -53,6 +54,7 @@
 - verify Flash Cards action buttons use distinct colors
 - verify desktop game screens fit the viewport without unnecessary page scrolling
 - verify Word Match and Word Puzzle use `Home` instead of `Exit`
+- verify Word Match and Word Puzzle keep `Home` in the top metrics row
 - verify long game content stays reachable and does not get visually clipped on desktop
 - restart a completed session
 - exit back to Home
@@ -68,6 +70,7 @@
 - verify Word Match keeps usable tap targets and only collapses to one column on very narrow widths
 - verify Word Puzzle tokens wrap cleanly for long sentences without forcing horizontal scrolling
 - verify reopening the installed PWA on mobile still picks up the current shell after an update
+- verify iPhone-style safe areas do not crop the top or bottom UI when opened as a standalone app
 
 ## Security
 

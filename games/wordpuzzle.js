@@ -43,6 +43,7 @@ export class WordPuzzleGame extends GameInterface {
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="puzzleTimer">0s</strong></span>
             <span class="metric-pill">Progress <strong id="puzzleProgress">0 / 0</strong></span>
+            <button type="button" class="button button-ghost button-small" id="puzzleHome">Home</button>
           </div>
         </header>
 
@@ -58,9 +59,6 @@ export class WordPuzzleGame extends GameInterface {
             <button type="button" class="button button-secondary" id="puzzleSpeak" disabled>Speak sentence</button>
             <button type="button" class="button button-success" id="puzzleNext" disabled>Next sentence</button>
           </div>
-          <div class="button-row">
-            <button type="button" class="button button-ghost" id="puzzleExit">Home</button>
-          </div>
         </div>
       </section>
     `;
@@ -73,7 +71,7 @@ export class WordPuzzleGame extends GameInterface {
     this.bankZone = this.container.querySelector("#puzzleBank");
     this.speakButton = this.container.querySelector("#puzzleSpeak");
     this.nextButton = this.container.querySelector("#puzzleNext");
-    this.exitButton = this.container.querySelector("#puzzleExit");
+    this.exitButton = this.container.querySelector("#puzzleHome");
     this.topicTitle.textContent = this.context.topic.name;
 
     this.handleSpeak = () => {

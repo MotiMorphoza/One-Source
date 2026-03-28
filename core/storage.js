@@ -272,6 +272,41 @@ function sanitizeTopic(topic = {}, existing = null) {
   };
 }
 
+function saveLibraryTopicsCollection(topics, preservedIds = []) {
+  if (safeSet(LIBRARY_KEY, topics)) {
+    return true;
+  }
+
+  const preserved = new Set(preservedIds.filter(Boolean));
+  const removableHubCacheIds = topics
+    .filter((topic) => topic.source === "hub-cache" && !preserved.has(topic.id))
+    .sort((left, right) => {
+      const leftTime = left.updatedAt || left.createdAt || 0;
+      const rightTime = right.updatedAt || right.createdAt || 0;
+      return leftTime - rightTime;
+    })
+    .map((topic) => topic.id);
+
+  if (!removableHubCacheIds.length) {
+    return false;
+  }
+
+  const working = [...topics];
+  while (removableHubCacheIds.length > 0) {
+    const nextId = removableHubCacheIds.shift();
+    const nextIndex = working.findIndex((topic) => topic.id === nextId);
+    if (nextIndex >= 0) {
+      working.splice(nextIndex, 1);
+    }
+
+    if (safeSet(LIBRARY_KEY, working)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function updateTopicInCollection(topicId, updater) {
   const topics = Storage.getLibraryTopics();
   const index = topics.findIndex((topic) => topic.id === topicId);
@@ -287,7 +322,7 @@ function updateTopicInCollection(topicId, updater) {
 
   const existing = topics[index];
   topics[index] = sanitizeTopic(updated, existing);
-  const saved = safeSet(LIBRARY_KEY, topics);
+  const saved = saveLibraryTopicsCollection(topics, [topics[index].id]);
   return saved ? topics[index] : existing;
 }
 
@@ -392,7 +427,7 @@ export const Storage = {
       topics.push(nextTopic);
     }
 
-    return safeSet(LIBRARY_KEY, topics);
+    return saveLibraryTopicsCollection(topics, [nextTopic.id]);
   },
 
   createLibraryTopic(topicMeta) {
@@ -466,7 +501,7 @@ export const Storage = {
 
     if (nextRows.length === 0) {
       topics.splice(index, 1);
-      const saved = safeSet(LIBRARY_KEY, topics);
+      const saved = saveLibraryTopicsCollection(topics);
       return saved ? null : topic;
     }
 
@@ -478,7 +513,7 @@ export const Storage = {
       },
       topic,
     );
-    const saved = safeSet(LIBRARY_KEY, topics);
+    const saved = saveLibraryTopicsCollection(topics, [topics[index].id]);
     return saved ? topics[index] : topic;
   },
 
@@ -491,7 +526,7 @@ export const Storage = {
     }
 
     const nextTopics = topics.filter((entry) => entry.id !== topicId);
-    return safeSet(LIBRARY_KEY, nextTopics);
+    return saveLibraryTopicsCollection(nextTopics);
   },
 
   findLibraryTopicByOrigin(originPath) {
