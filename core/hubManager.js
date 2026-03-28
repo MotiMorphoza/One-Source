@@ -20,7 +20,7 @@ const GAME_REGISTRY = {
   wordmatch: WordMatchGame,
   wordpuzzle: WordPuzzleGame,
 };
-const LOCAL_LISTS_TITLE = "הרשימות שלי";
+const LOCAL_LISTS_TITLE = "My lists";
 
 function getCategoryForTopic(topicName, record = {}) {
   return HubAdapter.inferCategory(topicName, record);
