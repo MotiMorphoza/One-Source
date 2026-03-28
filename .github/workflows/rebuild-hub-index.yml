@@ -1,0 +1,45 @@
+name: Rebuild Hub Index
+
+on:
+  push:
+    paths:
+      - "hub/**"
+      - "scripts/build_hub_index.py"
+      - ".github/workflows/rebuild-hub-index.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebuild-hub-index
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Rebuild hubIndex.js
+        run: python scripts/build_hub_index.py
+
+      - name: Commit updated hubIndex.js
+        run: |
+          if git diff --quiet -- hubIndex.js; then
+            echo "hubIndex.js is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hubIndex.js
+          git commit -m "Auto-update hub index"
+          git push

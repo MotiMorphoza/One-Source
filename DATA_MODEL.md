@@ -32,6 +32,12 @@ The parser now:
 
 The live bundled registry is `window.HUB_INDEX` from `hubIndex.js`.
 
+Physical source layout:
+
+```text
+hub/<language-pair>/<topic>/<file>.csv
+```
+
 Current shape:
 
 ```js

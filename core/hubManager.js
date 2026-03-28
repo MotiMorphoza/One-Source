@@ -91,6 +91,9 @@ class HubManager {
     HubAdapter.init();
     this.populateLanguages();
     this.populateLibraryLanguages();
+    if (this.dom.libraryLangSelect.options.length > 0) {
+      this.dom.libraryLangSelect.options[0].textContent = "\u05D1\u05D7\u05E8 \u05E9\u05E4\u05D4";
+    }
     this.populateLibraryTopicOptions();
     this.bindUi();
     this.bindAppEvents();

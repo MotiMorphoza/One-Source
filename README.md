@@ -30,6 +30,24 @@ Important: this repo does **not** currently ship an `index.json` file. The app c
 4. When a hub file is started for the first time, the app saves a local copy in the library.
 5. Games run through a shared `SessionEngine`.
 
+## Bundled Hub Layout
+
+Bundled hub content now lives in a flat physical structure:
+
+```text
+hub/<language-pair>/<topic>/<file>.csv
+```
+
+Example:
+
+```text
+hub/he-en/sentences/to_leave_or_not.csv
+hub/he-en/daily/daily000.csv
+hub/he-en/misc/more-less-too-very-most.csv
+```
+
+`hubIndex.js` is generated from that folder structure by `scripts/build_hub_index.py`.
+
 ## Content Rules In Code
 
 - Topic `sentences` is available to Flash Cards, Word Match, and Word Puzzle.
@@ -48,6 +66,30 @@ node server.js
 ```
 
 Then open `http://localhost:4173`.
+
+To rebuild the bundled hub index locally:
+
+```bash
+python scripts/build_hub_index.py
+```
+
+## GitHub Automation
+
+The repo now includes `.github/workflows/rebuild-hub-index.yml`.
+
+When you push changes under `hub/`, GitHub Actions:
+
+1. scans the physical hub folders
+2. rebuilds `hubIndex.js`
+3. commits the updated index back to `main`
+
+That means your normal flow can be:
+
+1. add a new topic folder under `hub/<language-pair>/`
+2. add one or more `.csv` files
+3. push to GitHub
+
+After the workflow finishes, the new content is reflected on the site.
 
 ## Current Gaps Confirmed In Repo
 

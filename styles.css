@@ -240,6 +240,7 @@ select optgroup {
   grid-template-columns: repeat(3, minmax(13rem, 16rem));
   justify-content: center;
   gap: 12px;
+  margin-top: 6px;
 }
 
 .choice-card {

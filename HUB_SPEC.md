@@ -22,9 +22,15 @@ Bundled metadata currently comes from `window.HUB_INDEX` in `hubIndex.js`.
 
 There is no live `index.json` file in this repo.
 
+`hubIndex.js` is generated from the physical `hub/` folders by `scripts/build_hub_index.py`.
+
 ## Current Bundled Structure
 
-The bundled registry is based on:
+Physical hub layout:
+
+- `hub/<language-pair>/<topic>/<file>.csv`
+
+Generated registry shape:
 
 - `language`
 - `topic`
@@ -51,3 +57,7 @@ Local topics are mixed into the HUB tree with:
 - free-form `topicName` chosen by the user
 - default local topic suggestion: `grammer`
 - source types such as `local`, `import`, and `hub-copy`
+
+## Automation
+
+`.github/workflows/rebuild-hub-index.yml` rebuilds `hubIndex.js` automatically on pushes that change `hub/`.

@@ -1,4 +1,4 @@
-const CACHE_NAME = "llh-core-v3";
+const CACHE_NAME = "llh-core-v4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -49,6 +49,25 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
+    return;
+  }
+
+  const requestUrl = new URL(event.request.url);
+  const isHubMetadataRequest = requestUrl.pathname.endsWith("/hubIndex.js");
+  const isHubContentRequest = requestUrl.pathname.includes("/hub/");
+
+  if (isHubMetadataRequest || isHubContentRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request)),
+    );
     return;
   }
 
