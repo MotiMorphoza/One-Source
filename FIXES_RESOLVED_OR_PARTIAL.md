@@ -140,6 +140,10 @@ On narrow screens, the Home shortcuts, list creation actions, list editor action
 
 Library topic cards now place their game buttons on one row and keep `Edit` / `Delete` together on a separate row beneath them, which is easier to scan on phone screens.
 
+### Library row entries are now shown on one line
+
+Word and sentence rows in the editor now render as a single line with a dash between the two sides, and their `Edit` / `Delete` buttons use a more even shared size.
+
 ### Legacy topic aliases no longer overwrite local list names
 
 Storage now keeps the normalized topic alias aligned with `topicName` instead of accidentally mirroring the list title into legacy `topic` fields.

@@ -878,8 +878,7 @@ select optgroup {
   line-height: 1.4;
 }
 
-.library-row-card__source,
-.library-row-card__target {
+.library-row-card__line {
   margin: 0;
 }
 
@@ -936,12 +935,10 @@ select optgroup {
   justify-items: center;
 }
 
-.library-row-card__source {
+.library-row-card__line {
   font-weight: 700;
-}
-
-.library-row-card__target {
-  color: var(--muted);
+  color: #f3f4f6;
+  text-align: center;
 }
 
 .contact-screen .button {
@@ -1256,8 +1253,9 @@ select optgroup {
   .library-topic-card__games > .button,
   .library-topic-card__manage > .button,
   .library-row-card__actions > .button {
-    padding: 7px 9px;
-    font-size: 0.82rem;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    min-inline-size: 6.5rem;
   }
 
   .library-topic-card__actions {
@@ -1398,8 +1396,7 @@ select optgroup {
     gap: 8px;
   }
 
-  .library-row-card__source,
-  .library-row-card__target {
+  .library-row-card__line {
     font-size: clamp(1.85rem, 7vw, 2.8rem);
     line-height: 1.15;
   }

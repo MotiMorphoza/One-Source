@@ -284,7 +284,7 @@ class HubManager {
   }
 
   updateTopbarState(screenName = this.router.currentScreen) {
-    const showHomeButton = screenName !== "home" && screenName !== "libraryEditor";
+    const showHomeButton = true;
     const showAudioButtons = screenName === "game";
     this.dom.openHomeTopButton.hidden = !showHomeButton;
     this.dom.toggleSound.hidden = !showAudioButtons;

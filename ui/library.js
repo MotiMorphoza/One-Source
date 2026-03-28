@@ -142,15 +142,11 @@ export function renderLibraryRows(mount, options = {}) {
     const values = document.createElement("div");
     values.className = "library-row-card__values";
 
-    const source = document.createElement("p");
-    source.className = "library-row-card__source";
-    source.textContent = `${index + 1}. ${row.source}`;
+    const line = document.createElement("p");
+    line.className = "library-row-card__line";
+    line.textContent = `${index + 1}. ${row.source} - ${row.target}`;
 
-    const target = document.createElement("p");
-    target.className = "library-row-card__target";
-    target.textContent = row.target;
-
-    values.append(source, target);
+    values.append(line);
 
     const actions = document.createElement("div");
     actions.className = "library-row-card__actions";

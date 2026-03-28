@@ -77,6 +77,8 @@
 - verify list game buttons stay on one row on phone
 - verify each Library list card shows game buttons on one row and `Edit` / `Delete` on the row below
 - verify row-level `Edit` / `Delete` buttons stay on one row on phone
+- verify row-level `Edit` / `Delete` buttons use the same size and feel slightly larger
+- verify each library row shows source and target on one line with a dash between them
 - verify the editor modal flows stay usable above the mobile keyboard
 - verify modal action buttons no longer stretch to full width on phone
 - verify Add row / Rename stay on one row in the editor on phone
