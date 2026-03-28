@@ -126,7 +126,6 @@ class HubManager {
       addLibraryRowButton: document.getElementById("addLibraryRowButton"),
       exportLibraryTopicButton: document.getElementById("exportLibraryTopicButton"),
       renameLibraryTopicButton: document.getElementById("renameLibraryTopicButton"),
-      deleteLibraryTopicButton: document.getElementById("deleteLibraryTopicButton"),
       librarySearchInput: document.getElementById("librarySearchInput"),
       libraryRowsMount: document.getElementById("libraryRowsMount"),
       backFromLibraryEditorButton: document.getElementById("backFromLibraryEditorButton"),
@@ -215,10 +214,6 @@ class HubManager {
 
     this.dom.exportLibraryTopicButton.addEventListener("click", () => {
       this.exportLibraryTopic();
-    });
-
-    this.dom.deleteLibraryTopicButton.addEventListener("click", () => {
-      this.deleteLibraryTopic();
     });
 
     this.dom.openStatsButton.addEventListener("click", () => {
@@ -471,6 +466,12 @@ class HubManager {
   async prepareTopicForLaunch(gameId, topicMeta) {
     if (topicMeta.source === "hub") {
       const rows = await HubAdapter.loadTopic(topicMeta);
+      HubAdapter.ensureLocalTopic(topicMeta, rows, {
+        category: topicMeta.category,
+        allowedGames: topicMeta.allowedGames,
+        source: "hub-cache",
+      });
+      this.renderLibraryTopicList();
 
       return {
         topicMeta,
@@ -736,6 +737,19 @@ class HubManager {
     return this.editingTopicId ? Storage.getLibraryTopic(this.editingTopicId) : null;
   }
 
+  ensureMineTopic(topic) {
+    if (!topic || topic.source !== "hub-cache") {
+      return topic;
+    }
+
+    const promoted = Storage.saveLibraryTopic({
+      ...topic,
+      source: "hub-copy",
+    }, topic.rows);
+
+    return promoted ? Storage.getLibraryTopic(topic.id) : topic;
+  }
+
   renderLibraryEditor() {
     const topic = this.getEditingTopic();
 
@@ -780,15 +794,15 @@ class HubManager {
       onEdit: (rowId) => this.editLibraryRow(rowId),
       onDelete: (rowId) => this.deleteLibraryRow(rowId),
     });
-
-    this.dom.deleteLibraryTopicButton.hidden = false;
   }
 
   addLibraryRow() {
-    const topic = this.getEditingTopic();
+    let topic = this.getEditingTopic();
     if (!topic) {
       return;
     }
+
+    topic = this.ensureMineTopic(topic);
 
     const sourceLabel =
       topic.category === "sentences" ? "Source sentence" : "Learning language";
@@ -819,7 +833,7 @@ class HubManager {
   }
 
   editLibraryRow(rowId) {
-    const topic = this.getEditingTopic();
+    let topic = this.getEditingTopic();
     const row = topic?.rows.find((entry) => entry.id === rowId);
 
     if (!topic || !row) {
@@ -835,6 +849,8 @@ class HubManager {
     if (target === null) {
       return;
     }
+
+    topic = this.ensureMineTopic(topic);
 
     const updated = Storage.updateLibraryRow(topic.id, rowId, {
       source,
@@ -852,14 +868,20 @@ class HubManager {
   }
 
   async deleteLibraryRow(rowId) {
-    const topic = this.getEditingTopic();
+    let topic = this.getEditingTopic();
     if (!topic) {
       return;
     }
 
+    topic = this.ensureMineTopic(topic);
+
     const updatedTopic = Storage.removeLibraryRow(topic.id, rowId);
 
     if (!updatedTopic) {
+      if (topic.originPath) {
+        Storage.hideLibraryOrigin(topic.originPath);
+      }
+
       if (this.selectedTopic?.id === topic.id) {
         this.selectedTopic = null;
         this.dom.startButton.disabled = true;
@@ -879,7 +901,7 @@ class HubManager {
   }
 
   renameLibraryTopic() {
-    const topic = this.getEditingTopic();
+    let topic = this.getEditingTopic();
     if (!topic) {
       return;
     }
@@ -893,6 +915,8 @@ class HubManager {
     if (!cleanName) {
       return;
     }
+
+    topic = this.ensureMineTopic(topic);
 
     if (Storage.topicTitleExists(cleanName, {
       lang: topic.lang,
@@ -930,36 +954,6 @@ class HubManager {
     }, 0);
   }
 
-  async deleteLibraryTopic() {
-    const topic = this.getEditingTopic();
-    if (!topic) {
-      return;
-    }
-
-    const confirmed = await Modal.confirm("Delete this local list and all of its rows?");
-    if (!confirmed) {
-      return;
-    }
-
-    const removed = Storage.removeLibraryTopic(topic.id);
-
-    if (!removed) {
-      Modal.error("The list could not be deleted.");
-      return;
-    }
-
-    if (this.selectedTopic?.id === topic.id) {
-      this.selectedTopic = null;
-      this.dom.startButton.disabled = true;
-      this.dom.startButton.textContent = "Select a topic first";
-    }
-
-    this.editingTopicId = null;
-    this.renderLibraryTopicList();
-    this.renderTopicTreeIfReady();
-    this.showLibrary();
-  }
-
   async manageLibraryTopic(topicMeta) {
     if (topicMeta.source === "hub") {
       try {
@@ -967,6 +961,7 @@ class HubManager {
         const localTopic = HubAdapter.ensureLocalTopic(topicMeta, rows, {
           category: topicMeta.category,
           allowedGames: topicMeta.allowedGames,
+          source: "hub-cache",
         });
         this.renderLibraryTopicList();
         this.renderTopicTreeIfReady();
@@ -1008,6 +1003,10 @@ class HubManager {
     if (!removed) {
       Modal.error("The list could not be deleted.");
       return;
+    }
+
+    if (topicMeta.originPath) {
+      Storage.hideLibraryOrigin(topicMeta.originPath);
     }
 
     if (this.editingTopicId === topicMeta.id) {

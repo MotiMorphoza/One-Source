@@ -17,6 +17,14 @@ function formatGameLabel(gameId) {
   return labels[gameId] || gameId;
 }
 
+function getSourceBadge(topic) {
+  if (topic.source === "hub" || topic.source === "hub-cache") {
+    return "HUB";
+  }
+
+  return "MINE";
+}
+
 export function renderLibraryTopics(mount, options = {}) {
   const {
     topics = [],
@@ -52,33 +60,37 @@ export function renderLibraryTopics(mount, options = {}) {
     name.className = "library-topic-card__name";
     name.textContent = topic.name;
 
+    const badge = document.createElement("span");
+    badge.className = `library-topic-card__badge library-topic-card__badge--${getSourceBadge(topic).toLowerCase()}`;
+    badge.textContent = getSourceBadge(topic);
+
     path.append(
       lang,
       document.createTextNode(" | "),
       topicName,
       document.createTextNode(" | "),
       name,
+      document.createTextNode(" "),
+      badge,
     );
 
     const actionRow = document.createElement("div");
     actionRow.className = "library-topic-card__actions";
-    actionRow.appendChild(
+    const mainActions = document.createElement("div");
+    mainActions.className = "library-topic-card__main-actions";
+    const deleteAction = document.createElement("div");
+    deleteAction.className = "library-topic-card__delete";
+
+    mainActions.appendChild(
       createButton(
         "Edit",
         "button button-secondary button-small",
         () => onEdit(topic),
       ),
     );
-    actionRow.appendChild(
-      createButton(
-        "Delete",
-        "button button-danger button-small",
-        () => onDelete(topic),
-      ),
-    );
 
     (topic.allowedGames || []).forEach((gameId) => {
-      actionRow.appendChild(
+      mainActions.appendChild(
         createButton(
           formatGameLabel(gameId),
           "button button-primary button-small",
@@ -86,6 +98,16 @@ export function renderLibraryTopics(mount, options = {}) {
         ),
       );
     });
+
+    deleteAction.appendChild(
+      createButton(
+        "Delete",
+        "button button-danger button-small",
+        () => onDelete(topic),
+      ),
+    );
+
+    actionRow.append(mainActions, deleteAction);
 
     card.append(path, actionRow);
     mount.appendChild(card);

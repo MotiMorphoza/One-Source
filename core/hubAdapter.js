@@ -183,6 +183,10 @@ export const HubAdapter = {
           return;
         }
 
+        if (sourceScope === "local" && topic.source === "hub-cache") {
+          return;
+        }
+
         const normalizedTopicName = resolveTopicName(topic);
         const category = inferCategory(normalizedTopicName, topic);
         const allowedGames = inferAllowedGames(category, topic);
@@ -317,13 +321,14 @@ export const HubAdapter = {
     const topicName = resolveTopicName(topicMeta);
     const category = options.category || inferCategory(topicName, topicMeta);
     const allowedGames = options.allowedGames || inferAllowedGames(category, topicMeta);
+    const source = options.source || (topicMeta.source === "hub" ? "hub-copy" : topicMeta.source || "local");
 
     const nextTopic = Storage.createLibraryTopic({
       name: topicMeta.name,
       fileName: topicMeta.file || topicMeta.fileName || `${topicMeta.name}.csv`,
       lang: topicMeta.lang,
       topicName,
-      source: topicMeta.source === "hub" ? "hub-copy" : topicMeta.source || "local",
+      source,
       category,
       allowedGames,
       rows,
