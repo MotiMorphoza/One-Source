@@ -112,6 +112,7 @@ class HubManager {
     this.router.navigate("home", { record: false });
     this.renderLibraryTopicList();
     this.registerServiceWorker();
+    document.body.classList.remove("app-booting");
   }
 
   cacheDom() {

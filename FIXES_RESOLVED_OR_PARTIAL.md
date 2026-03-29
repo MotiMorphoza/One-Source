@@ -124,6 +124,10 @@ The editor now uses in-app modal dialogs for add, edit, rename, alert, and confi
 
 Add-row, edit-row, and rename flows now keep `Save` on the left and `Cancel` on the right as a shared modal standard.
 
+### Add-row now uses `Save` and matching modal button widths
+
+The add-row flow now uses the shorter `Save` label, and modal action buttons keep a shared minimum width so `Save` and `Cancel` look aligned instead of mismatched.
+
 ### Global mobile layout is now tighter and more touch-safe
 
 The shell now uses smaller side margins on narrow screens, form controls expand to safe widths, button rows stack more predictably, and core tap targets such as topic buttons and puzzle tokens keep a safer minimum height.
@@ -167,6 +171,14 @@ Mixed LTR language codes and RTL topic/list names now render with explicit separ
 ### Library path rendering now uses the correct topic/name fields again
 
 The visible path now reads `language | topic | list name` using `topicName` for the middle segment and `name` for the final highlighted segment, which matches the actual storage shape.
+
+### App boot now hides the shell until the current UI is ready
+
+The document starts in a short `app-booting` state and only reveals the shell after the app manager has initialized, which reduces the stale-screen flash that could appear for a moment during mobile refreshes and PWA reloads.
+
+### Mobile Library grids no longer force horizontal overflow
+
+The Library and Library Editor now use flexible two-column mobile button grids instead of `max-content` sizing in the key action rows, which prevents the screen from starting with unwanted side-to-side scrolling.
 
 ### Library editor buttons are shorter and cleaner on phone
 

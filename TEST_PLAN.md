@@ -40,6 +40,8 @@
 - search rows
 - verify add/edit/rename/delete flows use in-app modal dialogs instead of browser-native prompts
 - verify row/edit/rename modal actions keep `Save` on the left and `Cancel` on the right
+- verify the Add-row modal uses `Save` and keeps `Save` / `Cancel` at the same width
+- verify the Library screen opens on mobile without horizontal side-to-side scrolling
 
 ## Hard Lists
 
@@ -116,6 +118,7 @@
 - verify relative paths still resolve
 - verify `sw-assets.js` contains the current shell files after frontend changes
 - verify a new `hub/` file appears after the GitHub Action rebuilds `hubIndex.js`
+- verify a mobile refresh does not briefly reveal a stale shell before the current UI appears
 
 ## Statistics
 
