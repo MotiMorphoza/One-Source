@@ -107,7 +107,7 @@ export function renderLibraryTopics(mount, options = {}) {
     manageActions.appendChild(
       createButton(
         "Edit",
-        "button button-secondary button-small",
+        "button button-sky button-small",
         () => onEdit(topic),
       ),
     );
@@ -164,7 +164,7 @@ export function renderLibraryRows(mount, options = {}) {
     const actions = document.createElement("div");
     actions.className = "library-row-card__actions";
     actions.appendChild(
-      createButton("Edit", "button button-secondary button-small", () => onEdit(row.id)),
+      createButton("Edit", "button button-sky button-small", () => onEdit(row.id)),
     );
     actions.appendChild(
       createButton("Delete", "button button-danger button-small", () => onDelete(row.id)),

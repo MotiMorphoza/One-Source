@@ -58,7 +58,7 @@ export class FlashCardsGame extends GameInterface {
         </div>
 
         <div class="button-row flash-actions">
-          <button type="button" class="button button-success" id="flashKnown">I knew it</button>
+          <button type="button" class="button button-violet" id="flashKnown">I knew it</button>
           <button type="button" class="button button-danger" id="flashUnknown">Another round</button>
         </div>
 

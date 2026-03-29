@@ -200,6 +200,14 @@ The rename flow no longer shows the extra `Rename this list.` message, and the m
 
 The two Flash Cards action rows now use a dedicated mobile grid so `I knew it` / `Another round` and `Shuffle` / `Flip direction` stay the same size, form clear rectangular pairs, and do not drift off the screen.
 
+### `I knew it` now uses the lavender action color in Flash Cards
+
+The positive answer button in Flash Cards now uses the lavender action style instead of the green success style.
+
+### Library and row-level `Edit` buttons now use a blue action style
+
+`Edit` is now visually separated from neutral gray actions by a dedicated blue button style in list cards and row actions.
+
 ### Contact title now stays on two lines again
 
 The Contact header is now rendered as two explicit lines, `Hebrew` and `With Moti Vation`, so it no longer depends on natural wrapping and remains stable on mobile.
