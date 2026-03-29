@@ -1004,6 +1004,10 @@ body.app-booting .app-shell {
   font-weight: 800;
 }
 
+.about-title span {
+  display: block;
+}
+
 .about-box p {
   margin: 8px 0;
   font-size: 15px;

@@ -180,6 +180,10 @@ The document starts in a short `app-booting` state and only reveals the shell af
 
 The Library and Library Editor now use flexible two-column mobile button grids instead of `max-content` sizing in the key action rows, which prevents the screen from starting with unwanted side-to-side scrolling.
 
+### Contact title now stays on two lines again
+
+The Contact header is now rendered as two explicit lines, `Hebrew` and `With Moti Vation`, so it no longer depends on natural wrapping and remains stable on mobile.
+
 ### Library editor buttons are shorter and cleaner on phone
 
 The editor now uses `Export` and `Back`, and nearby editor/list-card button groups keep a more even shared width on mobile.
