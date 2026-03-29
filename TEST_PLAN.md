@@ -83,6 +83,7 @@
 - verify nearby button groups in the Library editor and list cards keep a uniform size within each group
 - verify the path order ends with the highlighted list name instead of the topic name
 - verify the final visible path segment is the only highlighted segment in both Library cards and the editor path
+- verify mixed LTR/RTL paths (`he-en | topic | list name`) keep the visible order stable and leave the highlight on the final segment
 - verify row-level `Edit` / `Delete` buttons stay on one row on phone
 - verify row-level `Edit` / `Delete` buttons use the same size and feel slightly larger
 - verify each library row shows source and target on one line with a dash between them

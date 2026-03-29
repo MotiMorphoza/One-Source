@@ -7,6 +7,13 @@ function createButton(label, className, onClick) {
   return button;
 }
 
+function createPathSeparator() {
+  const separator = document.createElement("span");
+  separator.className = "library-path__sep";
+  separator.textContent = "|";
+  return separator;
+}
+
 function formatGameLabel(gameId) {
   const labels = {
     flashcards: "Flash Cards",
@@ -49,16 +56,21 @@ export function renderLibraryTopics(mount, options = {}) {
 
     const path = document.createElement("p");
     path.className = "library-topic-card__path";
+    path.dir = "ltr";
 
     const lang = document.createElement("span");
+    lang.className = "library-path__lang";
+    lang.dir = "ltr";
     lang.textContent = topic.lang;
 
     const topicName = document.createElement("span");
     topicName.className = "library-path__topic";
+    topicName.dir = "auto";
     topicName.textContent = topic.name || topic.fileName || "";
 
     const name = document.createElement("span");
     name.className = "library-topic-card__name library-path__name";
+    name.dir = "auto";
     name.textContent = topic.topicName || topic.originMeta?.topic || "";
 
     const badge = document.createElement("span");
@@ -67,9 +79,9 @@ export function renderLibraryTopics(mount, options = {}) {
 
     path.append(
       lang,
-      document.createTextNode(" | "),
+      createPathSeparator(),
       topicName,
-      document.createTextNode(" | "),
+      createPathSeparator(),
       name,
       document.createTextNode(" "),
       badge,

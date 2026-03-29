@@ -52,6 +52,13 @@ function createCsvBlob(rows) {
   return new Blob(["\uFEFF", lines.join("\n")], { type: "text/csv;charset=utf-8" });
 }
 
+function createPathSeparator() {
+  const separator = document.createElement("span");
+  separator.className = "library-path__sep";
+  separator.textContent = "|";
+  return separator;
+}
+
 function flattenTopicTree(tree) {
   const records = [];
 
@@ -809,23 +816,28 @@ class HubManager {
     }
 
     this.dom.libraryEditorMeta.textContent = "";
+    this.dom.libraryEditorMeta.dir = "ltr";
 
     const lang = document.createElement("span");
+    lang.className = "library-path__lang";
+    lang.dir = "ltr";
     lang.textContent = topic.lang;
 
     const topicName = document.createElement("span");
     topicName.className = "library-path__topic";
+    topicName.dir = "auto";
     topicName.textContent = topic.name;
 
     const name = document.createElement("span");
     name.className = "library-topic-card__name library-path__name";
+    name.dir = "auto";
     name.textContent = topic.topicName;
 
     this.dom.libraryEditorMeta.append(
       lang,
-      document.createTextNode(" | "),
+      createPathSeparator(),
       topicName,
-      document.createTextNode(" | "),
+      createPathSeparator(),
       name,
     );
 
