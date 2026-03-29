@@ -66,12 +66,12 @@ export function renderLibraryTopics(mount, options = {}) {
     const topicName = document.createElement("span");
     topicName.className = "library-path__topic";
     topicName.dir = "auto";
-    topicName.textContent = topic.name || topic.fileName || "";
+    topicName.textContent = topic.topicName || topic.originMeta?.topic || "";
 
     const name = document.createElement("span");
     name.className = "library-topic-card__name library-path__name";
     name.dir = "auto";
-    name.textContent = topic.topicName || topic.originMeta?.topic || "";
+    name.textContent = topic.name || topic.fileName || "";
 
     const badge = document.createElement("span");
     badge.className = `library-topic-card__badge library-topic-card__badge--${getSourceBadge(topic).toLowerCase()}`;

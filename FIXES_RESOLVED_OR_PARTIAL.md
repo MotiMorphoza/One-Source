@@ -164,6 +164,10 @@ The final visible path segment is now forced to use the highlight styling in bot
 
 Mixed LTR language codes and RTL topic/list names now render with explicit separator elements and isolated direction handling, so the highlighted list name stays visually at the end of the path instead of being reordered into the middle.
 
+### Library path rendering now uses the correct topic/name fields again
+
+The visible path now reads `language | topic | list name` using `topicName` for the middle segment and `name` for the final highlighted segment, which matches the actual storage shape.
+
 ### Library editor buttons are shorter and cleaner on phone
 
 The editor now uses `Export` and `Back`, and nearby editor/list-card button groups keep a more even shared width on mobile.

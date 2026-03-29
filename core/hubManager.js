@@ -826,12 +826,12 @@ class HubManager {
     const topicName = document.createElement("span");
     topicName.className = "library-path__topic";
     topicName.dir = "auto";
-    topicName.textContent = topic.name;
+    topicName.textContent = topic.topicName;
 
     const name = document.createElement("span");
     name.className = "library-topic-card__name library-path__name";
     name.dir = "auto";
-    name.textContent = topic.topicName;
+    name.textContent = topic.name;
 
     this.dom.libraryEditorMeta.append(
       lang,
