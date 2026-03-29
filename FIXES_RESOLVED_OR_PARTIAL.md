@@ -148,6 +148,10 @@ Library topic cards now place their game buttons on one row and keep `Edit` / `D
 
 Word and sentence rows in the editor now render as a single line with a dash between the two sides, and their `Edit` / `Delete` buttons use a more even shared size.
 
+### Library path emphasis now uses a stronger wine-purple name highlight
+
+List paths now keep the topic segment muted while the list name itself stands out more clearly with a deeper purple accent, including the editor path.
+
 ### Legacy topic aliases no longer overwrite local list names
 
 Storage now keeps the normalized topic alias aligned with `topicName` instead of accidentally mirroring the list title into legacy `topic` fields.

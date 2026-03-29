@@ -873,6 +873,15 @@ select optgroup {
   line-height: 1.35;
 }
 
+.library-path__topic {
+  color: var(--muted);
+}
+
+.library-path__name {
+  color: #7c1f59;
+  font-weight: 800;
+}
+
 .library-editor-path {
   margin: 0;
   color: var(--muted);
@@ -885,7 +894,6 @@ select optgroup {
 }
 
 .library-topic-card__name {
-  color: var(--amber);
   font-size: 1.08rem;
   font-weight: 700;
 }
@@ -941,6 +949,10 @@ select optgroup {
   font-weight: 700;
   color: #f3f4f6;
   text-align: center;
+}
+
+.match-instructions {
+  margin-bottom: 18px;
 }
 
 .contact-screen .button {
@@ -1260,6 +1272,13 @@ select optgroup {
     padding: 8px 12px;
     font-size: 0.9rem;
     min-inline-size: 6.5rem;
+  }
+
+  .library-topic-card__games > .button,
+  .library-topic-card__manage > .button {
+    padding: 8px 13px;
+    font-size: 0.95rem;
+    min-inline-size: 6.85rem;
   }
 
   .library-topic-card__actions {

@@ -814,10 +814,11 @@ class HubManager {
     lang.textContent = topic.lang;
 
     const topicName = document.createElement("span");
+    topicName.className = "library-path__topic";
     topicName.textContent = topic.topicName;
 
     const name = document.createElement("span");
-    name.className = "library-topic-card__name";
+    name.className = "library-topic-card__name library-path__name";
     name.textContent = topic.name;
 
     this.dom.libraryEditorMeta.append(

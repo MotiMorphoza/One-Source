@@ -78,6 +78,7 @@
 - verify Library action buttons stack into comfortable tap targets
 - verify list game buttons stay on one row on phone
 - verify each Library list card shows game buttons on one row and `Edit` / `Delete` on the row below
+- verify the mobile game / edit / delete buttons on Library list cards stay the same size and feel slightly larger without affecting other buttons
 - verify row-level `Edit` / `Delete` buttons stay on one row on phone
 - verify row-level `Edit` / `Delete` buttons use the same size and feel slightly larger
 - verify each library row shows source and target on one line with a dash between them
@@ -87,6 +88,7 @@
 - verify list row text is much larger in the editor on phone
 - verify Flash Cards text stays readable on short and long items
 - verify Word Match keeps usable tap targets and remains in two columns on phone
+- verify Word Match leaves a clearer visual gap between the instruction line and the board
 - verify Word Puzzle tokens wrap cleanly for long sentences without forcing horizontal scrolling
 - verify reopening the installed PWA on mobile still picks up the current shell after an update
 - verify iPhone-style safe areas do not crop the top or bottom UI when opened as a standalone app
