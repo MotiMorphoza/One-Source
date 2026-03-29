@@ -152,6 +152,10 @@ Word and sentence rows in the editor now render as a single line with a dash bet
 
 List paths now keep the topic segment muted while the list name itself stands out more clearly with a deeper purple accent, including the editor path.
 
+### Library editor buttons are shorter and cleaner on phone
+
+The editor now uses `Export` and `Back`, and nearby editor/list-card button groups keep a more even shared width on mobile.
+
 ### Legacy topic aliases no longer overwrite local list names
 
 Storage now keeps the normalized topic alias aligned with `topicName` instead of accidentally mirroring the list title into legacy `topic` fields.

@@ -1278,7 +1278,14 @@ select optgroup {
   .library-topic-card__manage > .button {
     padding: 8px 13px;
     font-size: 0.95rem;
-    min-inline-size: 6.85rem;
+    min-inline-size: 7.25rem;
+  }
+
+  .library-editor-actions > .button,
+  .library-editor-export > .button,
+  #backFromLibraryEditorButton {
+    min-inline-size: 7.85rem;
+    justify-content: center;
   }
 
   .library-topic-card__actions {
