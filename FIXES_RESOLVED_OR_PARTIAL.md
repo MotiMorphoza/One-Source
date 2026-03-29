@@ -156,6 +156,10 @@ List paths now keep the topic segment muted while the list name itself stands ou
 
 The visible path order now keeps the highlighted name segment at the end of the path instead of showing the topic/name pair in the wrong order.
 
+### Library path styling is now anchored to the final path segment
+
+The final visible path segment is now forced to use the highlight styling in both Library cards and the Library editor, so an older class assignment cannot accidentally recolor the middle segment again.
+
 ### Library editor buttons are shorter and cleaner on phone
 
 The editor now uses `Export` and `Back`, and nearby editor/list-card button groups keep a more even shared width on mobile.

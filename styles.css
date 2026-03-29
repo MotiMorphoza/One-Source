@@ -882,6 +882,18 @@ select optgroup {
   font-weight: 800;
 }
 
+.library-topic-card__path > span:nth-of-type(2):not(.library-topic-card__badge),
+.library-editor-path > span:nth-of-type(2) {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.library-topic-card__path > span:nth-of-type(3):not(.library-topic-card__badge),
+.library-editor-path > span:nth-of-type(3) {
+  color: #7c1f59;
+  font-weight: 800;
+}
+
 .library-editor-path {
   margin: 0;
   color: var(--muted);
