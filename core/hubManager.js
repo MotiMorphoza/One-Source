@@ -391,6 +391,8 @@ class HubManager {
 
     this.selectedGame = gameId;
     this.selectedTopic = null;
+    this.openTopicRoot = "";
+    this.forceCollapsedTopicTree = true;
     this.dom.startButton.disabled = true;
     this.dom.startButton.textContent = "Select a topic first";
 
@@ -449,7 +451,7 @@ class HubManager {
     this.dom.topicTree.appendChild(
       renderAccordionTree(tree, {
         selectedId: this.selectedTopic?.id || null,
-        openFirstRoot: !this.forceCollapsedTopicTree,
+        openFirstRoot: false,
         openBranchName: this.openTopicRoot,
         onSelect: (fileMeta, branchName) => {
           this.selectedTopic = fileMeta;

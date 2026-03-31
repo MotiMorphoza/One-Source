@@ -220,6 +220,10 @@ The `Choose a topic` accordion header now uses a darker, more saturated purple g
 
 Choosing a game no longer auto-opens the bundled HUB accordion by default; topic roots stay closed unless the user explicitly opens one or a specific root is already being preserved as open.
 
+### Game selection now explicitly clears any previously open topic root
+
+The shell now clears `openTopicRoot` and renders the tree with `openFirstRoot: false` when a game is picked, so a previous open state cannot silently reopen the bundled HUB root.
+
 ### Starting a Library list no longer loses the topic before launch
 
 Library start now keeps a stable copy of the selected topic while the Home tree rerenders, so `hub-cache` items do not get nulled out and fail with `topicMeta is null` when starting a game such as Word Match.
