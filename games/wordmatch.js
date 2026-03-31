@@ -1,6 +1,6 @@
 import { GameInterface } from "./gameInterface.js";
 import { formatTime, shuffle } from "../utils/helpers.js";
-import { setDirection } from "../utils/text.js";
+import { isRTL, setDirection } from "../utils/text.js";
 import { AudioEngine } from "../core/audio.js";
 
 export class WordMatchGame extends GameInterface {
@@ -102,6 +102,7 @@ export class WordMatchGame extends GameInterface {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "match-card";
+    button.classList.toggle("match-card--rtl", isRTL(cardMeta.text));
     button.textContent = cardMeta.text;
     setDirection(button, cardMeta.text);
 

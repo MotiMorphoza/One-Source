@@ -124,6 +124,8 @@
 - verify list row text is much larger in the editor on phone
 - verify Flash Cards text stays readable on short and long items
 - verify Word Match keeps usable tap targets and remains in two columns on phone
+- verify Word Match card text is larger without changing card/button size
+- verify Arabic Word Match text is slightly larger and remains readable inside the same card footprint
 - verify Word Match leaves a clearer visual gap between the instruction line and the board
 - verify Word Puzzle tokens wrap cleanly for long sentences without forcing horizontal scrolling
 - verify reopening the installed PWA on mobile still picks up the current shell after an update

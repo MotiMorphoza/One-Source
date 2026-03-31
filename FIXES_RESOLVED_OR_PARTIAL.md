@@ -288,6 +288,10 @@ The game chooser no longer shows the old descriptive subtitles under each game t
 
 Word Match now keeps its two-column structure longer before collapsing, and long match/token text can wrap instead of forcing awkward overflow.
 
+### Word Match card text is now larger without enlarging the cards
+
+The text inside Word Match cards now renders at a larger size while keeping the same card footprint, and RTL content such as Arabic gets a slightly stronger size boost for readability.
+
 ### Word Match no longer collapses into one long column on phone
 
 The mobile CSS now preserves the left/right board layout instead of forcing the entire match board into a single vertical stack.
