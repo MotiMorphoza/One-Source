@@ -45,15 +45,15 @@ Bundled hub content lives in this physical structure:
 hub/<language-pair>/<topic>/<file>.csv
 ```
 
-Example:
+The topic folder name may differ per language pair. Example:
 
 ```text
-hub/he-en/sentences/to_leave_or_not.csv
-hub/he-en/daily/daily000.csv
-hub/he-en/misc/more-less-too-very-most.csv
+hub/he-en/Daily Use/Basic.csv
+hub/he-pl/Na co dzień/Podstawy.csv
 ```
 
 `hubIndex.js` is generated from that folder structure by `scripts/build_hub_index.py`.
+The generated registry now stores `folders[language]` so the app can resolve localized folder names per language pair.
 
 ## Library Behavior
 
@@ -140,6 +140,8 @@ Normal content flow:
 3. push to GitHub
 
 After the workflow finishes, the new bundled content is reflected on the site.
+
+Only language folders that contain at least one CSV file are included in the generated `hubIndex.js`.
 
 Because this workflow writes a small follow-up commit to `main`, local Git should prefer rebase over merge when syncing:
 

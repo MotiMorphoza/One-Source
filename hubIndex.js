@@ -3,6 +3,10 @@ window.HUB_INDEX = {
   "rootTitle": "Choose a topic",
   "languages": [
     {
+      "id": "he-en",
+      "title": "Hebrew -> English"
+    },
+    {
       "id": "he-pl",
       "title": "Hebrew -> Polish"
     }
@@ -25,34 +29,64 @@ window.HUB_INDEX = {
     {
       "topic": "grammer",
       "folder": "Grammer",
+      "folders": {
+        "he-en": "Grammer",
+        "he-pl": "Gramatyka"
+      },
       "files": {
-        "he-pl": [
+        "he-en": [
+          "I did.csv",
           "I will.csv",
           "More or less A.csv",
           "More or less B.csv",
           "Now.csv"
+        ],
+        "he-pl": [
+          "Mniej wiÄ™cej A.csv",
+          "Mniej wiÄ™cej B.csv",
+          "Teraz.csv",
+          "ZrobiÄ™.csv",
+          "ZrobiÅ‚em.csv"
         ]
       }
     },
     {
       "topic": "sentences",
       "folder": "Sentences",
+      "folders": {
+        "he-en": "Sentences",
+        "he-pl": "Zdania"
+      },
       "files": {
-        "he-pl": [
+        "he-en": [
           "Deep ride.csv",
           "Simple.csv",
           "To leave or not.csv"
+        ],
+        "he-pl": [
+          "GÅ‚Ä™boka podrÃ³Å¼.csv",
+          "Proste.csv",
+          "WyjechaÄ‡ czy nie.csv"
         ]
       }
     },
     {
       "topic": "daily use",
       "folder": "Daily Use",
+      "folders": {
+        "he-en": "Daily Use",
+        "he-pl": "Na co dzieÅ„"
+      },
       "files": {
-        "he-pl": [
+        "he-en": [
           "Basic.csv",
-          "Biuro.csv",
+          "Office.csv",
           "On the road.csv"
+        ],
+        "he-pl": [
+          "Biuro.csv",
+          "Podstawy.csv",
+          "W drodze.csv"
         ]
       }
     }

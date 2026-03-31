@@ -16,6 +16,14 @@ This file lists issues that are already supported by the current repo structure.
 
 The physical `hub/` layout and generated `hubIndex.js` match that simplified topic model.
 
+### Bundled HUB now supports localized folder names per language pair
+
+`hubIndex.js` now carries `folders[language]` so one topic can resolve to different physical folder names, such as English `Daily Use` and Polish `Na co dzień`.
+
+### Empty HUB language folders no longer leak into the generated language list
+
+`scripts/build_hub_index.py` now emits only language pairs that actually contain at least one CSV file, instead of exposing empty placeholder folders in the language selector.
+
 ### Home now separates bundled HUB and local editable content
 
 Home renders bundled HUB content under `Choose a topic` and local editable content under `My lists`.
@@ -235,6 +243,10 @@ The repo now uses `pull.rebase=true`, `branch.main.rebase=true`, and `rebase.aut
 ### Mobile game-complete stats now stay in paired blocks
 
 On narrow screens, the end-of-game stats tiles now stay in a two-column grid so they appear as stacked pairs instead of collapsing into one long vertical column.
+
+### Flash Cards and Word Puzzle now start in file order
+
+Flash Cards and Word Puzzle no longer shuffle the list automatically when a session begins; they now start from the beginning and follow the source file order unless the user explicitly shuffles Flash Cards.
 
 ### Word Puzzle now shows a larger translation and no extra instruction line
 

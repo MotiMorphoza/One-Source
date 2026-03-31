@@ -48,8 +48,20 @@ function normalizeTopicName(topicName, fallback = DEFAULT_LOCAL_TOPIC) {
     return "daily";
   }
 
+  if (normalized === "na co dzień") {
+    return "daily";
+  }
+
   if (normalized === "important words") {
     return "misc";
+  }
+
+  if (normalized === "gramatyka") {
+    return DEFAULT_LOCAL_TOPIC;
+  }
+
+  if (normalized === "zdania") {
+    return SENTENCE_TOPIC;
   }
 
   return normalized;
@@ -305,7 +317,8 @@ export const HubAdapter = {
         ensureRootTopic(tree, rootTitle, normalizedTopicName);
 
         files.forEach((fileName) => {
-          const path = `hub/${lang}/${entry.folder}/${fileName}`;
+          const folderName = entry.folders?.[lang] || entry.folder;
+          const path = `hub/${lang}/${folderName}/${fileName}`;
 
           if (preferManagedCopies && Storage.findLibraryTopicByOrigin(path)) {
             return;
@@ -321,7 +334,7 @@ export const HubAdapter = {
             source: "hub",
             category,
             allowedGames,
-            folder: entry.folder,
+            folder: folderName,
           });
         });
       });

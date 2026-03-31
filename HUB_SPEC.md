@@ -31,6 +31,11 @@ Physical hub layout:
 
 - `hub/<language-pair>/<topic>/<file>.csv`
 
+Topic folder names may differ by language pair. The generated registry stores both:
+
+- `folder`: fallback folder name
+- `folders[language]`: actual folder name for that language pair
+
 Generated registry shape:
 
 - `language`
@@ -107,3 +112,5 @@ UI badge semantics:
 ## Automation
 
 `.github/workflows/rebuild-hub-index.yml` rebuilds `hubIndex.js` automatically on pushes that change `hub/`.
+
+Only language pairs that actually contain at least one CSV file are emitted into `hubIndex.js`.

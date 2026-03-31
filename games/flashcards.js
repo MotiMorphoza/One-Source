@@ -25,7 +25,7 @@ export class FlashCardsGame extends GameInterface {
   }
 
   startRound() {
-    this.deck = shuffle(this.context.data);
+    this.deck = [...this.context.data];
     this.currentIndex = 0;
     this.flipped = false;
     this.direction = "source";

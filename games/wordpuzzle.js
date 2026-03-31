@@ -26,7 +26,7 @@ export class WordPuzzleGame extends GameInterface {
       },
     });
 
-    this.sentences = shuffle(this.context.data);
+    this.sentences = [...this.context.data];
     this.render();
     this.engine.start();
     this.loadSentence();

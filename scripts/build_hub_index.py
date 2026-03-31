@@ -25,6 +25,17 @@ PREFERRED_TOPIC_ORDER = [
     "sentences",
 ]
 
+TOPIC_ALIASES = {
+    "daily use": "daily use",
+    "daily": "daily use",
+    "na co dzień": "daily use",
+    "grammer": "grammer",
+    "grammar": "grammer",
+    "gramatyka": "grammer",
+    "sentences": "sentences",
+    "zdania": "sentences",
+}
+
 
 def is_csv(path: Path) -> bool:
     return path.is_file() and path.suffix.lower() == ".csv"
@@ -32,7 +43,8 @@ def is_csv(path: Path) -> bool:
 
 def normalize_topic_name(topic_name: str) -> str:
     cleaned = topic_name.strip().replace("_", " ").lower()
-    return " ".join(cleaned.split())
+    normalized = " ".join(cleaned.split())
+    return TOPIC_ALIASES.get(normalized, normalized)
 
 
 def sort_topics(topic_names):
@@ -74,31 +86,45 @@ def build_index():
             continue
 
         lang_id = lang_dir.name
-        languages_seen.add(lang_id)
+        language_has_files = False
 
         for topic_dir in sorted(lang_dir.iterdir(), key=lambda item: item.name):
             if not topic_dir.is_dir():
+                continue
+
+            csv_files = [
+                file_path
+                for file_path in sorted(topic_dir.iterdir(), key=lambda item: item.name.lower())
+                if is_csv(file_path)
+            ]
+            if not csv_files:
                 continue
 
             topic_id = normalize_topic_name(topic_dir.name)
             if not topic_id:
                 continue
 
+            language_has_files = True
+            languages_seen.add(lang_id)
             topics_seen.add(topic_id)
 
             if topic_id not in entry_map:
                 entry_map[topic_id] = {
                     "topic": topic_id,
                     "folder": topic_dir.name,
+                    "folders": {},
                     "files": {},
                 }
 
             entry = entry_map[topic_id]
+            entry["folders"][lang_id] = topic_dir.name
             entry["files"].setdefault(lang_id, [])
 
-            for file_path in sorted(topic_dir.iterdir(), key=lambda item: item.name.lower()):
-                if is_csv(file_path):
-                    entry["files"][lang_id].append(file_path.name)
+            for file_path in csv_files:
+                entry["files"][lang_id].append(file_path.name)
+
+        if not language_has_files:
+            continue
 
     for language_id in sorted(languages_seen):
         index["languages"].append(

@@ -54,6 +54,8 @@
 - verify the Flash Cards `I knew it` button uses the lavender action color
 - verify Flash Cards desktop actions also render as two equal-width rectangular pairs
 - verify mobile end-of-game stats render as two-column paired blocks instead of a single long column
+- verify Flash Cards starts from the first row in file order until the user presses `Shuffle`
+- verify Word Puzzle sentences start from the first row in file order
 - verify selected topics use the same wine-purple accent family as the highlighted list-name path segment
 - verify the `Choose a topic` root header uses the new deep vivid purple accent
 - verify choosing a game leaves both accordion roots closed by default until the user opens one
@@ -61,6 +63,8 @@
 - start a `hub-cache` list from Library in Word Match and verify it no longer fails with `topicMeta is null`
 - verify Word Puzzle no longer shows the extra instruction sentence and that the translation text is larger
 - verify the Contact title stays on two lines: `Hebrew` and `With Moti Vation`
+- verify localized physical topic folders still resolve correctly, for example `he-en/Daily Use` and `he-pl/Na co dzień`
+- verify only language pairs with real CSV content appear in the Home language selector
 
 ## Hard Lists
 

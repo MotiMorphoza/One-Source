@@ -156,8 +156,20 @@ function normalizeTopicName(topicName, fallback = LOCAL_TOPIC_NAME) {
     return "daily";
   }
 
+  if (normalized === "na co dzień") {
+    return "daily";
+  }
+
   if (normalized === "important words") {
     return "misc";
+  }
+
+  if (normalized === "gramatyka") {
+    return LOCAL_TOPIC_NAME;
+  }
+
+  if (normalized === "zdania") {
+    return SENTENCE_TOPIC_NAME;
   }
 
   return normalized;
