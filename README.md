@@ -141,6 +141,14 @@ Normal content flow:
 
 After the workflow finishes, the new bundled content is reflected on the site.
 
+Because this workflow writes a small follow-up commit to `main`, local Git should prefer rebase over merge when syncing:
+
+```bash
+git config pull.rebase true
+git config branch.main.rebase true
+git config rebase.autoStash true
+```
+
 ## Current Gaps Still Confirmed
 
 - `hubIndex.js` is still the live metadata source

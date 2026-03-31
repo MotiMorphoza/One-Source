@@ -67,3 +67,13 @@ node server.js
 Bundled content should be updated by changing `hub/` and letting the GitHub Action regenerate `hubIndex.js`.
 
 App-shell assets should be updated by changing the frontend source files and letting the GitHub Action regenerate `sw-assets.js`.
+
+## Local Git Sync Rule
+
+The hub-index workflow writes a follow-up commit to `main` after `hub/` changes. To avoid local merge commits when syncing, this repo should use rebase-based pulls:
+
+```bash
+git config pull.rebase true
+git config branch.main.rebase true
+git config rebase.autoStash true
+```

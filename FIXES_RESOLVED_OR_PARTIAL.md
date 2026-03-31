@@ -228,6 +228,10 @@ The shell now clears `openTopicRoot` and renders the tree with `openFirstRoot: f
 
 Library start now keeps a stable copy of the selected topic while the Home tree rerenders, so `hub-cache` items do not get nulled out and fail with `topicMeta is null` when starting a game such as Word Match.
 
+### Local Git is now configured to rebase instead of creating merge commits
+
+The repo now uses `pull.rebase=true`, `branch.main.rebase=true`, and `rebase.autoStash=true` locally so the auto-generated `hubIndex.js` commit from GitHub Actions no longer encourages `Merge branch 'main'...` commits during normal syncs.
+
 ### Word Puzzle now shows a larger translation and no extra instruction line
 
 The extra sentence above the puzzle board has been removed, and the translated sentence block now uses a larger text size so it is easier to read.
