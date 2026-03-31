@@ -232,6 +232,10 @@ Library start now keeps a stable copy of the selected topic while the Home tree 
 
 The repo now uses `pull.rebase=true`, `branch.main.rebase=true`, and `rebase.autoStash=true` locally so the auto-generated `hubIndex.js` commit from GitHub Actions no longer encourages `Merge branch 'main'...` commits during normal syncs.
 
+### Mobile game-complete stats now stay in paired blocks
+
+On narrow screens, the end-of-game stats tiles now stay in a two-column grid so they appear as stacked pairs instead of collapsing into one long vertical column.
+
 ### Word Puzzle now shows a larger translation and no extra instruction line
 
 The extra sentence above the puzzle board has been removed, and the translated sentence block now uses a larger text size so it is easier to read.

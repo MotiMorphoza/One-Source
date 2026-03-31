@@ -53,6 +53,7 @@
 - verify `Edit` buttons in Library cards and row actions use the blue action style
 - verify the Flash Cards `I knew it` button uses the lavender action color
 - verify Flash Cards desktop actions also render as two equal-width rectangular pairs
+- verify mobile end-of-game stats render as two-column paired blocks instead of a single long column
 - verify selected topics use the same wine-purple accent family as the highlighted list-name path segment
 - verify the `Choose a topic` root header uses the new deep vivid purple accent
 - verify choosing a game leaves both accordion roots closed by default until the user opens one

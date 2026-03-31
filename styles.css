@@ -1253,9 +1253,13 @@ body.app-booting .app-shell {
     grid-column: 1 / -1;
   }
 
-  .results-grid,
   .choice-grid {
     grid-template-columns: 1fr;
+  }
+
+  .results-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .stats-grid {
