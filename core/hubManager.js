@@ -93,6 +93,7 @@ class HubManager {
     this.librarySearchTimer = null;
     this.forceCollapsedTopicTree = false;
     this.openTopicRoot = "";
+    this.homeTopicLaunchInFlight = false;
   }
 
   init() {
@@ -129,7 +130,6 @@ class HubManager {
       gameButtons: [...document.querySelectorAll("[data-game]")],
       topicPanel: document.getElementById("topicPanel"),
       topicTree: document.getElementById("topicTree"),
-      startButton: document.getElementById("startTopicButton"),
       openLibraryButton: document.getElementById("openLibraryButton"),
       libraryLangSelect: document.getElementById("libraryLangSelect"),
       libraryTopicInput: document.getElementById("libraryTopicInput"),
@@ -181,10 +181,6 @@ class HubManager {
       button.addEventListener("click", () => {
         this.handleGameSelection(button.dataset.game);
       });
-    });
-
-    this.dom.startButton.addEventListener("click", () => {
-      this.startSelectedTopic();
     });
 
     this.dom.openHomeTopButton.addEventListener("click", () => {
@@ -369,13 +365,39 @@ class HubManager {
     return rawTopic ? HubAdapter.normalizeTopicName(rawTopic) : "";
   }
 
+  setHomeTopicIdleState() {
+    if (!this.dom.startButton) {
+      return;
+    }
+
+    this.dom.startButton.disabled = true;
+    this.dom.startButton.textContent = "Select a topic first";
+  }
+
+  setHomeTopicLoadingState() {
+    if (!this.dom.startButton) {
+      return;
+    }
+
+    this.dom.startButton.disabled = true;
+    this.dom.startButton.textContent = "Loading...";
+  }
+
+  setHomeTopicReadyState() {
+    if (!this.dom.startButton) {
+      return;
+    }
+
+    this.dom.startButton.disabled = false;
+    this.dom.startButton.textContent = `Start ${getGameLabel(this.selectedGame)}`;
+  }
+
   handleLanguageChange(lang) {
     this.selectedLang = lang || null;
     this.selectedGame = null;
     this.selectedTopic = null;
     this.dom.topicPanel.hidden = true;
-    this.dom.startButton.disabled = true;
-    this.dom.startButton.textContent = "Select a topic first";
+    this.setHomeTopicIdleState();
     this.dom.topicTree.innerHTML = "";
 
     this.dom.gameButtons.forEach((button) => {
@@ -393,8 +415,7 @@ class HubManager {
     this.selectedTopic = null;
     this.openTopicRoot = "";
     this.forceCollapsedTopicTree = true;
-    this.dom.startButton.disabled = true;
-    this.dom.startButton.textContent = "Select a topic first";
+    this.setHomeTopicIdleState();
 
     this.dom.gameButtons.forEach((button) => {
       button.classList.toggle("is-selected", button.dataset.game === gameId);
@@ -442,8 +463,7 @@ class HubManager {
 
     if (!selectedStillVisible) {
       this.selectedTopic = null;
-      this.dom.startButton.disabled = true;
-      this.dom.startButton.textContent = "Select a topic first";
+      this.setHomeTopicIdleState();
     }
 
     this.dom.topicPanel.hidden = false;
@@ -453,16 +473,33 @@ class HubManager {
         selectedId: this.selectedTopic?.id || null,
         openFirstRoot: false,
         openBranchName: this.openTopicRoot,
-        onSelect: (fileMeta, branchName) => {
-          this.selectedTopic = fileMeta;
-          this.openTopicRoot = branchName || "";
-          this.dom.startButton.disabled = false;
-          this.dom.startButton.textContent = `Start ${getGameLabel(this.selectedGame)}`;
-          this.renderTopicTree();
-        },
+        onSelect: (fileMeta, branchName) => this.handleHomeTopicSelection(fileMeta, branchName),
       }),
     );
     this.forceCollapsedTopicTree = false;
+  }
+
+  async handleHomeTopicSelection(fileMeta, branchName) {
+    if (!this.selectedGame || this.homeTopicLaunchInFlight) {
+      return;
+    }
+
+    this.selectedTopic = fileMeta;
+    this.openTopicRoot = branchName || "";
+    this.homeTopicLaunchInFlight = true;
+    this.setHomeTopicLoadingState();
+    this.renderTopicTree();
+
+    try {
+      await this.launchGame(this.selectedGame, fileMeta);
+      this.setHomeTopicReadyState();
+    } catch (error) {
+      Modal.error(`Could not start the session: ${error.message}`);
+      this.setHomeTopicReadyState();
+      this.renderTopicTree();
+    } finally {
+      this.homeTopicLaunchInFlight = false;
+    }
   }
 
   async startSelectedTopic() {
@@ -471,17 +508,14 @@ class HubManager {
       return;
     }
 
-    this.dom.startButton.disabled = true;
-    this.dom.startButton.textContent = "Loading...";
+    this.setHomeTopicLoadingState();
 
     try {
       await this.launchGame(this.selectedGame, this.selectedTopic);
-      this.dom.startButton.textContent = `Start ${getGameLabel(this.selectedGame)}`;
-      this.dom.startButton.disabled = false;
+      this.setHomeTopicReadyState();
     } catch (error) {
       Modal.error(`Could not start the session: ${error.message}`);
-      this.dom.startButton.disabled = false;
-      this.dom.startButton.textContent = `Start ${getGameLabel(this.selectedGame)}`;
+      this.setHomeTopicReadyState();
     }
   }
 
@@ -999,8 +1033,7 @@ class HubManager {
 
       if (this.selectedTopic?.id === topic.id) {
         this.selectedTopic = null;
-        this.dom.startButton.disabled = true;
-        this.dom.startButton.textContent = "Select a topic first";
+        this.setHomeTopicIdleState();
       }
 
       this.editingTopicId = null;
@@ -1145,8 +1178,7 @@ class HubManager {
 
     if (this.selectedTopic?.id === topicMeta.id) {
       this.selectedTopic = null;
-      this.dom.startButton.disabled = true;
-      this.dom.startButton.textContent = "Select a topic first";
+      this.setHomeTopicIdleState();
     }
 
     this.renderLibraryTopicList();
@@ -1217,10 +1249,11 @@ class HubManager {
       this.renderTopicTree();
     }
 
-    this.dom.startButton.disabled = !this.selectedTopic;
-    this.dom.startButton.textContent = this.selectedTopic
-      ? `Start ${getGameLabel(this.selectedGame)}`
-      : "Select a topic first";
+    if (this.selectedTopic) {
+      this.setHomeTopicReadyState();
+    } else {
+      this.setHomeTopicIdleState();
+    }
   }
 
   showStats() {

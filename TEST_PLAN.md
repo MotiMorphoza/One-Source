@@ -5,7 +5,8 @@
 - select each language pair
 - select each game
 - verify the Home accordion appears
-- verify the topic chooser is compact and the start button sits below it
+- verify the topic chooser is compact and no separate `Start` button is shown
+- verify clicking a Home topic starts the selected game immediately
 - leave Home and return to it, then verify the accordion is collapsed again
 - select a topic under `My lists` and verify the `My lists` accordion stays open after selection
 - verify Home shows:

@@ -36,9 +36,9 @@ Home renders bundled HUB content under `Choose a topic` and local editable conte
 
 The shell now uses one shared `Home` button near `Sound` and `Speech` instead of repeating `Home` buttons on most screens. The Library editor remains the one screen that stays library-scoped, and `Sound` / `Speech` are now shown only on game screens.
 
-### The start button now sits below the accordion
+### Home topics now launch directly on click
 
-Home no longer keeps the start action beside the topic chooser.
+The separate Home `Start` button is gone, and choosing a topic now starts the selected game immediately from the accordion.
 
 ### Returning to Home now collapses the topic accordion again
 

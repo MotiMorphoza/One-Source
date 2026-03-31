@@ -30,7 +30,7 @@ Important: this repo does **not** currently ship a live `index.json`. The app re
 2. The home accordion renders as two roots:
    - `Choose a topic` for bundled HUB content
    - `My lists` for editable local content
-3. The `Start` button now sits below the topic accordion instead of beside it.
+3. Clicking a topic on Home now starts the selected game directly.
 4. Starting a bundled HUB file fetches its CSV and also stores a local cached copy so it becomes available in the Library.
 5. The first real edit to that cached HUB list promotes it into a local editable list (`MINE`).
 6. Hard items are tracked across play sessions.
