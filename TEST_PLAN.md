@@ -86,6 +86,8 @@
 - verify the Flash Cards shuffle button label is `Shuffle`
 - verify the Flash Cards `Another round` button label is correct
 - verify Flash Cards action buttons use distinct colors
+- verify Flash Cards shows a `Speak` button beside the header metrics and that it speaks the currently visible side of the card
+- verify shared speech playback feels slightly slower and clearer across Flash Cards and Word Puzzle
 - verify desktop game screens fit the viewport without unnecessary page scrolling
 - verify long game content stays reachable and does not get visually clipped on desktop
 - restart a completed session

@@ -65,7 +65,7 @@ export const SpeechEngine = {
     }
 
     utterance.lang = langCode;
-    utterance.rate = options.rate || 0.9;
+    utterance.rate = options.rate || 0.8;
     utterance.pitch = options.pitch || 1;
     utterance.volume = options.volume || 1;
 

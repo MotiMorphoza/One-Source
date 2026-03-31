@@ -220,6 +220,14 @@ The positive answer button in Flash Cards now uses the lavender action style ins
 
 The same two Flash Cards action rows now render as equal-width rectangular pairs on desktop as well, instead of falling back to a narrow single-column stack.
 
+### Flash Cards now has a local speech button near the game metrics
+
+The Flash Cards header now exposes a `Speak` control beside `Time` and `Remaining`, so the currently visible side of the card can be spoken without relying only on the global top-bar toggle area.
+
+### Shared speech playback is now slightly slower by default
+
+The default `SpeechEngine` rate was reduced so spoken words and sentences are a bit easier to follow without needing per-game tuning.
+
 ### Selected topics now use the same wine-purple accent as the list-name highlight
 
 The selected topic state in the accordion now matches the same wine-purple family used for the highlighted list name in Library paths, instead of using a separate lavender accent.

@@ -2,6 +2,7 @@ import { GameInterface } from "./gameInterface.js";
 import { formatTime, safePercent, shuffle } from "../utils/helpers.js";
 import { setDirection } from "../utils/text.js";
 import { AudioEngine } from "../core/audio.js";
+import { SpeechEngine } from "../core/speech.js";
 
 export class FlashCardsGame extends GameInterface {
   constructor() {
@@ -47,6 +48,7 @@ export class FlashCardsGame extends GameInterface {
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="flashTimer">0s</strong></span>
             <span class="metric-pill">Remaining <strong id="flashRemaining">0</strong></span>
+            <button type="button" class="button button-success button-small metric-action" id="flashSpeak">Speak</button>
           </div>
         </header>
 
@@ -78,7 +80,10 @@ export class FlashCardsGame extends GameInterface {
     this.unknownButton = this.container.querySelector("#flashUnknown");
     this.shuffleButton = this.container.querySelector("#flashShuffle");
     this.directionButton = this.container.querySelector("#flashDirection");
+    this.speakButton = this.container.querySelector("#flashSpeak");
     this.topicTitle.textContent = this.context.topic.name;
+    this.speakButton.hidden = !SpeechEngine.supported;
+    this.speakButton.style.display = SpeechEngine.supported ? "" : "none";
   }
 
   bindEvents() {
@@ -119,6 +124,18 @@ export class FlashCardsGame extends GameInterface {
       this.updateCard();
     };
 
+    this.handleSpeak = () => {
+      const current = this.deck[this.currentIndex];
+      if (!current) {
+        return;
+      }
+
+      const frontKey = this.direction;
+      const backKey = this.direction === "source" ? "target" : "source";
+      const text = this.flipped ? current[backKey] : current[frontKey];
+      SpeechEngine.speak(text, this.context.lang);
+    };
+
     this.handleShuffle = () => {
       const remaining = this.deck.slice(this.currentIndex);
       if (remaining.length <= 1) {
@@ -138,6 +155,7 @@ export class FlashCardsGame extends GameInterface {
     this.unknownButton.addEventListener("click", this.handleUnknown);
     this.shuffleButton.addEventListener("click", this.handleShuffle);
     this.directionButton.addEventListener("click", this.handleDirection);
+    this.speakButton?.addEventListener("click", this.handleSpeak);
   }
 
   loadCard() {
@@ -196,5 +214,6 @@ export class FlashCardsGame extends GameInterface {
     this.unknownButton?.removeEventListener("click", this.handleUnknown);
     this.shuffleButton?.removeEventListener("click", this.handleShuffle);
     this.directionButton?.removeEventListener("click", this.handleDirection);
+    this.speakButton?.removeEventListener("click", this.handleSpeak);
   }
 }

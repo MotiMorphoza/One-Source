@@ -541,6 +541,10 @@ select optgroup {
   color: var(--text);
 }
 
+.metric-action {
+  margin-top: 0;
+}
+
 .flash-panel {
   display: grid;
   gap: 14px;
