@@ -353,6 +353,8 @@ class HubManager {
     const showAboutButton = screenName === "home";
     const showAudioButtons = screenName === "game";
     const showSpeechButton = showAudioButtons && this.selectedGame !== "wordmatch";
+    const showOnlyAboutButton =
+      showAboutButton && !showHomeButton && !showAudioButtons && !showSpeechButton;
     this.dom.openHomeTopButton.hidden = !showHomeButton;
     this.dom.openAboutTopButton.hidden = !showAboutButton;
     this.dom.toggleSound.hidden = !showAudioButtons;
@@ -361,6 +363,7 @@ class HubManager {
     this.dom.toggleSound.style.display = showAudioButtons ? "" : "none";
     this.dom.toggleSpeech.style.display = showSpeechButton ? "" : "none";
     this.dom.openHomeTopButton.style.display = showHomeButton ? "" : "none";
+    this.dom.topbarControls.classList.toggle("toggle-row--home-about-only", showOnlyAboutButton);
     this.dom.topbarControls.hidden = false;
   }
 

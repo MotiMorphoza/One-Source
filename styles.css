@@ -126,6 +126,10 @@ h2 {
   justify-content: center;
 }
 
+.toggle-row > [hidden] {
+  display: none !important;
+}
+
 .icon-button,
 .button,
 .choice-card,
@@ -1479,6 +1483,17 @@ body.app-booting .app-shell {
 
   #openHomeTopButton:not([hidden]) {
     grid-column: 1 / -1;
+  }
+
+  .toggle-row.toggle-row--home-about-only {
+    grid-template-columns: max-content;
+    width: 100%;
+  }
+
+  .toggle-row.toggle-row--home-about-only > .icon-button {
+    width: auto;
+    inline-size: auto;
+    min-inline-size: var(--control-min-width-small);
   }
 
   .choice-grid {
