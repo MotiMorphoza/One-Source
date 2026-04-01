@@ -1,7 +1,7 @@
 import { normalizeWhitespace } from "./text.js";
 import { uid } from "./helpers.js";
 
-function parseCsvLine(line) {
+function parseDelimitedLine(line, delimiter) {
   const cells = [];
   let current = "";
   let inQuotes = false;
@@ -25,7 +25,7 @@ function parseCsvLine(line) {
       continue;
     }
 
-    if (character === "," && !inQuotes) {
+    if (character === delimiter && !inQuotes) {
       cells.push(current.trim());
       current = "";
       continue;
@@ -41,6 +41,63 @@ function parseCsvLine(line) {
   };
 }
 
+function countDelimiter(line, delimiter) {
+  let count = 0;
+  let inQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index];
+    const nextCharacter = line[index + 1];
+
+    if (character === '"') {
+      if (inQuotes && nextCharacter === '"') {
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (character === delimiter && !inQuotes) {
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
+function inferDelimiter(text, sourceId = "", preferredDelimiter = null) {
+  if (preferredDelimiter === "|" || preferredDelimiter === ",") {
+    return preferredDelimiter;
+  }
+
+  const normalizedSourceId = String(sourceId || "").toLowerCase();
+  if (normalizedSourceId.endsWith(".txt")) {
+    return "|";
+  }
+
+  if (normalizedSourceId.endsWith(".csv")) {
+    return ",";
+  }
+
+  const firstContentLine = String(text || "")
+    .split(/\r?\n/)
+    .find((line) => line.trim());
+
+  if (!firstContentLine) {
+    return "|";
+  }
+
+  const pipeCount = countDelimiter(firstContentLine, "|");
+  const commaCount = countDelimiter(firstContentLine, ",");
+
+  if (pipeCount > 0 && pipeCount >= commaCount) {
+    return "|";
+  }
+
+  return ",";
+}
+
 function isHeader(cells) {
   if (cells.length < 2) {
     return false;
@@ -50,13 +107,16 @@ function isHeader(cells) {
   const second = normalizeWhitespace(cells[1]).toLowerCase();
 
   return (
+    (first === "learning" && second === "translation") ||
     (first === "learning language" && second === "translation") ||
+    (first === "learning language" && second === "user language") ||
     (first === "source" && second === "target")
   );
 }
 
 export function parseCsv(text, sourceId = "csv", options = {}) {
-  const { strict = true } = options;
+  const { strict = true, delimiter = null } = options;
+  const resolvedDelimiter = inferDelimiter(text, sourceId, delimiter);
   const rows = [];
   const errors = [];
 
@@ -69,7 +129,7 @@ export function parseCsv(text, sourceId = "csv", options = {}) {
         return;
       }
 
-      const { cells, hasUnclosedQuote } = parseCsvLine(line);
+      const { cells, hasUnclosedQuote } = parseDelimitedLine(line, resolvedDelimiter);
       if (index === 0 && isHeader(cells)) {
         return;
       }
@@ -91,7 +151,7 @@ export function parseCsv(text, sourceId = "csv", options = {}) {
 
       const source = normalizeWhitespace(cells[0]);
       const target = normalizeWhitespace(
-        strict ? cells[1] : cells.slice(1).join(","),
+        strict ? cells[1] : cells.slice(1).join(resolvedDelimiter),
       );
 
       if (!source || !target) {
@@ -107,7 +167,7 @@ export function parseCsv(text, sourceId = "csv", options = {}) {
     });
 
   if (errors.length > 0) {
-    throw new Error(`Invalid CSV in ${sourceId}: ${errors.slice(0, 3).join("; ")}`);
+    throw new Error(`Invalid file in ${sourceId}: ${errors.slice(0, 3).join("; ")}`);
   }
 
   return rows;

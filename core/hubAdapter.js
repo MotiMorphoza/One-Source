@@ -353,7 +353,7 @@ export const HubAdapter = {
 
           tree[rootTitle][normalizedTopicName].push({
             id: path,
-            name: fileName.replace(/\.csv$/i, ""),
+            name: fileName.replace(/\.(csv|txt)$/i, ""),
             file: fileName,
             path,
             lang,
@@ -429,7 +429,7 @@ export const HubAdapter = {
 
     const nextTopic = Storage.createLibraryTopic({
       name: topicMeta.name,
-      fileName: topicMeta.file || topicMeta.fileName || `${topicMeta.name}.csv`,
+      fileName: topicMeta.file || topicMeta.fileName || `${topicMeta.name}.txt`,
       lang: topicMeta.lang,
       topicName,
       source,

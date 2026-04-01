@@ -358,7 +358,7 @@ function sanitizeTopic(topic = {}, existing = null) {
   return {
     id: topicId,
     name,
-    fileName: topic.fileName || existing?.fileName || `${name}.csv`,
+    fileName: topic.fileName || existing?.fileName || `${name}.txt`,
     path: topic.path || existing?.path || topicId,
     lang: topic.lang || existing?.lang || "",
     topicName,
@@ -408,6 +408,22 @@ function saveLibraryTopicsCollection(topics, preservedIds = []) {
   }
 
   return false;
+}
+
+function getOriginPathVariants(originPath) {
+  const value = String(originPath || "").trim();
+  if (!value) {
+    return [];
+  }
+
+  const variants = new Set([value]);
+  if (/\.csv$/i.test(value)) {
+    variants.add(value.replace(/\.csv$/i, ".txt"));
+  } else if (/\.txt$/i.test(value)) {
+    variants.add(value.replace(/\.txt$/i, ".csv"));
+  }
+
+  return [...variants];
 }
 
 function updateTopicInCollection(topicId, updater) {
@@ -604,7 +620,7 @@ export const Storage = {
     return updateTopicInCollection(topicId, (topic) => ({
       ...topic,
       name,
-      fileName: `${normalizeWhitespace(name)}.csv`,
+      fileName: `${normalizeWhitespace(name)}.txt`,
     }));
   },
 
@@ -720,8 +736,11 @@ export const Storage = {
   },
 
   findLibraryTopicByOrigin(originPath) {
+    const variants = getOriginPathVariants(originPath);
     return (
-      this.getLibraryTopics().find((topic) => topic.originPath && topic.originPath === originPath) ||
+      this.getLibraryTopics().find(
+        (topic) => topic.originPath && variants.includes(topic.originPath),
+      ) ||
       null
     );
   },
@@ -758,7 +777,12 @@ export const Storage = {
   },
 
   isLibraryOriginHidden(originPath) {
-    return Boolean(originPath) && getHiddenLibraryHubOrigins().includes(originPath);
+    if (!originPath) {
+      return false;
+    }
+
+    const hiddenOrigins = getHiddenLibraryHubOrigins();
+    return getOriginPathVariants(originPath).some((entry) => hiddenOrigins.includes(entry));
   },
 
   hideLibraryOrigin(originPath) {
@@ -766,7 +790,10 @@ export const Storage = {
       return false;
     }
 
-    return setHiddenLibraryHubOrigins([...getHiddenLibraryHubOrigins(), originPath]);
+    return setHiddenLibraryHubOrigins([
+      ...getHiddenLibraryHubOrigins(),
+      ...getOriginPathVariants(originPath),
+    ]);
   },
 
   unhideLibraryOrigin(originPath) {
@@ -774,8 +801,9 @@ export const Storage = {
       return false;
     }
 
+    const variants = getOriginPathVariants(originPath);
     return setHiddenLibraryHubOrigins(
-      getHiddenLibraryHubOrigins().filter((entry) => entry !== originPath),
+      getHiddenLibraryHubOrigins().filter((entry) => !variants.includes(entry)),
     );
   },
 

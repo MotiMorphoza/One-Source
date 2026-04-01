@@ -58,7 +58,7 @@ export function isWordPuzzleTemplateList(record = {}) {
 export function createWordPuzzleTemplateList(lang) {
   return {
     name: WORD_PUZZLE_TEMPLATE_LIST_NAME,
-    fileName: `${WORD_PUZZLE_TEMPLATE_LIST_NAME}.csv`,
+    fileName: `${WORD_PUZZLE_TEMPLATE_LIST_NAME}.txt`,
     lang,
     topicName: SENTENCE_TOPIC_NAME,
     source: "local",
@@ -67,4 +67,3 @@ export function createWordPuzzleTemplateList(lang) {
     systemTemplateKind: WORD_PUZZLE_TEMPLATE_KIND,
   };
 }
-

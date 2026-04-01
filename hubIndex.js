@@ -1,4 +1,4 @@
-window.HUB_INDEX = {
+﻿window.HUB_INDEX = {
   "version": 4,
   "rootTitle": "Choose a topic",
   "languages": [
@@ -40,25 +40,25 @@ window.HUB_INDEX = {
       },
       "files": {
         "ar-he": [
-          "أَكْتَر أَو أَقَلّ A.csv",
-          "أَكْتَر أَو أَقَلّ B.csv",
-          "دِلْوَقْتي.csv",
-          "عَمِلت.csv",
-          "هَعمَل.csv"
+          "أَكْتَر أَو أَقَلّ A.txt",
+          "أَكْتَر أَو أَقَلّ B.txt",
+          "دِلْوَقْتي.txt",
+          "عَمِلت.txt",
+          "هَعمَل.txt"
         ],
         "he-en": [
-          "I did.csv",
-          "I will.csv",
-          "More or less A.csv",
-          "More or less B.csv",
-          "Now.csv"
+          "I did.txt",
+          "I will.txt",
+          "More or less A.txt",
+          "More or less B.txt",
+          "Now.txt"
         ],
         "he-pl": [
-          "Mniej więcej A.csv",
-          "Mniej więcej B.csv",
-          "Teraz.csv",
-          "Zrobię.csv",
-          "Zrobiłem.csv"
+          "Mniej więcej A.txt",
+          "Mniej więcej B.txt",
+          "Teraz.txt",
+          "Zrobię.txt",
+          "Zrobiłem.txt"
         ]
       }
     },
@@ -72,19 +72,19 @@ window.HUB_INDEX = {
       },
       "files": {
         "ar-he": [
-          "أَسافِر وِلّا لأ.csv",
-          "بَسيطة.csv",
-          "رِحلِة عَمِيقة.csv"
+          "أَسافِر وِلّا لأ.txt",
+          "بَسيطة.txt",
+          "رِحلِة عَمِيقة.txt"
         ],
         "he-en": [
-          "Deep ride.csv",
-          "Simple.csv",
-          "To leave or not.csv"
+          "Deep ride.txt",
+          "Simple.txt",
+          "To leave or not.txt"
         ],
         "he-pl": [
-          "Głęboka podróż.csv",
-          "Proste.csv",
-          "Wyjechać czy nie.csv"
+          "Głęboka podróż.txt",
+          "Proste.txt",
+          "Wyjechać czy nie.txt"
         ]
       }
     },
@@ -98,19 +98,19 @@ window.HUB_INDEX = {
       },
       "files": {
         "ar-he": [
-          "أَساسِيّات.csv",
-          "المَكتَب.csv",
-          "في الطَّريق.csv"
+          "أَساسِيّات.txt",
+          "المَكتَب.txt",
+          "في الطَّريق.txt"
         ],
         "he-en": [
-          "Basic.csv",
-          "Office.csv",
-          "On the road.csv"
+          "Basic.txt",
+          "Office.txt",
+          "On the road.txt"
         ],
         "he-pl": [
-          "Biuro.csv",
-          "Podstawy.csv",
-          "W drodze.csv"
+          "Biuro.txt",
+          "Podstawy.txt",
+          "W drodze.txt"
         ]
       }
     }

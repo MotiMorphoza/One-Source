@@ -52,16 +52,21 @@ function getGameLabel(gameId) {
   return labels[gameId] || "Session";
 }
 
-function createCsvBlob(rows) {
-  const lines = ['"Source","Target"'];
+function createDelimitedTextBlob(rows) {
+  const lines = rows.map((row) => {
+    const source = String(row.source || "")
+      .replace(/\r?\n/g, " ")
+      .replace(/\|/g, "-")
+      .trim();
+    const target = String(row.target || "")
+      .replace(/\r?\n/g, " ")
+      .replace(/\|/g, "-")
+      .trim();
 
-  rows.forEach((row) => {
-    const source = String(row.source || "").replace(/"/g, '""');
-    const target = String(row.target || "").replace(/"/g, '""');
-    lines.push(`"${source}","${target}"`);
+    return `${source}|${target}`;
   });
 
-  return new Blob(["\uFEFF", lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  return new Blob(["\uFEFF", lines.join("\n")], { type: "text/plain;charset=utf-8" });
 }
 
 function createPathSeparator() {
@@ -778,7 +783,7 @@ class HubManager {
       const data = parseCsv(text, `import-${file.name}`);
 
       if (!data.length) {
-        throw new Error("The selected CSV file does not contain usable rows.");
+        throw new Error("The selected file does not contain usable rows.");
       }
 
       const baseName = file.name.replace(/\.[^/.]+$/, "").trim() || "Imported file";
@@ -1381,10 +1386,10 @@ class HubManager {
       return;
     }
 
-    const blob = createCsvBlob(topic.rows);
+    const blob = createDelimitedTextBlob(topic.rows);
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = topic.fileName || `${topic.name}.csv`;
+    link.download = (topic.fileName || `${topic.name}.txt`).replace(/\.(csv|txt)$/i, ".txt");
     link.click();
     window.setTimeout(() => {
       URL.revokeObjectURL(link.href);
