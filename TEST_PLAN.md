@@ -32,6 +32,7 @@
 - verify import rejects the temporary `Create new language pair` selector value and only imports into an existing pair
 - verify creating a new custom pair with a first topic other than `sentences` also creates a visible `sentences | Word Puzzle setup` template list
 - verify creating a new custom pair with the first topic `sentences` does not create the extra template list
+- verify creating a list also keeps the same language pair selected on Home so choosing a game does not fail with `Choose a language pair first.`
 - verify the template list shows `Edit` / `Delete` only and no game buttons in the Library
 - verify the editor path shows the resolved language-pair label for bundled and custom pairs instead of a raw custom id
 - edit the template row without replacing it with real content and verify the list stays non-playable

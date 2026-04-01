@@ -962,7 +962,10 @@ class HubManager {
     this.dom.libraryTopicNameInput.value = "";
     this.dom.libraryCustomSourceLabelInput.value = "";
     this.dom.libraryCustomTargetLabelInput.value = "";
+    this.selectedLang = lang;
+    this.selectedTopic = null;
     this.populateLanguages(lang);
+    this.dom.languageSelect.value = lang;
     this.populateLibraryLanguages(lang);
     this.renderLibraryTopicList();
     this.renderTopicTreeIfReady();
