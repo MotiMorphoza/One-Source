@@ -375,6 +375,7 @@ function buildAiPromptText(state) {
         `- Extract ${state.outputType} directly from the source.`,
         "- Do not invent new content.",
         "- Do not summarize the source.",
+        "- Preserve original wording as much as possible.",
         "- Preserve the source tone, meaning, and colloquial style when useful and study-safe.",
         "- Allow only minimal cleanup for clarity, punctuation, or study safety.",
         "- Prefer lightly cleaned source-based units over rewritten ones.",
@@ -406,6 +407,16 @@ function buildAiPromptText(state) {
 
   lines.push(
     "",
+    "Extraction quality:",
+    "- Prefer meaningful, standalone learning units.",
+    '- Avoid very short or filler fragments such as "What?", "Uh...", or "No...".',
+    "- Avoid lines that depend heavily on previous context.",
+    "- Each line should be understandable and useful on its own.",
+    "- Skip weak fragments instead of forcing them into the output.",
+  );
+
+  lines.push(
+    "",
     "Output rules:",
     "- Return plain text only.",
     "- No title.",
@@ -424,6 +435,9 @@ function buildAiPromptText(state) {
     `- Use only this output type: ${state.outputType}.`,
     "- Quantity means total rows.",
     "- Keep the content natural, useful, and ready for study.",
+    "- Use natural translation in the user language, not overly literal translation.",
+    "- You may add a very short literal hint in parentheses only if it clearly improves understanding.",
+    "- Do not add explanations.",
     "- Keep the difficulty aligned with the selected level.",
     "- Do not output duplicate rows.",
   );
