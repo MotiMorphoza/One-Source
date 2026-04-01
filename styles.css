@@ -1228,7 +1228,9 @@ body.app-booting .app-shell {
 
 .app-modal--wide {
   width: min(100%, 44rem);
+  block-size: min(86vh, 48rem);
   max-height: min(86vh, 48rem);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 16px;
   text-align: left;
   overflow: hidden;
@@ -1713,6 +1715,7 @@ body.app-booting .app-shell {
   }
 
   .app-modal--wide {
+    block-size: min(90vh, 52rem);
     max-height: min(90vh, 52rem);
   }
 
