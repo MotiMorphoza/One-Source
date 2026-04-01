@@ -40,6 +40,7 @@ export class WordMatchGame extends GameInterface {
           <div>
             <p class="game-label">Word Match</p>
             <h2 id="matchTopicTitle"></h2>
+            <p class="support-text" id="matchTopicLanguage"></p>
           </div>
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="matchTimer">0s</strong></span>
@@ -54,10 +55,12 @@ export class WordMatchGame extends GameInterface {
     `;
 
     this.topicTitle = this.container.querySelector("#matchTopicTitle");
+    this.topicLanguage = this.container.querySelector("#matchTopicLanguage");
     this.timerValue = this.container.querySelector("#matchTimer");
     this.remainingValue = this.container.querySelector("#matchRemaining");
     this.board = this.container.querySelector("#matchBoard");
     this.topicTitle.textContent = this.context.topic.name;
+    this.topicLanguage.textContent = this.context.languageLabel || "";
   }
 
   renderBoard() {

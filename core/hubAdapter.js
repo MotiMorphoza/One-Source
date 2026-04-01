@@ -280,6 +280,8 @@ export const HubAdapter = {
           originPath: topic.originPath || null,
           localId: topic.id,
           rowsCount: topic.rows.length,
+          isSystemTemplate: topic.isSystemTemplate === true,
+          systemTemplateKind: topic.systemTemplateKind || null,
         });
       });
 
@@ -302,6 +304,8 @@ export const HubAdapter = {
             ...topic,
             category,
             allowedGames,
+            isSystemTemplate: false,
+            systemTemplateKind: null,
           });
         });
       }
@@ -347,6 +351,8 @@ export const HubAdapter = {
             category,
             allowedGames,
             folder: folderName,
+            isSystemTemplate: false,
+            systemTemplateKind: null,
           });
         });
       });

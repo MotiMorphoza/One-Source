@@ -16,13 +16,27 @@
 - verify `Sound` and `Speech` appear only on the game screen
 - verify sentence content appears for Word Puzzle only
 - verify non-sentence topics appear for Flash Cards and Word Match
+- create a custom language pair through `Create list`, then verify it appears in the Home language selector with its label and not its raw stored id
+- verify Home still shows bundled HUB only under `Choose a topic`, while the custom-pair lists appear only under `My lists`
+- verify clicking the visible `Word Puzzle setup` template under `My lists` opens the editor instead of starting a session
 
 ## Library
 
 - create a local list
+- create a local list under a new custom language pair
 - import a valid CSV
 - verify the new list appears in the Library
 - verify a newly created list shows `language | topic | list name` in the expected order
+- verify selecting `Create new language pair` reveals inline source/target language-label inputs
+- verify cancelling or leaving the create flow without submitting does not save a new pair or list
+- verify import rejects the temporary `Create new language pair` selector value and only imports into an existing pair
+- verify creating a new custom pair with a first topic other than `sentences` also creates a visible `sentences | Word Puzzle setup` template list
+- verify creating a new custom pair with the first topic `sentences` does not create the extra template list
+- verify the template list shows `Edit` / `Delete` only and no game buttons in the Library
+- verify the editor path shows the resolved language-pair label for bundled and custom pairs instead of a raw custom id
+- edit the template row without replacing it with real content and verify the list stays non-playable
+- replace the template row with one real non-empty sentence pair and verify the list becomes a normal playable list only after that row save
+- delete the template list and verify later list creation or import does not recreate it
 - verify the Library list view shows only touched local lists, not the entire bundled HUB
 - verify the Library list section title is `Lists`
 - start a bundled HUB list from Home and verify it appears in the Library with `HUB`
@@ -77,17 +91,20 @@
 - verify `Hard sentences` appears under `My lists`
 - verify the generated hard lists start normally in the relevant games
 - verify the Statistics screen updates the `Hard lists` breakdown
+- verify the Word Puzzle setup template never contributes hard rows
 
 ## Games
 
 - start each game from bundled HUB content
 - start each game from Library content
+- start each game from a custom-pair list
 - start a HUB list, edit it into `MINE`, and verify best-time continuity still behaves as one topic identity
 - verify the Flash Cards word frame stays compact for short items and expands naturally for long sentences
 - verify the Flash Cards shuffle button label is `Shuffle`
 - verify the Flash Cards `Another round` button label is correct
 - verify Flash Cards action buttons use distinct colors
 - verify Flash Cards shows a `Speak` button beside the header metrics and that it speaks the currently visible side of the card
+- verify game headers show the resolved language-pair label for bundled and custom pairs
 - verify shared speech playback feels slightly slower and clearer across Flash Cards and Word Puzzle
 - verify desktop game screens fit the viewport without unnecessary page scrolling
 - verify long game content stays reachable and does not get visually clipped on desktop
@@ -155,3 +172,5 @@
 - verify the top stat tiles show `Sessions`, `Study time`, and `Accuracy`
 - verify the three top stat tiles stay on one row on phone
 - verify the `Hard lists` section updates correctly
+- verify the `By language` section uses resolved pair labels for custom pairs
+- verify the Word Puzzle setup template never changes session counts, accuracy, or best-time data

@@ -44,6 +44,7 @@ export class FlashCardsGame extends GameInterface {
           <div>
             <p class="game-label">Flash Cards</p>
             <h2 id="flashTopicTitle"></h2>
+            <p class="support-text" id="flashTopicLanguage"></p>
           </div>
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="flashTimer">0s</strong></span>
@@ -72,6 +73,7 @@ export class FlashCardsGame extends GameInterface {
     `;
 
     this.topicTitle = this.container.querySelector("#flashTopicTitle");
+    this.topicLanguage = this.container.querySelector("#flashTopicLanguage");
     this.timerValue = this.container.querySelector("#flashTimer");
     this.remainingValue = this.container.querySelector("#flashRemaining");
     this.cardButton = this.container.querySelector("#flashCard");
@@ -82,6 +84,7 @@ export class FlashCardsGame extends GameInterface {
     this.directionButton = this.container.querySelector("#flashDirection");
     this.speakButton = this.container.querySelector("#flashSpeak");
     this.topicTitle.textContent = this.context.topic.name;
+    this.topicLanguage.textContent = this.context.languageLabel || "";
     this.speakButton.hidden = !SpeechEngine.supported;
     this.speakButton.style.display = SpeechEngine.supported ? "" : "none";
   }

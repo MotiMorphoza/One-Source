@@ -27,6 +27,7 @@ Important: this repo does **not** currently ship a live `index.json`. The app re
 ## How The App Works Today
 
 1. The home screen lets the user choose a language pair and a game.
+   - The language selector now unions bundled HUB pairs, local custom pairs, and legacy local-only `lang` values.
 2. The home accordion renders as two roots:
    - `Choose a topic` for bundled HUB content
    - `My lists` for editable local content
@@ -59,6 +60,8 @@ The generated registry now stores `folders[language]` so the app can resolve loc
 
 - The Library now focuses on lists the user actually touched locally.
 - It shows cached HUB lists, edited HUB-derived lists, user-created lists, and imported lists.
+- Custom language pairs can be created only through the `Create list` flow.
+- Import can target an existing bundled or custom language pair, but import does not create a new pair.
 - Every card in the Library now uses `Edit`.
 - Library cards can be removed directly from the Library screen.
 - Removing a HUB list from the Library now hides it from the Library only.
@@ -81,6 +84,14 @@ UI meaning:
 - `HUB` badge: `hub` and `hub-cache`
 - `MINE` badge: `hub-copy`, `local`, and `import`
 
+## Custom Language Pairs
+
+- Custom pairs are stored separately from `hubIndex.js`.
+- The custom-pair registry key is `LLH_v4_local_language_pairs`.
+- Each custom pair keeps a stable local `lang` id, while UI labels resolve from bundled pairs first, then the custom registry, then raw fallback.
+- Creating a brand-new custom pair through `Create list` also creates a `sentences` system template named `Word Puzzle setup` when the first user topic is not `sentences`.
+- That template list is visible, editable, and deletable, but it is never playable and does not contribute to sessions, accuracy, hard marks, or generated hard lists.
+
 ## Hard Lists
 
 - A row becomes part of the hard lists after 2 wrong answers.
@@ -97,6 +108,7 @@ UI meaning:
 - Rows are normalized to `{ id, source, target }`.
 - Users can create their own topics from the Library UI.
 - Duplicate list names are blocked within the same language pair and topic.
+- System-template promotion happens only from row-save paths after the original template row is fully replaced by real non-empty content.
 
 ## Local Development
 

@@ -60,6 +60,14 @@ Playing a bundled HUB file creates a local cached record so the user can later e
 
 The Library list view now focuses on cached, edited, created, and imported lists rather than every bundled HUB file across all languages.
 
+### Local custom language pairs now exist without changing the bundled HUB registry
+
+The app can now create user-defined language pairs through the `Create list` flow, store them in a local registry, and surface them in the shared language selectors without inserting local records into `hubIndex.js`.
+
+### Custom-pair labels now resolve before raw fallback
+
+Language rendering now prefers bundled HUB labels first, then the local custom-pair registry, and only falls back to the raw stored `lang` value when no label metadata exists.
+
 ### Editing a cached HUB list promotes it into local editable content
 
 The code now distinguishes between a cached HUB list and a real local edited copy.
@@ -303,6 +311,10 @@ The mismatch path now carries the underlying pair object forward, which reduces 
 ### Hard lists can now be generated from real mistake data
 
 Wrong answers are now stored with stable row signatures, and Home can generate `Hard words` and `Hard sentences` under `My lists` once an item reaches 2 mistakes.
+
+### New custom pairs can now get a guarded Word Puzzle setup template
+
+Creating a brand-new custom pair outside the `sentences` topic now creates one visible `Word Puzzle setup` template list under `sentences`, but the shared launch path blocks that template from starting a session until the original template row has been fully replaced by real study content.
 
 ## Partially Verified
 

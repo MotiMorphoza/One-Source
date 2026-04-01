@@ -53,6 +53,7 @@ The Library is a unified management view over:
 - edited HUB-derived lists
 - user-created lists
 - imported CSV lists
+- locally registered custom language pairs
 
 ### 4. Shared Runtime
 
@@ -106,6 +107,7 @@ Editing prompts and confirmations now run through in-app modal UI instead of nat
 ## Current Data Flow
 
 1. User picks a language pair.
+   - The selector is a union of bundled HUB pairs, local custom pairs, and legacy `lang` ids still present in local topics.
 2. User picks a game.
 3. `HubManager` asks `HubAdapter` for the home tree.
 4. Home receives:
@@ -115,6 +117,13 @@ Editing prompts and confirmations now run through in-app modal UI instead of nat
 6. Editing that cached record promotes it into a local editable record.
 7. A global top-bar `Home` action is available on all screens except the Library editor.
 8. Games receive normalized data and a shared `SessionEngine`.
+
+When a user creates a brand-new custom pair from the Library:
+
+1. the pair is added to the local custom-pair registry
+2. the first real list is stored under that stable custom `lang` id
+3. a `Word Puzzle setup` template is also created under `sentences` unless the first user topic is already `sentences`
+4. that template remains visible/editable but is guarded out of the playable launch path
 
 ## Current Source Lifecycle
 
@@ -141,6 +150,8 @@ Storage is versioned under the `LLH_v4_*` namespace.
 
 Bundled HUB removal from the Library is now Library-only state.
 Legacy hidden-HUB storage is migrated on startup so Home continues to reflect the physical bundled HUB tree.
+Custom language-pair records live beside list records and do not modify `hubIndex.js`.
+System-template list metadata is preserved on the stored list object so the shared launch path can block play before session creation.
 
 ## What Is Already Unified
 

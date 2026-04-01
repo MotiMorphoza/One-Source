@@ -85,6 +85,24 @@
               <label class="field-label" for="libraryLangSelect">Language pair</label>
               <select id="libraryLangSelect"></select>
 
+              <div id="libraryCustomPairFields" hidden>
+                <label class="field-label" for="libraryCustomSourceLabelInput">Source language label</label>
+                <input
+                  id="libraryCustomSourceLabelInput"
+                  type="text"
+                  placeholder="Source language"
+                  disabled
+                />
+
+                <label class="field-label" for="libraryCustomTargetLabelInput">Target language label</label>
+                <input
+                  id="libraryCustomTargetLabelInput"
+                  type="text"
+                  placeholder="Target language"
+                  disabled
+                />
+              </div>
+
               <label class="field-label" for="libraryTopicInput">Topic</label>
               <input id="libraryTopicInput" type="text" list="libraryTopicOptions" placeholder="Choose or create topic" />
               <datalist id="libraryTopicOptions"></datalist>

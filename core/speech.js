@@ -1,3 +1,5 @@
+import { resolveSpeechLangCode } from "./languagePairs.js";
+
 export const SpeechEngine = {
   enabled: true,
   voices: [],
@@ -32,16 +34,7 @@ export const SpeechEngine = {
   },
 
   getLangCode(langPair) {
-    const first = String(langPair || "en").split("-")[0];
-    const map = {
-      ar: "ar-SA",
-      en: "en-US",
-      es: "es-ES",
-      he: "he-IL",
-      pl: "pl-PL",
-    };
-
-    return map[first] || "en-US";
+    return resolveSpeechLangCode(langPair);
   },
 
   findVoice(langCode) {

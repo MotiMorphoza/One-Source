@@ -1,4 +1,5 @@
 import { formatTime, safePercent } from "../utils/helpers.js";
+import { resolveLanguageLabel } from "../core/languagePairs.js";
 
 function createStatTile(label, value) {
   const tile = document.createElement("div");
@@ -101,7 +102,7 @@ export function renderStats(container, summary) {
   }));
 
   const byLanguage = [...byLangMap.entries()].map(([lang, data]) => ({
-    label: lang,
+    label: resolveLanguageLabel(lang),
     value: `${data.count} sessions / ${formatTime(Math.round(data.time / data.count || 0))} avg`,
   }));
 

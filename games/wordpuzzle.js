@@ -39,6 +39,7 @@ export class WordPuzzleGame extends GameInterface {
           <div>
             <p class="game-label">Word Puzzle</p>
             <h2 id="puzzleTopicTitle"></h2>
+            <p class="support-text" id="puzzleTopicLanguage"></p>
           </div>
           <div class="game-metrics">
             <span class="metric-pill">Time <strong id="puzzleTimer">0s</strong></span>
@@ -62,6 +63,7 @@ export class WordPuzzleGame extends GameInterface {
     `;
 
     this.topicTitle = this.container.querySelector("#puzzleTopicTitle");
+    this.topicLanguage = this.container.querySelector("#puzzleTopicLanguage");
     this.timerValue = this.container.querySelector("#puzzleTimer");
     this.progressValue = this.container.querySelector("#puzzleProgress");
     this.translationValue = this.container.querySelector("#puzzleTranslation");
@@ -70,6 +72,7 @@ export class WordPuzzleGame extends GameInterface {
     this.speakButton = this.container.querySelector("#puzzleSpeak");
     this.nextButton = this.container.querySelector("#puzzleNext");
     this.topicTitle.textContent = this.context.topic.name;
+    this.topicLanguage.textContent = this.context.languageLabel || "";
 
     this.handleSpeak = () => {
       if (this.currentSentence) {

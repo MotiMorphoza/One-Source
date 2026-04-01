@@ -1,10 +1,21 @@
 import { AudioEngine } from "./audio.js";
 import { EventBus } from "./eventBus.js";
 import { HubAdapter } from "./hubAdapter.js";
+import {
+  buildCustomPairRecord,
+  getAvailableLanguagePairs,
+  isCreateNewLanguagePairValue,
+  resolveLanguageLabel,
+} from "./languagePairs.js";
 import { Router } from "./router.js";
 import { SessionEngine } from "./engine.js";
 import { SpeechEngine } from "./speech.js";
 import { Storage } from "./storage.js";
+import {
+  SENTENCE_TOPIC_NAME,
+  createWordPuzzleTemplateList,
+  isSystemTemplateList,
+} from "./systemTemplates.js";
 import { FlashCardsGame } from "../games/flashcards.js";
 import { WordMatchGame } from "../games/wordmatch.js";
 import { WordPuzzleGame } from "../games/wordpuzzle.js";
@@ -81,6 +92,29 @@ function flattenTopicTree(tree) {
   return records;
 }
 
+function populateSelectOptions(select, options, placeholderLabel, selectedValue = "") {
+  select.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = placeholderLabel;
+  select.appendChild(placeholder);
+
+  options.forEach((entry) => {
+    const option = document.createElement("option");
+    option.value = entry.id;
+    option.textContent = entry.title;
+    select.appendChild(option);
+  });
+
+  if (selectedValue && options.some((entry) => entry.id === selectedValue)) {
+    select.value = selectedValue;
+    return;
+  }
+
+  select.value = "";
+}
+
 class HubManager {
   constructor() {
     this.router = new Router();
@@ -132,6 +166,9 @@ class HubManager {
       topicTree: document.getElementById("topicTree"),
       openLibraryButton: document.getElementById("openLibraryButton"),
       libraryLangSelect: document.getElementById("libraryLangSelect"),
+      libraryCustomPairFields: document.getElementById("libraryCustomPairFields"),
+      libraryCustomSourceLabelInput: document.getElementById("libraryCustomSourceLabelInput"),
+      libraryCustomTargetLabelInput: document.getElementById("libraryCustomTargetLabelInput"),
       libraryTopicInput: document.getElementById("libraryTopicInput"),
       libraryTopicOptions: document.getElementById("libraryTopicOptions"),
       libraryTopicNameInput: document.getElementById("libraryTopicNameInput"),
@@ -175,6 +212,10 @@ class HubManager {
   bindUi() {
     this.dom.languageSelect.addEventListener("change", (event) => {
       this.handleLanguageChange(event.target.value);
+    });
+
+    this.dom.libraryLangSelect.addEventListener("change", () => {
+      this.handleLibraryLanguageChange();
     });
 
     this.dom.gameButtons.forEach((button) => {
@@ -311,36 +352,23 @@ class HubManager {
     return true;
   }
 
-  populateLanguages() {
-    this.dom.languageSelect.innerHTML = "";
-
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "Select a language pair";
-    this.dom.languageSelect.appendChild(placeholder);
-
-    HubAdapter.getLanguages().forEach((language) => {
-      const option = document.createElement("option");
-      option.value = language.id;
-      option.textContent = language.title;
-      this.dom.languageSelect.appendChild(option);
-    });
+  populateLanguages(selectedValue = this.selectedLang || this.dom.languageSelect.value) {
+    populateSelectOptions(
+      this.dom.languageSelect,
+      getAvailableLanguagePairs(),
+      "Select a language pair",
+      selectedValue,
+    );
   }
 
-  populateLibraryLanguages() {
-    this.dom.libraryLangSelect.innerHTML = "";
-
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "Choose a language pair";
-    this.dom.libraryLangSelect.appendChild(placeholder);
-
-    HubAdapter.getLanguages().forEach((language) => {
-      const option = document.createElement("option");
-      option.value = language.id;
-      option.textContent = language.title;
-      this.dom.libraryLangSelect.appendChild(option);
-    });
+  populateLibraryLanguages(selectedValue = this.dom.libraryLangSelect.value) {
+    populateSelectOptions(
+      this.dom.libraryLangSelect,
+      getAvailableLanguagePairs({ includeCreateOption: true }),
+      "Choose a language pair",
+      selectedValue,
+    );
+    this.updateCustomLanguagePairFields();
   }
 
   populateLibraryTopicOptions() {
@@ -363,6 +391,17 @@ class HubManager {
   getSelectedLibraryTopicName() {
     const rawTopic = normalizeWhitespace(this.dom.libraryTopicInput.value);
     return rawTopic ? HubAdapter.normalizeTopicName(rawTopic) : "";
+  }
+
+  updateCustomLanguagePairFields() {
+    const showCustomPairFields = isCreateNewLanguagePairValue(this.dom.libraryLangSelect.value);
+    this.dom.libraryCustomPairFields.hidden = !showCustomPairFields;
+    this.dom.libraryCustomSourceLabelInput.disabled = !showCustomPairFields;
+    this.dom.libraryCustomTargetLabelInput.disabled = !showCustomPairFields;
+  }
+
+  handleLibraryLanguageChange() {
+    this.updateCustomLanguagePairFields();
   }
 
   setHomeTopicIdleState() {
@@ -491,7 +530,10 @@ class HubManager {
     this.renderTopicTree();
 
     try {
-      await this.launchGame(this.selectedGame, fileMeta);
+      const result = await this.launchGame(this.selectedGame, fileMeta);
+      if (result?.launched === false) {
+        return;
+      }
       this.setHomeTopicReadyState();
     } catch (error) {
       Modal.error(`Could not start the session: ${error.message}`);
@@ -511,7 +553,10 @@ class HubManager {
     this.setHomeTopicLoadingState();
 
     try {
-      await this.launchGame(this.selectedGame, this.selectedTopic);
+      const result = await this.launchGame(this.selectedGame, this.selectedTopic);
+      if (result?.launched === false) {
+        return;
+      }
       this.setHomeTopicReadyState();
     } catch (error) {
       Modal.error(`Could not start the session: ${error.message}`);
@@ -535,6 +580,36 @@ class HubManager {
     }
 
     return candidate;
+  }
+
+  getCustomLanguagePairDraft() {
+    return buildCustomPairRecord(
+      this.dom.libraryCustomSourceLabelInput.value,
+      this.dom.libraryCustomTargetLabelInput.value,
+    );
+  }
+
+  rollbackCreatedLibraryArtifacts(topicIds = [], pairId = null) {
+    [...topicIds].reverse().forEach((topicId) => {
+      if (topicId) {
+        Storage.removeLibraryTopic(topicId);
+      }
+    });
+
+    if (pairId) {
+      Storage.removeLocalLanguagePair(pairId);
+    }
+  }
+
+  redirectSystemTemplateLaunch(topicMeta) {
+    if (!topicMeta?.id) {
+      return true;
+    }
+
+    this.selectedTopic = null;
+    this.setHomeTopicIdleState();
+    this.showLibraryEditor(topicMeta.id);
+    return true;
   }
 
   async prepareTopicForLaunch(gameId, topicMeta) {
@@ -563,7 +638,17 @@ class HubManager {
   }
 
   async launchGame(gameId, topicMeta) {
-    const prepared = await this.prepareTopicForLaunch(gameId, topicMeta);
+    const latestTopic =
+      topicMeta?.source && topicMeta.source !== "hub" && topicMeta.id
+        ? Storage.getLibraryTopic(topicMeta.id) || topicMeta
+        : topicMeta;
+
+    if (isSystemTemplateList(latestTopic)) {
+      this.redirectSystemTemplateLaunch(latestTopic);
+      return { launched: false, redirected: true };
+    }
+
+    const prepared = await this.prepareTopicForLaunch(gameId, latestTopic);
     this.selectedTopic = prepared.topicMeta;
 
     if (this.selectedTopic.lang) {
@@ -574,7 +659,8 @@ class HubManager {
     this.selectedGame = gameId;
     this.renderTopicTree();
 
-    return this.launchGameWithData(gameId, prepared.topicMeta, prepared.data);
+    await this.launchGameWithData(gameId, prepared.topicMeta, prepared.data);
+    return { launched: true, redirected: false };
   }
 
   async launchGameWithData(gameId, topicMeta, data) {
@@ -598,6 +684,8 @@ class HubManager {
       topicName: topicMeta.topicName,
       category: topicMeta.category,
       allowedGames: topicMeta.allowedGames,
+      isSystemTemplate: topicMeta.isSystemTemplate === true,
+      systemTemplateKind: topicMeta.systemTemplateKind || null,
     });
 
     this.activeGame = new GameModule();
@@ -605,6 +693,7 @@ class HubManager {
       this.dom.gameMount,
       {
         lang: topicMeta.lang,
+        languageLabel: resolveLanguageLabel(topicMeta.lang),
         topic: topicMeta,
         data,
       },
@@ -620,6 +709,11 @@ class HubManager {
 
     if (!lang) {
       Modal.alert("Choose a language pair for the local library import.");
+      return;
+    }
+
+    if (isCreateNewLanguagePairValue(lang)) {
+      Modal.alert("Create the new language pair through Create list before importing into it.");
       return;
     }
 
@@ -723,6 +817,7 @@ class HubManager {
 
   showLibrary() {
     this.destroyActiveGame();
+    this.populateLibraryLanguages(this.dom.libraryLangSelect.value);
     this.populateLibraryTopicOptions();
     this.renderLibraryTopicList();
     this.router.navigate("library");
@@ -730,7 +825,7 @@ class HubManager {
 
   renderLibraryTopicList() {
     this.populateLibraryTopicOptions();
-    const languages = HubAdapter.getLanguages().map((language) => language.id);
+    const languages = getAvailableLanguagePairs().map((language) => language.id);
     const seen = new Set();
     const topics = languages
       .flatMap((languageId) =>
@@ -754,8 +849,8 @@ class HubManager {
         return true;
       })
       .sort((a, b) => {
-        const left = `${a.lang}|${a.topicName}|${a.name}`.toLowerCase();
-        const right = `${b.lang}|${b.topicName}|${b.name}`.toLowerCase();
+        const left = `${resolveLanguageLabel(a.lang)}|${a.topicName}|${a.name}`.toLowerCase();
+        const right = `${resolveLanguageLabel(b.lang)}|${b.topicName}|${b.name}`.toLowerCase();
         return left.localeCompare(right);
       });
 
@@ -768,11 +863,11 @@ class HubManager {
   }
 
   createLibraryTopic() {
-    const lang = this.dom.libraryLangSelect.value;
+    const selectedLanguage = this.dom.libraryLangSelect.value;
     const topicName = this.getSelectedLibraryTopicName();
     const name = normalizeWhitespace(this.dom.libraryTopicNameInput.value);
 
-    if (!lang) {
+    if (!selectedLanguage) {
       Modal.alert("Choose a language pair before creating a local list.");
       return;
     }
@@ -787,12 +882,62 @@ class HubManager {
       return;
     }
 
+    let lang = selectedLanguage;
+    let createdPair = null;
+    const createdTopicIds = [];
+
+    if (isCreateNewLanguagePairValue(selectedLanguage)) {
+      const pairDraft = this.getCustomLanguagePairDraft();
+
+      if (!pairDraft.sourceLabel || !pairDraft.targetLabel) {
+        Modal.alert("Type both language labels before creating the new list.");
+        return;
+      }
+
+      const existingPair = Storage.findLocalLanguagePairByLabels(
+        pairDraft.sourceLabel,
+        pairDraft.targetLabel,
+      );
+      if (existingPair) {
+        Modal.alert("That custom language pair already exists. Choose it from the selector.");
+        return;
+      }
+
+      createdPair = Storage.createLocalLanguagePair(pairDraft);
+      if (!createdPair) {
+        if (this.handleStorageFailure("The custom language pair could not be created.")) {
+          return;
+        }
+        Modal.error("The custom language pair could not be created.");
+        return;
+      }
+
+      lang = createdPair.id;
+    }
+
     const category = getCategoryForTopic(topicName);
     const allowedGames = getAllowedGamesForTopic(topicName);
 
     if (Storage.topicTitleExists(name, { lang, category, topicName })) {
+      if (createdPair) {
+        this.rollbackCreatedLibraryArtifacts([], createdPair.id);
+      }
       Modal.alert("A local list with this name already exists for that language and type.");
       return;
+    }
+
+    if (createdPair && topicName !== SENTENCE_TOPIC_NAME) {
+      const templateTopic = Storage.createLibraryTopic(createWordPuzzleTemplateList(lang));
+      if (!templateTopic) {
+        this.rollbackCreatedLibraryArtifacts([], createdPair.id);
+        if (this.handleStorageFailure("The required Word Puzzle setup list could not be created.")) {
+          return;
+        }
+        Modal.error("The required Word Puzzle setup list could not be created.");
+        return;
+      }
+
+      createdTopicIds.push(templateTopic.id);
     }
 
     const topic = Storage.createLibraryTopic({
@@ -806,6 +951,7 @@ class HubManager {
     });
 
     if (!topic) {
+      this.rollbackCreatedLibraryArtifacts(createdTopicIds, createdPair?.id || null);
       if (this.handleStorageFailure("The list could not be created.")) {
         return;
       }
@@ -814,6 +960,10 @@ class HubManager {
     }
 
     this.dom.libraryTopicNameInput.value = "";
+    this.dom.libraryCustomSourceLabelInput.value = "";
+    this.dom.libraryCustomTargetLabelInput.value = "";
+    this.populateLanguages(lang);
+    this.populateLibraryLanguages(lang);
     this.renderLibraryTopicList();
     this.renderTopicTreeIfReady();
     this.showLibraryEditor(topic.id);
@@ -857,8 +1007,8 @@ class HubManager {
 
     const lang = document.createElement("span");
     lang.className = "library-path__lang";
-    lang.dir = "ltr";
-    lang.textContent = topic.lang;
+    lang.dir = "auto";
+    lang.textContent = resolveLanguageLabel(topic.lang);
 
     const topicName = document.createElement("span");
     topicName.className = "library-path__topic";
@@ -1211,7 +1361,10 @@ class HubManager {
     this.renderTopicTree();
 
     try {
-      await this.launchGame(gameId, launchTopic);
+      const result = await this.launchGame(gameId, launchTopic);
+      if (result?.launched === false) {
+        return;
+      }
     } catch (error) {
       Modal.error(`Could not start the session: ${error.message}`);
     }
@@ -1224,7 +1377,10 @@ class HubManager {
     }
 
     try {
-      await this.launchGame(this.selectedGame, this.selectedTopic);
+      const result = await this.launchGame(this.selectedGame, this.selectedTopic);
+      if (result?.launched === false) {
+        return;
+      }
     } catch (error) {
       Modal.error(`Could not restart the session: ${error.message}`);
       this.showHome();

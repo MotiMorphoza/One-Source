@@ -1,9 +1,16 @@
 import { uid } from "../utils/helpers.js";
+import { buildCustomLanguagePairTitle } from "../utils/languageLabels.js";
 import { normalizeWhitespace } from "../utils/text.js";
+import {
+  WORD_PUZZLE_TEMPLATE_KIND,
+  isSystemTemplateList,
+  shouldPromoteWordPuzzleTemplate,
+} from "./systemTemplates.js";
 
 const VERSION = "v4";
 const PREFIX = "LLH";
 const LIBRARY_KEY = `${PREFIX}_${VERSION}_library_topics_global`;
+const LOCAL_LANGUAGE_PAIRS_KEY = `${PREFIX}_${VERSION}_local_language_pairs`;
 const HIDDEN_ORIGINS_KEY = `${PREFIX}_${VERSION}_hidden_hub_origins`;
 const HIDDEN_LIBRARY_HUB_ORIGINS_KEY = `${PREFIX}_${VERSION}_hidden_library_hub_origins`;
 const LOCAL_TOPIC_NAME = "grammer";
@@ -71,6 +78,55 @@ function safeRemove(key) {
     console.error("Storage remove failed", error);
     return false;
   }
+}
+
+function sanitizeLocalLanguagePair(pair = {}, existing = null) {
+  const id = normalizeWhitespace(pair.id ?? existing?.id ?? "");
+  const sourceLabel = normalizeWhitespace(pair.sourceLabel ?? existing?.sourceLabel ?? "");
+  const targetLabel = normalizeWhitespace(pair.targetLabel ?? existing?.targetLabel ?? "");
+  const title = normalizeWhitespace(
+    pair.title ?? existing?.title ?? buildCustomLanguagePairTitle(sourceLabel, targetLabel),
+  );
+
+  if (!id || !sourceLabel || !targetLabel) {
+    return null;
+  }
+
+  return {
+    id,
+    sourceLabel,
+    targetLabel,
+    title: title || buildCustomLanguagePairTitle(sourceLabel, targetLabel),
+    createdAt: existing?.createdAt ?? pair.createdAt ?? Date.now(),
+    updatedAt: pair.updatedAt ?? existing?.updatedAt ?? Date.now(),
+  };
+}
+
+function saveLocalLanguagePairsCollection(pairs) {
+  return safeSet(LOCAL_LANGUAGE_PAIRS_KEY, pairs);
+}
+
+function createCustomLanguagePairId(existingPairs = []) {
+  let maxIndex = 0;
+
+  existingPairs.forEach((pair) => {
+    const match = /^custom:(\d+)$/i.exec(pair.id || "");
+    if (!match) {
+      return;
+    }
+
+    maxIndex = Math.max(maxIndex, Number(match[1]) || 0);
+  });
+
+  let candidateIndex = maxIndex + 1;
+  let candidateId = `custom:${String(candidateIndex).padStart(3, "0")}`;
+
+  while (existingPairs.some((pair) => pair.id === candidateId)) {
+    candidateIndex += 1;
+    candidateId = `custom:${String(candidateIndex).padStart(3, "0")}`;
+  }
+
+  return candidateId;
 }
 
 function getLegacyHiddenOrigins() {
@@ -263,6 +319,25 @@ function sanitizeRows(rows = [], fallbackPrefix = "row") {
     .filter(Boolean);
 }
 
+function promoteSystemTemplateIfReady(topic, rowsWereExplicitlySaved = false) {
+  if (!rowsWereExplicitlySaved || !isSystemTemplateList(topic)) {
+    return topic;
+  }
+
+  if (
+    topic.systemTemplateKind === WORD_PUZZLE_TEMPLATE_KIND &&
+    shouldPromoteWordPuzzleTemplate(topic.rows)
+  ) {
+    return {
+      ...topic,
+      isSystemTemplate: false,
+      systemTemplateKind: null,
+    };
+  }
+
+  return topic;
+}
+
 function sanitizeTopic(topic = {}, existing = null) {
   const topicId = topic.id || existing?.id || `library:${uid("topic")}`;
   const topicName = resolveTopicName(topic, existing);
@@ -277,6 +352,8 @@ function sanitizeTopic(topic = {}, existing = null) {
   const source = topic.source ?? existing?.source ?? "local";
   const createdAt = existing?.createdAt ?? topic.createdAt ?? Date.now();
   const updatedAt = topic.updatedAt ?? existing?.updatedAt ?? Date.now();
+  const isSystemTemplate = topic.isSystemTemplate ?? existing?.isSystemTemplate ?? false;
+  const systemTemplateKind = topic.systemTemplateKind ?? existing?.systemTemplateKind ?? null;
 
   return {
     id: topicId,
@@ -293,6 +370,8 @@ function sanitizeTopic(topic = {}, existing = null) {
     updatedAt,
     originPath: topic.originPath ?? existing?.originPath ?? null,
     originMeta: topic.originMeta ?? existing?.originMeta ?? null,
+    isSystemTemplate,
+    systemTemplateKind,
   };
 }
 
@@ -386,6 +465,58 @@ export const Storage = {
     return safeSet(buildKey("preferences"), preferences);
   },
 
+  getLocalLanguagePairs() {
+    return safeGet(LOCAL_LANGUAGE_PAIRS_KEY, [])
+      .map((pair) => sanitizeLocalLanguagePair(pair))
+      .filter(Boolean);
+  },
+
+  getLocalLanguagePair(pairId) {
+    return this.getLocalLanguagePairs().find((pair) => pair.id === pairId) || null;
+  },
+
+  findLocalLanguagePairByLabels(sourceLabel, targetLabel) {
+    const normalizedSource = normalizeWhitespace(sourceLabel).toLowerCase();
+    const normalizedTarget = normalizeWhitespace(targetLabel).toLowerCase();
+
+    return (
+      this.getLocalLanguagePairs().find(
+        (pair) =>
+          pair.sourceLabel.toLowerCase() === normalizedSource &&
+          pair.targetLabel.toLowerCase() === normalizedTarget,
+      ) || null
+    );
+  },
+
+  createLocalLanguagePair(pairMeta) {
+    const pairs = this.getLocalLanguagePairs();
+    const now = Date.now();
+    const nextPair = sanitizeLocalLanguagePair({
+      ...pairMeta,
+      id: pairMeta.id || createCustomLanguagePairId(pairs),
+      createdAt: pairMeta.createdAt ?? now,
+      updatedAt: pairMeta.updatedAt ?? now,
+    });
+
+    if (!nextPair) {
+      return null;
+    }
+
+    pairs.push(nextPair);
+    return saveLocalLanguagePairsCollection(pairs) ? nextPair : null;
+  },
+
+  removeLocalLanguagePair(pairId) {
+    const pairs = this.getLocalLanguagePairs();
+    const nextPairs = pairs.filter((pair) => pair.id !== pairId);
+
+    if (nextPairs.length === pairs.length) {
+      return false;
+    }
+
+    return saveLocalLanguagePairsCollection(nextPairs);
+  },
+
   getLibraryTopics() {
     return safeGet(LIBRARY_KEY, []).map((topic) => sanitizeTopic(topic));
   },
@@ -435,14 +566,19 @@ export const Storage = {
     const topics = this.getLibraryTopics();
     const existingIndex = topics.findIndex((topic) => topic.id === topicMeta.id);
     const existing = existingIndex >= 0 ? topics[existingIndex] : null;
-    const nextTopic = sanitizeTopic(
-      {
-        ...existing,
-        ...topicMeta,
-        rows: rows ?? topicMeta.rows ?? existing?.rows ?? [],
-        updatedAt: Date.now(),
-      },
-      existing,
+    const rowsWereExplicitlySaved =
+      rows !== null || Object.prototype.hasOwnProperty.call(topicMeta || {}, "rows");
+    const nextTopic = promoteSystemTemplateIfReady(
+      sanitizeTopic(
+        {
+          ...existing,
+          ...topicMeta,
+          rows: rows ?? topicMeta.rows ?? existing?.rows ?? [],
+          updatedAt: Date.now(),
+        },
+        existing,
+      ),
+      rowsWereExplicitlySaved,
     );
 
     if (existingIndex >= 0) {
@@ -469,10 +605,19 @@ export const Storage = {
   },
 
   setLibraryTopicRows(topicId, rows) {
-    return updateTopicInCollection(topicId, (topic) => ({
-      ...topic,
-      rows: sanitizeRows(rows, topicId),
-    }));
+    return updateTopicInCollection(topicId, (topic) =>
+      promoteSystemTemplateIfReady(
+        sanitizeTopic(
+          {
+            ...topic,
+            rows: sanitizeRows(rows, topicId),
+            updatedAt: Date.now(),
+          },
+          topic,
+        ),
+        true,
+      ),
+    );
   },
 
   addLibraryRow(topicId, row) {
@@ -482,10 +627,17 @@ export const Storage = {
         return null;
       }
 
-      return {
-        ...topic,
-        rows: [...topic.rows, nextRow],
-      };
+      return promoteSystemTemplateIfReady(
+        sanitizeTopic(
+          {
+            ...topic,
+            rows: [...topic.rows, nextRow],
+            updatedAt: Date.now(),
+          },
+          topic,
+        ),
+        true,
+      );
     });
   },
 
@@ -501,10 +653,17 @@ export const Storage = {
         return null;
       }
 
-      return {
-        ...topic,
-        rows: topic.rows.map((row) => (row.id === rowId ? nextRow : row)),
-      };
+      return promoteSystemTemplateIfReady(
+        sanitizeTopic(
+          {
+            ...topic,
+            rows: topic.rows.map((row) => (row.id === rowId ? nextRow : row)),
+            updatedAt: Date.now(),
+          },
+          topic,
+        ),
+        true,
+      );
     });
   },
 
@@ -529,13 +688,16 @@ export const Storage = {
       return saved ? null : topic;
     }
 
-    topics[index] = sanitizeTopic(
-      {
-        ...topic,
-        rows: nextRows,
-        updatedAt: Date.now(),
-      },
-      topic,
+    topics[index] = promoteSystemTemplateIfReady(
+      sanitizeTopic(
+        {
+          ...topic,
+          rows: nextRows,
+          updatedAt: Date.now(),
+        },
+        topic,
+      ),
+      true,
     );
     const saved = saveLibraryTopicsCollection(topics, [topics[index].id]);
     return saved ? topics[index] : topic;
@@ -638,6 +800,10 @@ export const Storage = {
   },
 
   saveGameSession(game, topicMeta, stats) {
+    if (isSystemTemplateList(topicMeta)) {
+      return;
+    }
+
     const [primaryTopicId] = resolveTopicStorageCandidates(topicMeta);
     const sessionKey = buildKey("sessions", game, primaryTopicId);
     const sessions = safeGet(sessionKey, []);
@@ -660,6 +826,10 @@ export const Storage = {
   },
 
   addGlobalSession(game, topicMeta, stats) {
+    if (isSystemTemplateList(topicMeta)) {
+      return;
+    }
+
     const globalKey = buildKey("sessions", "all");
     const sessions = safeGet(globalKey, []);
 
@@ -704,6 +874,10 @@ export const Storage = {
   },
 
   updateBestTime(game, topicId, time) {
+    if (typeof topicId === "object" && isSystemTemplateList(topicId)) {
+      return false;
+    }
+
     const candidates = resolveTopicStorageCandidates(topicId);
     const primaryKey = buildKey("best", game, candidates[0]);
     const current = candidates.reduce((best, candidate) => {
@@ -743,6 +917,10 @@ export const Storage = {
   },
 
   addHardItem(game, topicMeta, item) {
+    if (typeof topicMeta === "object" && isSystemTemplateList(topicMeta)) {
+      return;
+    }
+
     const topicId =
       typeof topicMeta === "string"
         ? topicMeta

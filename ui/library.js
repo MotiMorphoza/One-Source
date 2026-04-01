@@ -1,3 +1,5 @@
+import { resolveLanguageLabel } from "../core/languagePairs.js";
+
 function createButton(label, className, onClick) {
   const button = document.createElement("button");
   button.type = "button";
@@ -51,6 +53,8 @@ export function renderLibraryTopics(mount, options = {}) {
   }
 
   topics.forEach((topic) => {
+    const languageLabel = resolveLanguageLabel(topic.lang);
+    const isPlayable = topic.isSystemTemplate !== true;
     const card = document.createElement("article");
     card.className = "library-topic-card";
 
@@ -60,8 +64,8 @@ export function renderLibraryTopics(mount, options = {}) {
 
     const lang = document.createElement("span");
     lang.className = "library-path__lang";
-    lang.dir = "ltr";
-    lang.textContent = topic.lang;
+    lang.dir = "auto";
+    lang.textContent = languageLabel;
 
     const topicName = document.createElement("span");
     topicName.className = "library-path__topic";
@@ -94,15 +98,17 @@ export function renderLibraryTopics(mount, options = {}) {
     const manageActions = document.createElement("div");
     manageActions.className = "library-topic-card__manage";
 
-    (topic.allowedGames || []).forEach((gameId) => {
-      gameActions.appendChild(
-        createButton(
-          formatGameLabel(gameId),
-          "button button-primary button-small",
-          () => onStart(topic, gameId),
-        ),
-      );
-    });
+    if (isPlayable) {
+      (topic.allowedGames || []).forEach((gameId) => {
+        gameActions.appendChild(
+          createButton(
+            formatGameLabel(gameId),
+            "button button-primary button-small",
+            () => onStart(topic, gameId),
+          ),
+        );
+      });
+    }
 
     manageActions.appendChild(
       createButton(
