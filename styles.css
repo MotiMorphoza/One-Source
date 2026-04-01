@@ -1317,6 +1317,83 @@ body.app-booting .app-shell {
   margin-top: 6px;
 }
 
+.app-modal__generator {
+  display: grid;
+  gap: 12px;
+}
+
+.app-modal__generator-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.app-modal__field--full {
+  grid-column: 1 / -1;
+}
+
+.app-modal__fieldset {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #353535;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.app-modal__legend {
+  padding: 0 6px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.app-modal__check-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.app-modal__check-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #343434;
+  border-radius: 12px;
+  background: #1a1a1a;
+  text-align: left;
+}
+
+.app-modal__check-option input {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  accent-color: var(--amber);
+}
+
+.app-modal__generator-note,
+.app-modal__generator-file,
+.app-modal__generator-warning {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.app-modal__generator-note,
+.app-modal__generator-file {
+  color: var(--muted);
+}
+
+.app-modal__generator-warning {
+  color: var(--amber);
+}
+
+.app-modal__subheading {
+  margin: 0;
+  font-size: 1rem;
+  text-align: left;
+}
+
 .app-modal__prompt {
   width: 100%;
   min-height: 10rem;
@@ -1649,6 +1726,11 @@ body.app-booting .app-shell {
 
   .app-modal__toc {
     justify-content: flex-start;
+  }
+
+  .app-modal__generator-grid,
+  .app-modal__check-grid {
+    grid-template-columns: 1fr;
   }
 
   .app-modal__actions {

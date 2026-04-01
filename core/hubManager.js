@@ -4,6 +4,7 @@ import { HubAdapter } from "./hubAdapter.js";
 import {
   buildCustomPairRecord,
   getAvailableLanguagePairs,
+  getLanguagePairLabels,
   isCreateNewLanguagePairValue,
   resolveLanguageLabel,
 } from "./languagePairs.js";
@@ -230,7 +231,19 @@ class HubManager {
     });
 
     this.dom.openAboutTopButton.addEventListener("click", () => {
-      Modal.about();
+      const selectedLanguageId =
+        this.selectedLang
+        || this.dom.languageSelect.value
+        || this.dom.libraryLangSelect.value
+        || "";
+      const activeLanguageId = isCreateNewLanguagePairValue(selectedLanguageId)
+        ? ""
+        : selectedLanguageId;
+      const labels = getLanguagePairLabels(activeLanguageId);
+      Modal.about({
+        defaultLearningLanguage: labels.sourceLabel || "",
+        defaultUserLanguage: labels.targetLabel || "",
+      });
     });
 
     this.dom.openLibraryButton.addEventListener("click", () => {

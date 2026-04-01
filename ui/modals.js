@@ -271,7 +271,412 @@ function openCustomModal(buildModal) {
   });
 }
 
-function createAboutSection({ id, title, items, prompt = "" }) {
+function sanitizeFileBaseName(value) {
+  const sanitized = String(value || "")
+    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[. ]+$/g, "");
+
+  return sanitized || "learning-list";
+}
+
+function supportsOptionalDiacritics(languageLabel = "") {
+  const value = String(languageLabel || "");
+  const normalized = value.toLowerCase();
+
+  return (
+    /hebrew/.test(normalized)
+    || /arabic/.test(normalized)
+    || /עברית/.test(value)
+    || /[\u0590-\u05FF]/.test(value)
+    || /العربية|عربي|عربية/.test(value)
+    || /[\u0600-\u06FF]/.test(value)
+  );
+}
+
+function createLabeledInput(labelText, control, options = {}) {
+  const wrapper = document.createElement("label");
+  wrapper.className = "app-modal__field";
+
+  if (options.fullWidth) {
+    wrapper.classList.add("app-modal__field--full");
+  }
+
+  const label = document.createElement("span");
+  label.className = "app-modal__field-label";
+  label.textContent = labelText;
+  wrapper.append(label, control);
+
+  return wrapper;
+}
+
+function createSelectControl(options, selectedValue) {
+  const select = document.createElement("select");
+  select.className = "app-modal__input";
+
+  options.forEach((option) => {
+    const node = document.createElement("option");
+    node.value = option.value;
+    node.textContent = option.label;
+    if (option.value === selectedValue) {
+      node.selected = true;
+    }
+    select.appendChild(node);
+  });
+
+  return select;
+}
+
+function createCheckboxOption(value, labelText, checked = false) {
+  const wrapper = document.createElement("label");
+  wrapper.className = "app-modal__check-option";
+
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.value = value;
+  input.checked = checked;
+
+  const text = document.createElement("span");
+  text.textContent = labelText;
+
+  wrapper.append(input, text);
+  return { wrapper, input };
+}
+
+function buildAiPromptText(state) {
+  const lines = [
+    "Create a plain-text learning file for a language-learning app.",
+    `The result must be ready to save as "${state.fileName}.txt".`,
+    "",
+    `Learning language: ${state.learningLanguage}`,
+    `User language: ${state.userLanguage}`,
+    `Output types: ${state.outputTypes.join(", ")}`,
+    `Quantity: ${state.quantity} total rows`,
+    `Difficulty: ${state.difficulty}`,
+  ];
+
+  if (state.outputTypes.includes("full sentences")) {
+    lines.push(`Sentence length: ${state.sentenceLength}`);
+  }
+
+  if (state.showDiacriticsControl) {
+    lines.push(
+      `Diacritics: ${state.includeDiacritics
+        ? "include native diacritics when appropriate"
+        : "do not include optional diacritics where possible, without forcing unnatural spelling"}`,
+    );
+  }
+
+  lines.push("", "Source handling:");
+
+  if (state.sourceType === "text") {
+    lines.push(
+      "- After this prompt, I will paste the source text directly into the AI tool.",
+      "- Extract key vocabulary and meaningful sentences from the source.",
+      "- Do not summarize the source.",
+    );
+  } else {
+    lines.push(
+      "- After this prompt, I will upload the image directly into the AI tool.",
+      "- Use only clearly visible elements.",
+      "- Do not hallucinate uncertain details.",
+      "- Derive simple, useful learning units from the visible content.",
+    );
+  }
+
+  lines.push(
+    "",
+    "Output rules:",
+    "- Return plain text only.",
+    "- No title.",
+    "- No header.",
+    "- No explanations.",
+    "- No notes.",
+    "- No numbering.",
+    "- No bullets.",
+    "- No blank lines.",
+    "- Each line must be actual game content, not labels, metadata, or examples.",
+    "- In each line, put the learning-language content first and the user-language content second.",
+    "- Separate the two fields with exactly one vertical bar.",
+    "- Use exactly one | per line.",
+    "- Never use | inside content.",
+    "- If | would appear inside content, replace it with -.",
+    "- Use only the selected output types.",
+    "- Quantity means total rows, not rows per type.",
+  );
+
+  if (state.outputTypes.length > 1) {
+    lines.push(
+      "- Produce a balanced mix across the selected output types.",
+      "- Interleave the selected types naturally.",
+      "- Do not cluster all items of one type together.",
+    );
+  }
+
+  lines.push(
+    "- Keep the content natural, useful, and ready for study.",
+    "- Keep the difficulty aligned with the selected level.",
+    "- Do not output duplicate rows.",
+  );
+
+  if (state.outputTypes.includes("full sentences")) {
+    lines.push(`- Keep full sentences ${state.sentenceLength}.`);
+  }
+
+  lines.push(
+    "",
+    "Before finalizing, silently verify:",
+    `- exactly ${state.quantity} rows`,
+    "- exactly one | per line",
+    "- no extra | inside content",
+    "- no blank lines",
+    "- no text outside the rows",
+    "",
+    "Now generate the output.",
+  );
+
+  return lines.join("\n");
+}
+
+function createAiPromptGenerator(defaults = {}) {
+  const generator = document.createElement("div");
+  generator.className = "app-modal__generator";
+
+  const grid = document.createElement("div");
+  grid.className = "app-modal__generator-grid";
+  generator.appendChild(grid);
+
+  const fileNameInput = document.createElement("input");
+  fileNameInput.className = "app-modal__input";
+  fileNameInput.type = "text";
+  fileNameInput.placeholder = "learning-list";
+  fileNameInput.value = defaults.fileBaseName || "";
+  grid.appendChild(createLabeledInput("File name", fileNameInput));
+
+  const sourceTypeSelect = createSelectControl([
+    { value: "text", label: "Text" },
+    { value: "image", label: "Image" },
+  ], defaults.sourceType || "text");
+  grid.appendChild(createLabeledInput("Source type", sourceTypeSelect));
+
+  const learningLanguageInput = document.createElement("input");
+  learningLanguageInput.className = "app-modal__input";
+  learningLanguageInput.type = "text";
+  learningLanguageInput.placeholder = "Learning language";
+  learningLanguageInput.value = defaults.learningLanguage || "";
+  grid.appendChild(createLabeledInput("Learning language", learningLanguageInput));
+
+  const userLanguageInput = document.createElement("input");
+  userLanguageInput.className = "app-modal__input";
+  userLanguageInput.type = "text";
+  userLanguageInput.placeholder = "User language";
+  userLanguageInput.value = defaults.userLanguage || "";
+  grid.appendChild(createLabeledInput("User language", userLanguageInput));
+
+  const quantityInput = document.createElement("input");
+  quantityInput.className = "app-modal__input";
+  quantityInput.type = "number";
+  quantityInput.min = "5";
+  quantityInput.max = "30";
+  quantityInput.step = "1";
+  quantityInput.value = String(defaults.quantity || 10);
+  grid.appendChild(createLabeledInput("Quantity (total rows)", quantityInput));
+
+  const difficultySelect = createSelectControl([
+    { value: "beginner", label: "Beginner" },
+    { value: "intermediate", label: "Intermediate" },
+    { value: "advanced", label: "Advanced" },
+  ], defaults.difficulty || "beginner");
+  grid.appendChild(createLabeledInput("Difficulty", difficultySelect));
+
+  const sentenceLengthField = document.createElement("div");
+  sentenceLengthField.className = "app-modal__field";
+  const sentenceLengthLabel = document.createElement("span");
+  sentenceLengthLabel.className = "app-modal__field-label";
+  sentenceLengthLabel.textContent = "Sentence length";
+  const sentenceLengthSelect = createSelectControl([
+    { value: "short", label: "Short" },
+    { value: "medium", label: "Medium" },
+    { value: "long", label: "Long" },
+  ], defaults.sentenceLength || "short");
+  sentenceLengthField.append(sentenceLengthLabel, sentenceLengthSelect);
+  grid.appendChild(sentenceLengthField);
+
+  const diacriticsField = document.createElement("label");
+  diacriticsField.className = "app-modal__check-option app-modal__field--full";
+  const diacriticsCheckbox = document.createElement("input");
+  diacriticsCheckbox.type = "checkbox";
+  diacriticsCheckbox.checked = defaults.includeDiacritics !== false;
+  const diacriticsText = document.createElement("span");
+  diacriticsText.textContent = "Include diacritics";
+  diacriticsField.append(diacriticsCheckbox, diacriticsText);
+  grid.appendChild(diacriticsField);
+
+  const outputField = document.createElement("fieldset");
+  outputField.className = "app-modal__fieldset";
+  const outputLegend = document.createElement("legend");
+  outputLegend.className = "app-modal__legend";
+  outputLegend.textContent = "Output types";
+  outputField.appendChild(outputLegend);
+
+  const outputGrid = document.createElement("div");
+  outputGrid.className = "app-modal__check-grid";
+  const outputOptions = [
+    createCheckboxOption("words", "Words", true),
+    createCheckboxOption("short phrases", "Short phrases", false),
+    createCheckboxOption("full sentences", "Full sentences", false),
+  ];
+  outputOptions.forEach((option) => outputGrid.appendChild(option.wrapper));
+  outputField.appendChild(outputGrid);
+  generator.appendChild(outputField);
+
+  const manualSourceNote = document.createElement("p");
+  manualSourceNote.className = "app-modal__generator-note";
+  generator.appendChild(manualSourceNote);
+
+  const formatRuleNote = document.createElement("p");
+  formatRuleNote.className = "app-modal__generator-note";
+  formatRuleNote.textContent = "Format rule: each output line must contain the learning-language content first, the user-language content second, and exactly one vertical bar separator between them.";
+  generator.appendChild(formatRuleNote);
+
+  const filePreview = document.createElement("p");
+  filePreview.className = "app-modal__generator-file";
+  generator.appendChild(filePreview);
+
+  const warning = document.createElement("p");
+  warning.className = "app-modal__generator-warning";
+  warning.hidden = true;
+  generator.appendChild(warning);
+
+  const promptLabel = document.createElement("h4");
+  promptLabel.className = "app-modal__subheading";
+  promptLabel.textContent = "Generated prompt";
+  generator.appendChild(promptLabel);
+
+  const promptArea = document.createElement("textarea");
+  promptArea.className = "app-modal__input app-modal__prompt";
+  promptArea.readOnly = true;
+  generator.appendChild(promptArea);
+
+  const promptActions = document.createElement("div");
+  promptActions.className = "app-modal__prompt-actions";
+  const copyButton = document.createElement("button");
+  copyButton.type = "button";
+  copyButton.className = "button button-primary button-small";
+  copyButton.textContent = "Copy prompt";
+  promptActions.appendChild(copyButton);
+  generator.appendChild(promptActions);
+
+  const normalizeQuantityDisplay = () => {
+    const parsed = Number.parseInt(quantityInput.value, 10);
+    if (Number.isNaN(parsed)) {
+      quantityInput.value = "10";
+      return;
+    }
+
+    quantityInput.value = String(Math.min(30, Math.max(5, parsed)));
+  };
+
+  const updateGenerator = () => {
+    const selectedOutputTypes = outputOptions
+      .filter((option) => option.input.checked)
+      .map((option) => option.input.value);
+    const quantity = Number.parseInt(quantityInput.value, 10);
+    const normalizedQuantity = Number.isNaN(quantity)
+      ? 10
+      : Math.min(30, Math.max(5, quantity));
+    const learningLanguage = learningLanguageInput.value.trim();
+    const userLanguage = userLanguageInput.value.trim();
+    const fileName = sanitizeFileBaseName(fileNameInput.value);
+    const showSentenceLength = selectedOutputTypes.includes("full sentences");
+    const showDiacriticsControl = supportsOptionalDiacritics(learningLanguage);
+
+    sentenceLengthField.hidden = !showSentenceLength;
+    diacriticsField.hidden = !showDiacriticsControl;
+
+    manualSourceNote.textContent = sourceTypeSelect.value === "text"
+      ? "Text source: copy the prompt, then paste the source text directly into the AI tool. The app does not send the source automatically."
+      : "Image source: copy the prompt, then upload the image directly in the AI tool. The app does not send the image automatically.";
+    filePreview.textContent = `Output file: ${fileName}.txt`;
+
+    const issues = [];
+    if (!learningLanguage || !userLanguage) {
+      issues.push("Add both language labels to generate the prompt.");
+    }
+    if (selectedOutputTypes.length === 0) {
+      issues.push("Select at least one output type.");
+    }
+    if (selectedOutputTypes.length > 1 && normalizedQuantity < selectedOutputTypes.length) {
+      issues.push("Quantity is smaller than the number of selected types, so the mix may be uneven.");
+    }
+
+    warning.hidden = issues.length === 0;
+    warning.textContent = issues.join(" ");
+
+    const isValid = Boolean(learningLanguage && userLanguage && selectedOutputTypes.length > 0);
+    copyButton.disabled = !isValid;
+    promptArea.value = isValid
+      ? buildAiPromptText({
+        fileName,
+        sourceType: sourceTypeSelect.value,
+        learningLanguage,
+        userLanguage,
+        outputTypes: selectedOutputTypes,
+        quantity: normalizedQuantity,
+        difficulty: difficultySelect.value,
+        sentenceLength: sentenceLengthSelect.value,
+        showDiacriticsControl,
+        includeDiacritics: diacriticsCheckbox.checked,
+      })
+      : "Complete the form to generate the prompt.";
+  };
+
+  [
+    fileNameInput,
+    sourceTypeSelect,
+    learningLanguageInput,
+    userLanguageInput,
+    quantityInput,
+    difficultySelect,
+    sentenceLengthSelect,
+    diacriticsCheckbox,
+    ...outputOptions.map((option) => option.input),
+  ].forEach((control) => {
+    control.addEventListener("input", updateGenerator);
+    control.addEventListener("change", updateGenerator);
+  });
+
+  quantityInput.addEventListener("blur", () => {
+    normalizeQuantityDisplay();
+    updateGenerator();
+  });
+
+  copyButton.addEventListener("click", async () => {
+    if (copyButton.disabled) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(promptArea.value);
+      copyButton.textContent = "Copied";
+      window.setTimeout(() => {
+        copyButton.textContent = "Copy prompt";
+      }, 1400);
+    } catch (error) {
+      console.error("Clipboard write failed", error);
+      copyButton.textContent = "Copy failed";
+      window.setTimeout(() => {
+        copyButton.textContent = "Copy prompt";
+      }, 1600);
+    }
+  });
+
+  updateGenerator();
+  return generator;
+}
+
+function createAboutSection({ id, title, items = [], content = null }) {
   const section = document.createElement("section");
   section.className = "app-modal__section";
   section.id = id;
@@ -280,51 +685,24 @@ function createAboutSection({ id, title, items, prompt = "" }) {
   heading.textContent = title;
   section.appendChild(heading);
 
-  const list = document.createElement("ul");
-  items.forEach((item) => {
-    const listItem = document.createElement("li");
-    listItem.textContent = item;
-    list.appendChild(listItem);
-  });
-  section.appendChild(list);
-
-  if (prompt) {
-    const textarea = document.createElement("textarea");
-    textarea.className = "app-modal__input app-modal__prompt";
-    textarea.readOnly = true;
-    textarea.value = prompt;
-
-    const actions = document.createElement("div");
-    actions.className = "app-modal__prompt-actions";
-
-    const copyButton = document.createElement("button");
-    copyButton.type = "button";
-    copyButton.className = "button button-primary button-small";
-    copyButton.textContent = "Copy";
-    copyButton.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(textarea.value);
-        copyButton.textContent = "Copied";
-        window.setTimeout(() => {
-          copyButton.textContent = "Copy";
-        }, 1400);
-      } catch (error) {
-        console.error("Clipboard write failed", error);
-        copyButton.textContent = "Copy failed";
-        window.setTimeout(() => {
-          copyButton.textContent = "Copy";
-        }, 1600);
-      }
+  if (items.length > 0) {
+    const list = document.createElement("ul");
+    items.forEach((item) => {
+      const listItem = document.createElement("li");
+      listItem.textContent = item;
+      list.appendChild(listItem);
     });
+    section.appendChild(list);
+  }
 
-    actions.appendChild(copyButton);
-    section.append(textarea, actions);
+  if (content) {
+    section.appendChild(content);
   }
 
   return section;
 }
 
-function createAboutModal() {
+function createAboutModal(options = {}) {
   const introLines = [
     "ONE SOURCE is an open game-based platform for language learning, supporting any language pair.",
     "Users can create learning content independently or use AI to generate customized materials.",
@@ -366,18 +744,17 @@ function createAboutModal() {
     },
     {
       id: "about-ai-prompt",
-      title: "Copy This AI Prompt",
-      items: [
-        "Use this as a starting prompt.",
-      ],
-      prompt: [
-        "Create a CSV word list for [language pair] about [topic].",
-        "Output CSV only.",
-        "Use exactly 2 columns: learning,translation.",
-        "No header unless requested.",
-        "No notes, no numbering, no markdown, no code fences.",
-        "Quote any field that contains a comma.",
-      ].join("\n"),
+      title: "Generate AI Prompt",
+      content: createAiPromptGenerator({
+        fileBaseName: options.defaultFileBaseName || "",
+        sourceType: "text",
+        learningLanguage: options.defaultLearningLanguage || "",
+        userLanguage: options.defaultUserLanguage || "",
+        quantity: 10,
+        difficulty: "beginner",
+        sentenceLength: "short",
+        includeDiacritics: true,
+      }),
     },
   ];
 
@@ -552,7 +929,7 @@ export const Modal = {
     });
   },
 
-  about() {
-    return openCustomModal(() => createAboutModal());
+  about(options = {}) {
+    return openCustomModal(() => createAboutModal(options));
   },
 };
