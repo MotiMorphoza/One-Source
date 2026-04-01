@@ -563,6 +563,8 @@ function createAiPromptGenerator(defaults = {}) {
   freeTextHelp.className = "app-modal__field-help";
   freeTextHelp.textContent = "Use this for original AI-generated content from scratch, not source extraction.";
   freeTextField.appendChild(freeTextHelp);
+  freeTextField.hidden = true;
+  freeTextInput.disabled = true;
   grid.appendChild(freeTextField);
 
   const sentenceLengthField = document.createElement("div");
@@ -576,6 +578,7 @@ function createAiPromptGenerator(defaults = {}) {
     { value: "long", label: "Long" },
   ], defaults.sentenceLength || "short");
   sentenceLengthField.append(sentenceLengthLabel, sentenceLengthSelect);
+  sentenceLengthField.hidden = true;
   grid.appendChild(sentenceLengthField);
 
   const diacriticsField = document.createElement("label");
@@ -586,6 +589,7 @@ function createAiPromptGenerator(defaults = {}) {
   const diacriticsText = document.createElement("span");
   diacriticsText.textContent = "Include diacritics";
   diacriticsField.append(diacriticsCheckbox, diacriticsText);
+  diacriticsField.hidden = true;
   grid.appendChild(diacriticsField);
 
   const outputField = document.createElement("fieldset");
