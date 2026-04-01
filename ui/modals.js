@@ -774,7 +774,7 @@ function createAboutModal(options = {}) {
       title: "New Language",
       items: [
         "Open Library.",
-        "Choose Create list.",
+        "Go to Create list.",
         "In the language selector, choose Create new language pair.",
         "Enter the learning language and the user language.",
         "Create or import lists for the new pair.",
