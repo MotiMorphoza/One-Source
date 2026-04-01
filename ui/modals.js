@@ -325,6 +325,13 @@ function createAboutSection({ id, title, items, prompt = "" }) {
 }
 
 function createAboutModal() {
+  const introLines = [
+    "ONE SOURCE is an open game-based platform for language learning, supporting any language pair.",
+    "Users can create learning content independently or use AI to generate customized materials.",
+    "The system converts various texts such as stories, articles, and images into a structured learning format including words, sentences, and interactive exercises.",
+    "Users can build a personal content library, organize it by topics and difficulty levels, and practice using different learning modes.",
+  ];
+
   const sections = [
     {
       id: "about-start-here",
@@ -334,16 +341,6 @@ function createAboutModal() {
         "Create a list or import a CSV.",
         "Open the list in My lists.",
         "Start a game.",
-      ],
-    },
-    {
-      id: "about-data",
-      title: "How Your Data Works",
-      items: [
-        "HUB lists are built in and read only.",
-        "My lists are your local editable lists.",
-        "Opening a HUB list can create a local copy.",
-        "Editing a HUB based list changes your local copy only.",
       ],
     },
     {
@@ -358,17 +355,6 @@ function createAboutModal() {
       ],
     },
     {
-      id: "about-import",
-      title: "Before You Import",
-      items: [
-        "Save the file as .csv.",
-        "Check that every row has exactly 2 values.",
-        "Remove rows with a missing left or right side.",
-        "Make sure quotes are closed.",
-        "Test with a small file first if needed.",
-      ],
-    },
-    {
       id: "about-local-data",
       title: "Your Data Is Local",
       items: [
@@ -376,17 +362,6 @@ function createAboutModal() {
         "Clearing browser data can remove them.",
         "Private or incognito mode may not keep them.",
         "Export important lists as backup.",
-      ],
-    },
-    {
-      id: "about-ai-safely",
-      title: "Use AI Safely",
-      items: [
-        "Ask for CSV only.",
-        "Require exactly 2 columns: learning,translation.",
-        "No explanations, bullets, code blocks, or extra text.",
-        "Quote any field that contains a comma.",
-        "Check the output before import.",
       ],
     },
     {
@@ -431,14 +406,27 @@ function createAboutModal() {
   header.append(title, closeButton);
   dialog.appendChild(header);
 
+  const intro = document.createElement("div");
+  intro.className = "app-modal__intro";
+  introLines.forEach((line) => {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = line;
+    intro.appendChild(paragraph);
+  });
+  dialog.appendChild(intro);
+
   const toc = document.createElement("nav");
   toc.className = "app-modal__toc";
   toc.setAttribute("aria-label", "About sections");
   dialog.appendChild(toc);
 
+  const viewport = document.createElement("div");
+  viewport.className = "app-modal__viewport";
+  dialog.appendChild(viewport);
+
   const sectionList = document.createElement("div");
   sectionList.className = "app-modal__section-list";
-  dialog.appendChild(sectionList);
+  viewport.appendChild(sectionList);
 
   const sectionNodes = sections.map((section) => {
     const link = document.createElement("a");
@@ -447,7 +435,7 @@ function createAboutModal() {
     link.textContent = section.title;
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      dialog.querySelector(`#${section.id}`)?.scrollIntoView({
+      viewport.querySelector(`#${section.id}`)?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
@@ -462,11 +450,11 @@ function createAboutModal() {
 
   const updateActiveSection = () => {
     let activeNode = sectionNodes[0];
-    const dialogTop = dialog.getBoundingClientRect().top;
+    const viewportTop = viewport.getBoundingClientRect().top;
 
     sectionNodes.forEach((entry) => {
-      const top = entry.node.getBoundingClientRect().top - dialogTop;
-      if (top <= 120) {
+      const top = entry.node.getBoundingClientRect().top - viewportTop;
+      if (top <= 80) {
         activeNode = entry;
       }
     });
@@ -476,7 +464,7 @@ function createAboutModal() {
     });
   };
 
-  dialog.addEventListener("scroll", updateActiveSection, { passive: true });
+  viewport.addEventListener("scroll", updateActiveSection, { passive: true });
   requestAnimationFrame(updateActiveSection);
   backdrop.appendChild(dialog);
 
@@ -485,7 +473,7 @@ function createAboutModal() {
     closeButton,
     initialFocusTarget: closeButton,
     cleanup: () => {
-      dialog.removeEventListener("scroll", updateActiveSection);
+      viewport.removeEventListener("scroll", updateActiveSection);
     },
   };
 }

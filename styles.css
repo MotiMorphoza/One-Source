@@ -1231,7 +1231,7 @@ body.app-booting .app-shell {
   max-height: min(86vh, 48rem);
   gap: 16px;
   text-align: left;
-  scroll-behavior: smooth;
+  overflow: hidden;
 }
 
 .app-modal__header {
@@ -1254,6 +1254,20 @@ body.app-booting .app-shell {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.app-modal__intro {
+  display: grid;
+  gap: 10px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.app-modal__viewport {
+  min-height: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-right: 4px;
 }
 
 .app-modal__toc-link {
