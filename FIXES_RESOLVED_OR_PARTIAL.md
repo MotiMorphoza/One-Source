@@ -116,6 +116,10 @@ Exported CSV files now include a UTF-8 BOM so non-Latin text is less likely to b
 
 The app now registers `sw.js` with `updateViaCache: "none"` and asks the registration to check for updates on load.
 
+### Shared app links can now expose a title, description, and preview image
+
+`index.html` now includes Open Graph and Twitter metadata, and the repo now ships a dedicated `assets/social/share-card.png` preview image so shared links can unfurl with app context instead of a blank generic card.
+
 ### Desktop game shells are now less likely to clip controls
 
 The game screen uses a denser desktop layout and no longer hard-clips overflowing game content.

@@ -1,7 +1,7 @@
 {
   "name": "ONE SOURCE",
   "short_name": "ONE SOURCE",
-  "description": "ONE SOURCE language game platform.",
+  "description": "Open language-learning platform for any language pair.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -174,7 +174,15 @@ git config rebase.autoStash true
 
 - The app now ships a favicon SVG, a 32px PNG fallback, an Apple touch icon, and 192px/512px manifest icons under `assets/icons/`.
 - `manifest.json` includes the current install icons.
+- `index.html` now ships share-preview metadata for link unfurls, including Open Graph and Twitter tags plus a dedicated social card image at `assets/social/share-card.png`.
 - `sw.js` now precaches the app shell from generated `sw-assets.js`, which is built from `index.html` and the current static import graph.
+
+## Share Preview Metadata
+
+- Link previews now use `index.html` metadata for title, description, and image.
+- The current share card asset is `assets/social/share-card.png`.
+- The metadata currently targets the default GitHub Pages deployment URL for this repo: `https://motimorphoza.github.io/ONE-SOURCE/`.
+- If the app later moves to a custom domain, update `og:url`, `og:image`, `twitter:image`, and the canonical link in `index.html`.
 
 ## Scope Note
 
