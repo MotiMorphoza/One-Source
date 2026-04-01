@@ -160,6 +160,7 @@ class HubManager {
       contact: document.getElementById("screen-contact"),
       topbarControls: document.getElementById("topbarControls"),
       openHomeTopButton: document.getElementById("openHomeTopButton"),
+      openAboutTopButton: document.getElementById("openAboutTopButton"),
       languageSelect: document.getElementById("languageSelect"),
       gameButtons: [...document.querySelectorAll("[data-game]")],
       topicPanel: document.getElementById("topicPanel"),
@@ -226,6 +227,10 @@ class HubManager {
 
     this.dom.openHomeTopButton.addEventListener("click", () => {
       this.showHome();
+    });
+
+    this.dom.openAboutTopButton.addEventListener("click", () => {
+      Modal.about();
     });
 
     this.dom.openLibraryButton.addEventListener("click", () => {
@@ -333,12 +338,14 @@ class HubManager {
     const showHomeButton = screenName !== "home";
     const showAudioButtons = screenName === "game";
     this.dom.openHomeTopButton.hidden = !showHomeButton;
+    this.dom.openAboutTopButton.hidden = false;
     this.dom.toggleSound.hidden = !showAudioButtons;
     this.dom.toggleSpeech.hidden = !showAudioButtons;
+    this.dom.openAboutTopButton.style.display = "";
     this.dom.toggleSound.style.display = showAudioButtons ? "" : "none";
     this.dom.toggleSpeech.style.display = showAudioButtons ? "" : "none";
     this.dom.openHomeTopButton.style.display = showHomeButton ? "" : "none";
-    this.dom.topbarControls.hidden = !showHomeButton && !showAudioButtons;
+    this.dom.topbarControls.hidden = false;
   }
 
   handleStorageFailure(message) {

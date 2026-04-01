@@ -198,6 +198,11 @@ h2 {
   color: var(--blue-deep);
 }
 
+.icon-button--about {
+  background: linear-gradient(180deg, var(--sunset), var(--peach-strong));
+  color: #5a1f14;
+}
+
 .icon-button--speech {
   background: linear-gradient(180deg, var(--green), var(--green-strong));
   color: #103b24;
@@ -1215,6 +1220,95 @@ body.app-booting .app-shell {
   justify-content: center;
 }
 
+.app-modal--wide {
+  width: min(100%, 44rem);
+  max-height: min(86vh, 48rem);
+  gap: 16px;
+  text-align: left;
+  scroll-behavior: smooth;
+}
+
+.app-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-modal__header .app-modal__title {
+  text-align: left;
+}
+
+.app-modal__close {
+  min-inline-size: auto;
+  padding: 8px 12px;
+}
+
+.app-modal__toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.app-modal__toc-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #4a4a4a;
+  background: #232323;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.app-modal__toc-link.is-active {
+  border-color: var(--amber);
+  background: #332300;
+}
+
+.app-modal__section-list {
+  display: grid;
+  gap: 14px;
+}
+
+.app-modal__section {
+  padding: 14px;
+  border: 1px solid #353535;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  scroll-margin-top: 12px;
+}
+
+.app-modal__section h3 {
+  margin-bottom: 10px;
+  font-size: 1.08rem;
+  text-align: left;
+}
+
+.app-modal__section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.app-modal__section li + li {
+  margin-top: 6px;
+}
+
+.app-modal__prompt {
+  width: 100%;
+  min-height: 10rem;
+  margin: 0;
+}
+
+.app-modal__prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
 #screen-library .panel:first-child .field-label:not(:first-of-type) {
   margin-top: 20px;
 }
@@ -1521,8 +1615,20 @@ body.app-booting .app-shell {
     padding: 16px;
   }
 
+  .app-modal--wide {
+    max-height: min(90vh, 52rem);
+  }
+
   .app-modal__title {
     font-size: 1.25rem;
+  }
+
+  .app-modal__header {
+    align-items: stretch;
+  }
+
+  .app-modal__toc {
+    justify-content: flex-start;
   }
 
   .app-modal__actions {

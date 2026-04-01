@@ -227,6 +227,269 @@ function openModal(options = {}) {
   });
 }
 
+function openCustomModal(buildModal) {
+  return new Promise((resolve) => {
+    const modal = buildModal();
+    const previousOverflow = document.body.style.overflow;
+    let settled = false;
+
+    const cleanup = () => {
+      document.removeEventListener("keydown", handleKeydown, true);
+      modal.backdrop.remove();
+      document.body.style.overflow = previousOverflow;
+      modal.cleanup?.();
+    };
+
+    const settle = (result) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      cleanup();
+      resolve(result);
+    };
+
+    const handleKeydown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        settle(null);
+      }
+    };
+
+    modal.closeButton?.addEventListener("click", () => settle(null));
+    modal.backdrop.addEventListener("click", (event) => {
+      if (event.target === modal.backdrop) {
+        settle(null);
+      }
+    });
+
+    document.body.appendChild(modal.backdrop);
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeydown, true);
+    modal.initialFocusTarget?.focus?.();
+  });
+}
+
+function createAboutSection({ id, title, items, prompt = "" }) {
+  const section = document.createElement("section");
+  section.className = "app-modal__section";
+  section.id = id;
+
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+  section.appendChild(heading);
+
+  const list = document.createElement("ul");
+  items.forEach((item) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = item;
+    list.appendChild(listItem);
+  });
+  section.appendChild(list);
+
+  if (prompt) {
+    const textarea = document.createElement("textarea");
+    textarea.className = "app-modal__input app-modal__prompt";
+    textarea.readOnly = true;
+    textarea.value = prompt;
+
+    const actions = document.createElement("div");
+    actions.className = "app-modal__prompt-actions";
+
+    const copyButton = document.createElement("button");
+    copyButton.type = "button";
+    copyButton.className = "button button-primary button-small";
+    copyButton.textContent = "Copy";
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(textarea.value);
+        copyButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyButton.textContent = "Copy";
+        }, 1400);
+      } catch (error) {
+        console.error("Clipboard write failed", error);
+        copyButton.textContent = "Copy failed";
+        window.setTimeout(() => {
+          copyButton.textContent = "Copy";
+        }, 1600);
+      }
+    });
+
+    actions.appendChild(copyButton);
+    section.append(textarea, actions);
+  }
+
+  return section;
+}
+
+function createAboutModal() {
+  const sections = [
+    {
+      id: "about-start-here",
+      title: "Start Here",
+      items: [
+        "Choose a language pair.",
+        "Create a list or import a CSV.",
+        "Open the list in My lists.",
+        "Start a game.",
+      ],
+    },
+    {
+      id: "about-data",
+      title: "How Your Data Works",
+      items: [
+        "HUB lists are built in and read only.",
+        "My lists are your local editable lists.",
+        "Opening a HUB list can create a local copy.",
+        "Editing a HUB based list changes your local copy only.",
+      ],
+    },
+    {
+      id: "about-csv-rules",
+      title: "CSV Rules",
+      items: [
+        "Use exactly: learning,translation",
+        "Keep exactly 2 columns per row.",
+        "Both sides are required.",
+        "Quote any field that contains a comma.",
+        "Do not add notes, tags, or extra columns.",
+      ],
+    },
+    {
+      id: "about-import",
+      title: "Before You Import",
+      items: [
+        "Save the file as .csv.",
+        "Check that every row has exactly 2 values.",
+        "Remove rows with a missing left or right side.",
+        "Make sure quotes are closed.",
+        "Test with a small file first if needed.",
+      ],
+    },
+    {
+      id: "about-local-data",
+      title: "Your Data Is Local",
+      items: [
+        "Lists and progress stay in this browser on this device.",
+        "Clearing browser data can remove them.",
+        "Private or incognito mode may not keep them.",
+        "Export important lists as backup.",
+      ],
+    },
+    {
+      id: "about-ai-safely",
+      title: "Use AI Safely",
+      items: [
+        "Ask for CSV only.",
+        "Require exactly 2 columns: learning,translation.",
+        "No explanations, bullets, code blocks, or extra text.",
+        "Quote any field that contains a comma.",
+        "Check the output before import.",
+      ],
+    },
+    {
+      id: "about-ai-prompt",
+      title: "Copy This AI Prompt",
+      items: [
+        "Use this as a starting prompt.",
+      ],
+      prompt: [
+        "Create a CSV word list for [language pair] about [topic].",
+        "Output CSV only.",
+        "Use exactly 2 columns: learning,translation.",
+        "No header unless requested.",
+        "No notes, no numbering, no markdown, no code fences.",
+        "Quote any field that contains a comma.",
+      ].join("\n"),
+    },
+  ];
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "app-modal-backdrop";
+
+  const dialog = document.createElement("section");
+  dialog.className = "app-modal app-modal--wide";
+  dialog.setAttribute("role", "dialog");
+  dialog.setAttribute("aria-modal", "true");
+  dialog.setAttribute("aria-labelledby", "aboutModalTitle");
+
+  const header = document.createElement("div");
+  header.className = "app-modal__header";
+
+  const title = document.createElement("h3");
+  title.className = "app-modal__title";
+  title.id = "aboutModalTitle";
+  title.textContent = "About";
+
+  const closeButton = document.createElement("button");
+  closeButton.type = "button";
+  closeButton.className = "icon-button app-modal__close";
+  closeButton.textContent = "Close";
+
+  header.append(title, closeButton);
+  dialog.appendChild(header);
+
+  const toc = document.createElement("nav");
+  toc.className = "app-modal__toc";
+  toc.setAttribute("aria-label", "About sections");
+  dialog.appendChild(toc);
+
+  const sectionList = document.createElement("div");
+  sectionList.className = "app-modal__section-list";
+  dialog.appendChild(sectionList);
+
+  const sectionNodes = sections.map((section) => {
+    const link = document.createElement("a");
+    link.className = "app-modal__toc-link";
+    link.href = `#${section.id}`;
+    link.textContent = section.title;
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      dialog.querySelector(`#${section.id}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+    toc.appendChild(link);
+
+    const node = createAboutSection(section);
+    sectionList.appendChild(node);
+
+    return { link, node };
+  });
+
+  const updateActiveSection = () => {
+    let activeNode = sectionNodes[0];
+    const dialogTop = dialog.getBoundingClientRect().top;
+
+    sectionNodes.forEach((entry) => {
+      const top = entry.node.getBoundingClientRect().top - dialogTop;
+      if (top <= 120) {
+        activeNode = entry;
+      }
+    });
+
+    sectionNodes.forEach((entry) => {
+      entry.link.classList.toggle("is-active", entry === activeNode);
+    });
+  };
+
+  dialog.addEventListener("scroll", updateActiveSection, { passive: true });
+  requestAnimationFrame(updateActiveSection);
+  backdrop.appendChild(dialog);
+
+  return {
+    backdrop,
+    closeButton,
+    initialFocusTarget: closeButton,
+    cleanup: () => {
+      dialog.removeEventListener("scroll", updateActiveSection);
+    },
+  };
+}
+
 export const Modal = {
   alert(message, options = {}) {
     return openModal({
@@ -299,5 +562,9 @@ export const Modal = {
       validate: options.validate,
       transform: options.transform,
     });
+  },
+
+  about() {
+    return openCustomModal(() => createAboutModal());
   },
 };
