@@ -292,6 +292,7 @@ class HubManager {
       Storage.clearNamespace("sessions");
       Storage.clearNamespace("best");
       Storage.clearNamespace("hard");
+      this.cleanupUnusedLocalLanguagePairs();
       this.showStats();
     });
 
@@ -839,11 +840,12 @@ class HubManager {
         flattenTopicTree(
           HubAdapter.buildTree(languageId, {
             sourceScope: "all",
+            includeGeneratedHardLists: true,
           }),
         ),
       )
       .filter((topic) => {
-        if (topic.source === "hub" || topic.source === "hard-list") {
+        if (topic.source === "hub") {
           return false;
         }
 
@@ -988,7 +990,61 @@ class HubManager {
   }
 
   getEditingTopic() {
-    return this.editingTopicId ? Storage.getLibraryTopic(this.editingTopicId) : null;
+    if (!this.editingTopicId) {
+      return null;
+    }
+
+    return Storage.getLibraryTopic(this.editingTopicId)
+      || HubAdapter.getVirtualTopicById(this.editingTopicId);
+  }
+
+  refreshLanguageSelectors(selectedValue = this.selectedLang || "") {
+    this.populateLanguages(selectedValue);
+    this.populateLibraryLanguages(
+      this.dom.libraryLangSelect.value || selectedValue,
+    );
+  }
+
+  cleanupUnusedLocalLanguagePair(lang) {
+    const pair = Storage.getLocalLanguagePair(lang);
+    if (!pair) {
+      return false;
+    }
+
+    const hasTopics = Storage.hasLibraryTopicsForLanguage(lang);
+    const hasHardItems = Storage.getHardListSummary(lang).total > 0;
+    if (hasTopics || hasHardItems) {
+      return false;
+    }
+
+    const removed = Storage.removeLocalLanguagePair(lang);
+    if (!removed) {
+      return false;
+    }
+
+    if (this.selectedLang === lang) {
+      this.selectedLang = null;
+      this.selectedTopic = null;
+      this.selectedGame = null;
+      this.setHomeTopicIdleState();
+    }
+
+    if (this.dom.libraryLangSelect.value === lang) {
+      this.dom.libraryLangSelect.value = "";
+    }
+
+    this.refreshLanguageSelectors();
+    return true;
+  }
+
+  cleanupUnusedLocalLanguagePairs() {
+    Storage.getLocalLanguagePairs().forEach((pair) => {
+      this.cleanupUnusedLocalLanguagePair(pair.id);
+    });
+  }
+
+  isHardListTopic(topic) {
+    return topic?.source === "hard-list";
   }
 
   ensureMineTopic(topic) {
@@ -1038,6 +1094,10 @@ class HubManager {
       name,
     );
 
+    const isHardList = this.isHardListTopic(topic);
+    this.dom.addLibraryRowButton.hidden = isHardList;
+    this.dom.renameLibraryTopicButton.hidden = isHardList;
+
     const query = normalizeWhitespace(this.dom.librarySearchInput.value).toLowerCase();
     const rows = topic.rows.filter((row) => {
       if (!query) {
@@ -1053,12 +1113,18 @@ class HubManager {
       rows,
       onEdit: (rowId) => this.editLibraryRow(rowId),
       onDelete: (rowId) => this.deleteLibraryRow(rowId),
+      showEdit: !isHardList,
     });
   }
 
   async addLibraryRow() {
     let topic = this.getEditingTopic();
     if (!topic) {
+      return;
+    }
+
+    if (this.isHardListTopic(topic)) {
+      Modal.alert("Hard lists are generated from mistakes and cannot be edited manually.");
       return;
     }
 
@@ -1122,6 +1188,11 @@ class HubManager {
       return;
     }
 
+    if (this.isHardListTopic(topic)) {
+      Modal.alert("Hard lists are generated from mistakes. Delete a row to remove it from the hard list.");
+      return;
+    }
+
     const rowValues = await Modal.form({
       title: "Edit row",
       message: "Update the source and translation text.",
@@ -1178,6 +1249,29 @@ class HubManager {
       return;
     }
 
+    if (this.isHardListTopic(topic)) {
+      const removed = Storage.removeHardItemEverywhere(rowId);
+      if (!removed) {
+        Modal.error("The hard row could not be removed.");
+        return;
+      }
+
+      const refreshedTopic = HubAdapter.getVirtualTopicById(topic.id);
+      if (!refreshedTopic) {
+        this.editingTopicId = null;
+        this.cleanupUnusedLocalLanguagePair(topic.lang);
+        this.renderLibraryTopicList();
+        this.renderTopicTreeIfReady();
+        this.showLibrary();
+        return;
+      }
+
+      this.renderLibraryTopicList();
+      this.renderLibraryEditor();
+      this.renderTopicTreeIfReady();
+      return;
+    }
+
     topic = this.ensureMineTopic(topic);
 
     const updatedTopic = Storage.removeLibraryRow(topic.id, rowId);
@@ -1197,6 +1291,7 @@ class HubManager {
       }
 
       this.editingTopicId = null;
+      this.cleanupUnusedLocalLanguagePair(topic.lang);
       this.renderLibraryTopicList();
       this.renderTopicTreeIfReady();
       this.showLibrary();
@@ -1211,6 +1306,11 @@ class HubManager {
   async renameLibraryTopic() {
     let topic = this.getEditingTopic();
     if (!topic) {
+      return;
+    }
+
+    if (this.isHardListTopic(topic)) {
+      Modal.alert("Generated hard lists cannot be renamed.");
       return;
     }
 
@@ -1274,6 +1374,11 @@ class HubManager {
   }
 
   async manageLibraryTopic(topicMeta) {
+    if (topicMeta.source === "hard-list") {
+      this.showLibraryEditor(topicMeta.id);
+      return;
+    }
+
     if (topicMeta.source === "hub") {
       try {
         const rows = await HubAdapter.loadTopic(topicMeta);
@@ -1300,6 +1405,39 @@ class HubManager {
 
   async deleteTopicFromLibrary(topicMeta) {
     if (!topicMeta) {
+      return;
+    }
+
+    if (topicMeta.source === "hard-list") {
+      const confirmed = await Modal.confirm(
+        `Remove all items from ${topicMeta.name.toLowerCase()}?`,
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      const removed = Storage.clearHardItemsForLanguageCategory(
+        topicMeta.lang,
+        topicMeta.category,
+      );
+      if (!removed) {
+        Modal.error("The hard list could not be cleared.");
+        return;
+      }
+
+      if (this.editingTopicId === topicMeta.id) {
+        this.editingTopicId = null;
+      }
+
+      if (this.selectedTopic?.id === topicMeta.id) {
+        this.selectedTopic = null;
+        this.setHomeTopicIdleState();
+      }
+
+      this.cleanupUnusedLocalLanguagePair(topicMeta.lang);
+      this.renderLibraryTopicList();
+      this.renderTopicTreeIfReady();
       return;
     }
 
@@ -1341,13 +1479,14 @@ class HubManager {
       this.setHomeTopicIdleState();
     }
 
+    this.cleanupUnusedLocalLanguagePair(topicMeta.lang);
     this.renderLibraryTopicList();
     this.renderTopicTreeIfReady();
   }
 
   async startLibraryTopic(topicMeta, gameId) {
     const topic =
-      topicMeta.source === "hub"
+      topicMeta.source === "hub" || topicMeta.source === "hard-list"
         ? topicMeta
         : Storage.getLibraryTopic(topicMeta.id);
 

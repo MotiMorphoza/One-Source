@@ -1004,6 +1004,12 @@ select optgroup {
   border: 1px solid rgba(255, 217, 102, 0.35);
 }
 
+.library-topic-card__badge--hard {
+  background: rgba(196, 181, 253, 0.16);
+  color: var(--lavender-strong);
+  border: 1px solid rgba(196, 181, 253, 0.35);
+}
+
 .library-topic-card__actions {
   display: grid;
   gap: 8px;

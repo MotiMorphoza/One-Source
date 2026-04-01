@@ -517,6 +517,10 @@ export const Storage = {
     return saveLocalLanguagePairsCollection(nextPairs);
   },
 
+  hasLibraryTopicsForLanguage(lang) {
+    return this.getLibraryTopics().some((topic) => topic.lang === lang);
+  },
+
   getLibraryTopics() {
     return safeGet(LIBRARY_KEY, []).map((topic) => sanitizeTopic(topic));
   },
@@ -1036,6 +1040,70 @@ export const Storage = {
     const items = safeGet(key, {});
     delete items[itemId];
     safeSet(key, items);
+  },
+
+  removeHardItemEverywhere(itemId) {
+    if (!itemId) {
+      return false;
+    }
+
+    const prefix = `${PREFIX}_${VERSION}_hard_`;
+    let changed = false;
+
+    Object.keys(localStorage).forEach((key) => {
+      if (!key.startsWith(prefix)) {
+        return;
+      }
+
+      const items = safeGet(key, {});
+      if (!Object.prototype.hasOwnProperty.call(items, itemId)) {
+        return;
+      }
+
+      delete items[itemId];
+      safeSet(key, items);
+      changed = true;
+    });
+
+    return changed;
+  },
+
+  clearHardItemsForLanguageCategory(lang, category) {
+    const prefix = `${PREFIX}_${VERSION}_hard_`;
+    let changed = false;
+
+    Object.keys(localStorage).forEach((key) => {
+      if (!key.startsWith(prefix)) {
+        return;
+      }
+
+      const items = safeGet(key, {});
+      const nextItems = {};
+      let removedAny = false;
+
+      Object.entries(items).forEach(([itemId, count]) => {
+        const parsed = parseHardItemSignature(itemId);
+        if (
+          parsed &&
+          (!lang || parsed.lang === lang) &&
+          (!category || parsed.category === category)
+        ) {
+          removedAny = true;
+          return;
+        }
+
+        nextItems[itemId] = count;
+      });
+
+      if (!removedAny) {
+        return;
+      }
+
+      safeSet(key, nextItems);
+      changed = true;
+    });
+
+    return changed;
   },
 
   clearNamespace(type = null) {

@@ -31,6 +31,10 @@ function getSourceBadge(topic) {
     return "HUB";
   }
 
+  if (topic.source === "hard-list") {
+    return "HARD";
+  }
+
   return "MINE";
 }
 
@@ -142,6 +146,7 @@ export function renderLibraryRows(mount, options = {}) {
     rows = [],
     onEdit = () => {},
     onDelete = () => {},
+    showEdit = true,
   } = options;
 
   mount.innerHTML = "";
@@ -169,9 +174,11 @@ export function renderLibraryRows(mount, options = {}) {
 
     const actions = document.createElement("div");
     actions.className = "library-row-card__actions";
-    actions.appendChild(
-      createButton("Edit", "button button-sky button-small", () => onEdit(row.id)),
-    );
+    if (showEdit) {
+      actions.appendChild(
+        createButton("Edit", "button button-sky button-small", () => onEdit(row.id)),
+      );
+    }
     actions.appendChild(
       createButton("Delete", "button button-danger button-small", () => onDelete(row.id)),
     );

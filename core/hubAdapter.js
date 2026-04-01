@@ -205,6 +205,7 @@ export const HubAdapter = {
         source: "hard-list",
         category: "vocabulary",
         allowedGames: [...STANDARD_GAMES],
+        rows: hardWordRows,
         rowsCount: hardWordRows.length,
       });
     }
@@ -220,11 +221,21 @@ export const HubAdapter = {
         source: "hard-list",
         category: SENTENCE_TOPIC,
         allowedGames: [...SENTENCE_GAMES],
+        rows: hardSentenceRows,
         rowsCount: hardSentenceRows.length,
       });
     }
 
     return topics;
+  },
+
+  getVirtualTopicById(topicId) {
+    const match = /^virtual:hard:(words|sentences):(.+)$/i.exec(String(topicId || ""));
+    if (!match) {
+      return null;
+    }
+
+    return this.getHardListTopics(match[2]).find((topic) => topic.id === topicId) || null;
   },
 
   buildTree(lang, options = {}) {
