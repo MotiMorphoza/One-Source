@@ -760,13 +760,25 @@ function createAboutModal(options = {}) {
 
   const sections = [
     {
-      id: "about-start-here",
-      title: "Start Here",
+      id: "about-start",
+      title: "Start",
       items: [
         "Choose a language pair.",
-        "Create a list or import a CSV.",
-        "Open the list in My lists.",
-        "Start a game.",
+        "Choose a game.",
+        "Choose a list or topic.",
+        "Start playing.",
+      ],
+    },
+    {
+      id: "about-new-language",
+      title: "New Language",
+      items: [
+        "Open Library.",
+        "Choose Create list.",
+        "In the language selector, choose Create new language pair.",
+        "Enter the learning language and the user language.",
+        "Create or import lists for the new pair.",
+        "Go back Home and choose the new pair.",
       ],
     },
     {
