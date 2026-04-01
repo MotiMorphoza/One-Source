@@ -849,6 +849,17 @@ function createAboutModal(options = {}) {
       ],
     },
     {
+      id: "about-install-app",
+      title: "Install as App",
+      items: [
+        "Chrome desktop: Menu -> Cast, save, and share -> Install page as app, or click the Install icon in the address bar.",
+        "Chrome Android: Menu -> Add to home screen -> Install.",
+        "Firefox Windows: Click the web apps icon in the address bar -> Add to taskbar.",
+        "Firefox Android: Menu -> Add to Home Screen.",
+        "Firefox desktop web apps currently work on Windows only.",
+      ],
+    },
+    {
       id: "about-ai-prompt",
       title: "Generate AI Prompt",
       content: createAiPromptGenerator({
